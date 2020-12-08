@@ -1,0 +1,291 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"pl",
+				"player2"
+			],
+			[
+				"ve",
+				"velocity"
+			],
+			[
+				"v",
+				"velocity"
+			],
+			[
+				"player",
+				"playerTex"
+			],
+			[
+				"mo",
+				"mouseY"
+			],
+			[
+				"en",
+				"Entity"
+			],
+			[
+				"mou",
+				"mouseX"
+			],
+			[
+				"M",
+				"mouseY"
+			],
+			[
+				"Mo",
+				"mouseY"
+			],
+			[
+				"p",
+				"p_y"
+			],
+			[
+				"pla",
+				"playerTex"
+			],
+			[
+				"velo",
+				"velocityY"
+			],
+			[
+				"Ve",
+				"velocityY"
+			],
+			[
+				"fram",
+				"frameTime"
+			],
+			[
+				"time",
+				"timestep"
+			],
+			[
+				"ent",
+				"entities"
+			],
+			[
+				"vec",
+				"Vector2"
+			],
+			[
+				"play",
+				"playerTex"
+			],
+			[
+				"ple",
+				"player"
+			],
+			[
+				"c",
+				"clear"
+			],
+			[
+				"SDL",
+				"SDL_Rect"
+			],
+			[
+				"SDL_",
+				"SDL_Texture"
+			],
+			[
+				"game",
+				"gameLoop"
+			],
+			[
+				"I",
+				"InitAll"
+			],
+			[
+				"re",
+				"render"
+			],
+			[
+				"p_",
+				"p_filePath"
+			]
+		]
+	},
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"package co",
+				"Package Control: Install Package"
+			],
+			[
+				"package res",
+				"PackageResourceViewer: Open Resource"
+			],
+			[
+				"packa",
+				"Package Control: Install Package"
+			],
+			[
+				"install",
+				"Install Package Control"
+			]
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 156.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/C/Users/Gordie/Desktop/source code/Projects/SDL Game/include/entity.hpp",
+		"/C/Users/Gordie/Desktop/source code/Projects/SDL Game/src/main.cpp",
+		"/C/Users/Gordie/Desktop/source code/Projects/SDL Game/src/entity.cpp",
+		"/C/Users/Gordie/Desktop/source code/Projects/SDL Game/src/renderwindow.cpp",
+		"/C/Users/Gordie/Desktop/source code/Projects/SDL Game/include/renderwindow.hpp",
+		"/C/Users/Gordie/Desktop/source code/Projects/SDL Game/include/math.hpp",
+		"/C/Users/Gordie/Desktop/source code/Projects/SDL Game/src/math.cpp",
+		"/C/Users/Gordie/Desktop/source code/Projects/SDL Game/SDL Game.sublime-project",
+		"/C/Users/Gordie/Desktop/source code/Projects/SDL Game/src/initall.cpp",
+		"/C/Users/Gordie/Desktop/source code/Projects/SDL Game/include/InitAll.hpp",
+		"/C/Users/Gordie/Desktop/source code/Projects/SDL Game/main.o",
+		"/C/Users/Gordie/Desktop/source code/test/src/main.cpp",
+		"/C/Users/Gordie/Desktop/source code/test/test.sublime-project",
+		"/C/Users/Gordie/Desktop/source code/test/test.sublime-workspace",
+		"/C/Users/Gordie/AppData/Roaming/Sublime Text 3/Packages/Default/exec.py"
+	],
+	"find":
+	{
+		"height": 27.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"bob"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"incremental_find":
+	{
+		"height": 27.0
+	},
+	"input":
+	{
+		"height": 41.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 32.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "SDL2 Release",
+	"replace":
+	{
+		"height": 50.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 185.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
