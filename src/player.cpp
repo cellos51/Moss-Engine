@@ -4,11 +4,14 @@
 #include "entity.hpp"
 #include "player.hpp"
 
+const short SCREEN_WIDTH = 1000;
+const short SCREEN_HEIGHT = 600;
+
 const float gravity = 1;
 const float friction = 0.1;
 const float drag = 0.05;
 const float bounciness = -0.8;
-const short size = 61;
+const short size = 64;
 
 int mouseX, mouseY;
 bool mouseDown = false;
@@ -84,9 +87,9 @@ void Player::physics()
 		velocity.y += drag;
 	}
 
-	if (getPos().y >= 597 - size) // prevent leaving screen on y axis and bounces :)
+	if (getPos().y >= SCREEN_HEIGHT - size) // prevent leaving screen on y axis and bounces :)
 	{
-		setY(597 - size);
+		setY(SCREEN_HEIGHT - size);
 		velocity.y = velocity.y * bounciness;
 		if(velocity.x >= -1 && velocity.x <= 1)
 		{
@@ -119,9 +122,9 @@ void Player::physics()
 		}
 	}
 
-	if (getPos().x >= 797 - size) // prevent leaving screen on x axis and bounces :)
+	if (getPos().x >= SCREEN_WIDTH - size) // prevent leaving screen on x axis and bounces :)
 	{
-		setX(797 - size);
+		setX(SCREEN_WIDTH - size);
 		velocity.x = velocity.x * bounciness;
 		if(velocity.y >= -1 && velocity.y <= 1)
 		{
@@ -157,7 +160,7 @@ void Player::physics()
 
 void Player::goToMouse(bool p_tru)
 {
-	if (mouseX >= getPos().x && mouseX <= getPos().x + size && mouseY >= getPos().y && mouseY <= getPos().y + 61 && p_tru)
+	if (mouseX >= getPos().x && mouseX <= getPos().x + size && mouseY >= getPos().y && mouseY <= getPos().y + size && p_tru)
 	{
 		offset = (Vector2(mouseX - getPos().x, mouseY - getPos().y));
 		mouseDown = true;

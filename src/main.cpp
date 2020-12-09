@@ -6,6 +6,9 @@
 #include "entity.hpp"
 #include "player.hpp"
 
+const short SCREEN_WIDTH = 1000;
+const short SCREEN_HEIGHT = 600;
+
 // random shit needed to be here to run
 bool init();
 bool gameRunning = true;
@@ -26,7 +29,7 @@ bool init() // used to initiate things before using
 	SDL_Init(SDL_INIT_VIDEO);
 	IMG_Init(IMG_INIT_PNG);
 
-	window.create("SDL Game", 800, 600); // name and size of application window
+	window.create("SDL Game", SCREEN_WIDTH, SCREEN_HEIGHT); // name and size of application window
 
 	//textures
 	playerTex = window.loadTexture("res/textures/player.png"); // the texture used for the player
