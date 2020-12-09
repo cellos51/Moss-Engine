@@ -50,7 +50,22 @@ SDL_Rect Entity::getCurrentFrame()
 	return currentFrame;
 }
 
+void Entity::setPos(Vector2 p_pos)
+{
+	transform = p_pos;
+}
+
+void Entity::setX(float p_x)
+{
+	transform.x = p_x;
+}
+
 void Entity::setY(float p_y)
 {
 	transform.y = p_y;
+}
+
+Vector2 Entity::getPos()
+{
+	return transform;
 }
