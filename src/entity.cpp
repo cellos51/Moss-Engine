@@ -5,29 +5,25 @@
 
 Entity::Entity(Vector2 p_pos, SDL_Texture* p_tex) : transform(p_pos), tex(p_tex)
 {
-	currentFrame.x = 0;
-	currentFrame.y = 0;
-	currentFrame.w = 16;
-	currentFrame.h = 16;
+	init();
 }
 
 Entity::Entity(SDL_Texture* p_tex) : transform(Vector2(0.0, 0.0)), tex(p_tex)
 {
-	currentFrame.x = 0;
-	currentFrame.y = 0;
-	currentFrame.w = 16;
-	currentFrame.h = 16;
+	init();
 }
 
 Entity::Entity(Vector2 p_pos) : transform(p_pos), tex(NULL)
 {
-	currentFrame.x = 0;
-	currentFrame.y = 0;
-	currentFrame.w = 16;
-	currentFrame.h = 16;
+	init();
 }
 
 Entity::Entity() : transform(Vector2(0.0, 0.0)), tex(NULL)
+{
+	init();
+}
+
+void Entity::init()
 {
 	currentFrame.x = 0;
 	currentFrame.y = 0;
