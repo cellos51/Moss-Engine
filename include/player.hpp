@@ -17,5 +17,9 @@ public:
 	void physics();
 	void goToMouse(bool p_tru);
 private:
+	Vector2 offset;
+	bool mouseDown = false;
+	Vector2 lastFrame;
+	short localPriority;
 	Vector2 velocity;
 };

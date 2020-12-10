@@ -13,10 +13,9 @@ const float drag = 0.05;
 const float bounciness = -0.8;
 const short size = 64;
 
+short priority = 0;
+
 int mouseX, mouseY;
-bool mouseDown = false;
-Vector2 offset;
-Vector2 lastFrame = Vector2(0,0);
 
 
 Player::Player(Vector2 p_pos, SDL_Texture* p_tex) : Entity{p_pos, p_tex}
@@ -47,7 +46,7 @@ void Player::update()
 
 	SDL_GetMouseState(&mouseX, &mouseY);
 
-	if (mouseDown)
+	if (mouseDown && localPriority == priority)
 	{
 		setPos(Vector2(mouseX - offset.x, mouseY - offset.y));
 
@@ -163,6 +162,8 @@ void Player::goToMouse(bool p_tru)
 	if (mouseX >= getPos().x && mouseX <= getPos().x + size && mouseY >= getPos().y && mouseY <= getPos().y + size && p_tru)
 	{
 		offset = (Vector2(mouseX - getPos().x, mouseY - getPos().y));
+		priority++;
+		localPriority = priority;
 		mouseDown = true;
 	}
 	else

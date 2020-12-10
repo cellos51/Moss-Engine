@@ -22,6 +22,7 @@ SDL_Texture* playerTex;
 bool load = init(); // this is the end of textures and windows OK NVM
 
 Player player(Vector2(100, 100), playerTex);
+Player player2(Vector2(200, 100), playerTex);
 
 bool init() // used to initiate things before using
 {
@@ -54,6 +55,7 @@ void gameLoop()
     			if (event.button.button == SDL_BUTTON_LEFT)
    				{
    					player.goToMouse(true);
+   					player2.goToMouse(true);
    				}
    				break;		
 			}
@@ -62,6 +64,7 @@ void gameLoop()
     			if (event.button.button == SDL_BUTTON_LEFT)
    				{
    					player.goToMouse(false);
+   					player2.goToMouse(false);
    				}
    				break;		
 			}
@@ -69,12 +72,13 @@ void gameLoop()
 	}
 	
 
-
 	player.update();
+	player2.update();
 
 	window.clear();
 
 	window.render(player);
+	window.render(player2);
 
 	window.display();
 }
