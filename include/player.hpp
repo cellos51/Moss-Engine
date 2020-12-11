@@ -16,6 +16,7 @@ public:
 	void update();
 	void physics();
 	void goToMouse(bool p_tru);
+	short getSize();
 private:
 	Vector2 offset;
 	bool mouseDown = false;

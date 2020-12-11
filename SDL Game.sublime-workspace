@@ -4,6 +4,30 @@
 		"selected_items":
 		[
 			[
+				"vec",
+				"vector\tstd::vector"
+			],
+			[
+				"pri",
+				"priority"
+			],
+			[
+				"pr",
+				"priority"
+			],
+			[
+				"SC",
+				"SCREEN_HEIGHT"
+			],
+			[
+				"S",
+				"SCREEN_HEIGHT"
+			],
+			[
+				"re",
+				"return"
+			],
+			[
 				"pl",
 				"player2"
 			],
@@ -68,10 +92,6 @@
 				"entities"
 			],
 			[
-				"vec",
-				"Vector2"
-			],
-			[
 				"play",
 				"playerTex"
 			],
@@ -98,10 +118,6 @@
 			[
 				"I",
 				"InitAll"
-			],
-			[
-				"re",
-				"render"
 			],
 			[
 				"p_",
@@ -157,6 +173,12 @@
 	},
 	"file_history":
 	[
+		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/renderwindow.cpp",
+		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/include/entity.hpp",
+		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/player.cpp",
+		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/include/player.hpp",
+		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/main.cpp",
+		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/entity.cpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL Game/include/entity.hpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL Game/src/main.cpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL Game/src/entity.cpp",
@@ -189,6 +211,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"Entity",
 			"bob"
 		],
 		"highlight": true,
@@ -243,7 +266,7 @@
 	{
 		"height": 0.0
 	},
-	"pinned_build_system": "SDL2 Release",
+	"pinned_build_system": "SDL2 Debug",
 	"replace":
 	{
 		"height": 50.0

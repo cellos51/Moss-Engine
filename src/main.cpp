@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <iostream>
+#include <vector>
 
 #include "renderwindow.hpp"
 #include "entity.hpp"
@@ -21,8 +22,9 @@ SDL_Texture* playerTex;
 
 bool load = init(); // this is the end of textures and windows OK NVM
 
-Player player(Vector2(100, 100), playerTex);
-Player player2(Vector2(200, 100), playerTex);
+std::vector<Player> players;
+
+bool createPlayers;
 
 bool init() // used to initiate things before using
 {
@@ -54,31 +56,51 @@ void gameLoop()
     		{
     			if (event.button.button == SDL_BUTTON_LEFT)
    				{
-   					player.goToMouse(true);
-   					player2.goToMouse(true);
+   					for (Player& plr : players)
+   					{
+   						plr.goToMouse(true);
+   					}
+   				}	
+   				if (event.button.button == SDL_BUTTON_RIGHT)
+   				{
+   					createPlayers = true;
    				}
-   				break;		
+   				break;
 			}
 			case SDL_MOUSEBUTTONUP:
     		{
     			if (event.button.button == SDL_BUTTON_LEFT)
    				{
-   					player.goToMouse(false);
-   					player2.goToMouse(false);
+   					for (Player& plr : players)
+   					{
+   						plr.goToMouse(false);
+   					}
+   					
+   				}
+   				if (event.button.button == SDL_BUTTON_RIGHT)
+   				{
+   					createPlayers = false;
    				}
    				break;		
 			}
 		}
 	}
 	
-
-	player.update();
-	player2.update();
+	if (createPlayers == true)
+	{
+		int mX, mY;
+	   	SDL_GetMouseState(&mX, &mY);
+		Player plr (Vector2(mX - plr.getSize() / 2, mY - plr.getSize() / 2), playerTex);
+		players.push_back(plr);
+	}
 
 	window.clear();
 
-	window.render(player);
-	window.render(player2);
+	for (Player& plr : players)
+	{
+		plr.update();
+		window.render(plr);
+	}
 
 	window.display();
 }

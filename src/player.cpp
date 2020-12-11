@@ -171,3 +171,8 @@ void Player::goToMouse(bool p_tru)
 		mouseDown = false;
 	}
 }
+
+short Player::getSize()
+{
+	return size;
+}
