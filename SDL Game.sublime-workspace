@@ -4,6 +4,22 @@
 		"selected_items":
 		[
 			[
+				"c",
+				"createPlayers"
+			],
+			[
+				"cre",
+				"createPlayers"
+			],
+			[
+				"pl",
+				"plr"
+			],
+			[
+				"Pl",
+				"Player"
+			],
+			[
 				"vec",
 				"vector\tstd::vector"
 			],
@@ -26,10 +42,6 @@
 			[
 				"re",
 				"return"
-			],
-			[
-				"pl",
-				"player2"
 			],
 			[
 				"ve",
@@ -98,10 +110,6 @@
 			[
 				"ple",
 				"player"
-			],
-			[
-				"c",
-				"clear"
 			],
 			[
 				"SDL",
