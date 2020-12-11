@@ -4,6 +4,22 @@
 		"selected_items":
 		[
 			[
+				"mou",
+				"mouseX"
+			],
+			[
+				"m",
+				"mouseX"
+			],
+			[
+				"gr",
+				"gravity"
+			],
+			[
+				"gra",
+				"grav_y"
+			],
+			[
 				"c",
 				"createPlayers"
 			],
@@ -62,10 +78,6 @@
 			[
 				"en",
 				"Entity"
-			],
-			[
-				"mou",
-				"mouseX"
 			],
 			[
 				"M",
@@ -205,7 +217,7 @@
 	],
 	"find":
 	{
-		"height": 27.0
+		"height": 40.0
 	},
 	"find_in_files":
 	{
@@ -219,6 +231,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"gravity",
 			"Entity",
 			"bob"
 		],

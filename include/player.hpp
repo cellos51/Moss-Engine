@@ -14,7 +14,7 @@ public:
 	Player(Vector2 p_pos);
 	Player();
 	void update();
-	void physics();
+	void physics(float grav_x, float grav_y);
 	void goToMouse(bool p_tru);
 	short getSize();
 private:
