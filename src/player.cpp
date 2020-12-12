@@ -76,7 +76,7 @@ void Player::physics(float grav_x, float grav_y)
 	{
 		setY(SCREEN_HEIGHT - size);
 		velocity.y = velocity.y * bounciness;
-		if(velocity.x >= -0.2 && velocity.x <= 0.2)
+		if(velocity.x >= -1 && velocity.x <= 1)
 		{
 			velocity.x = 0;
 		}
@@ -111,7 +111,7 @@ void Player::physics(float grav_x, float grav_y)
 	{
 		setX(SCREEN_WIDTH - size);
 		velocity.x = velocity.x * bounciness;
-		if(velocity.y >= -0.2 && velocity.y <= 0.2)
+		if(velocity.y >= -1 && velocity.y <= 1)
 		{
 			velocity.y = 0;
 		}
@@ -128,7 +128,7 @@ void Player::physics(float grav_x, float grav_y)
 	{
 		setX(0);
 		velocity.x = -velocity.x * -bounciness;
-		if(velocity.y >= -0.2 && velocity.y <= 0.2)
+		if(velocity.y >= -1 && velocity.y <= 1)
 		{
 			velocity.y = 0;
 		}
