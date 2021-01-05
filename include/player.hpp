@@ -17,6 +17,7 @@ public:
 	void physics(float grav_x, float grav_y);
 	void goToMouse(bool p_tru);
 	short getSize();
+	bool touchingMouse();
 private:
 	Vector2 offset;
 	bool mouseDown = false;

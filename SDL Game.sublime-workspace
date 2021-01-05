@@ -4,6 +4,26 @@
 		"selected_items":
 		[
 			[
+				"in",
+				"inputs"
+			],
+			[
+				"l",
+				"leftmouse"
+			],
+			[
+				"leftmo",
+				"leftmouseDown"
+			],
+			[
+				"pla",
+				"players"
+			],
+			[
+				"play",
+				"players"
+			],
+			[
 				"mou",
 				"mouseX"
 			],
@@ -92,10 +112,6 @@
 				"p_y"
 			],
 			[
-				"pla",
-				"playerTex"
-			],
-			[
 				"velo",
 				"velocityY"
 			],
@@ -114,10 +130,6 @@
 			[
 				"ent",
 				"entities"
-			],
-			[
-				"play",
-				"playerTex"
 			],
 			[
 				"ple",
@@ -193,6 +205,8 @@
 	},
 	"file_history":
 	[
+		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/include/inputhandler.hpp",
+		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/inputhandler.cpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/renderwindow.cpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/include/entity.hpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/player.cpp",
@@ -231,6 +245,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"Input",
 			"gravity",
 			"Entity",
 			"bob"

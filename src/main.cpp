@@ -1,10 +1,10 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include <iostream>
 #include <vector>
+#include <iostream>
 
 #include "renderwindow.hpp"
-#include "entity.hpp"
+
 #include "player.hpp"
 
 const short SCREEN_WIDTH = 1000;
@@ -20,11 +20,13 @@ RenderWindow window;
 // textures
 SDL_Texture* playerTex;
 
+
 bool load = init(); // this is the end of textures and windows OK NVM
 
 std::vector<Player> players;
 
 bool createPlayers;
+bool deletePlayers;
 
 bool init() // used to initiate things before using
 {
@@ -43,7 +45,7 @@ bool init() // used to initiate things before using
 void gameLoop()
 {
 	SDL_Event event;
-    while (SDL_PollEvent(&event)) // remember to put the game stuff in here
+    while (SDL_PollEvent(&event))
 	{
 		switch (event.type) 
 		{
@@ -65,6 +67,10 @@ void gameLoop()
    				{
    					createPlayers = true;
    				}
+   				if (event.button.button == SDL_BUTTON_MIDDLE)
+   				{
+   					deletePlayers = true;
+   				}
    				break;
 			}
 			case SDL_MOUSEBUTTONUP:
@@ -74,17 +80,21 @@ void gameLoop()
    					for (Player& plr : players)
    					{
    						plr.goToMouse(false);
-   					}
-   					
+   					} 					
    				}
    				if (event.button.button == SDL_BUTTON_RIGHT)
    				{
    					createPlayers = false;
    				}
+   				if (event.button.button == SDL_BUTTON_MIDDLE)
+   				{
+   					deletePlayers = false;
+   				}
    				break;		
 			}
 		}
 	}
+
 	
 	if (createPlayers == true)
 	{
@@ -92,6 +102,20 @@ void gameLoop()
 	   	SDL_GetMouseState(&mX, &mY);
 		Player plr (Vector2(mX - plr.getSize() / 2, mY - plr.getSize() / 2), playerTex);
 		players.push_back(plr);
+	}
+
+		if (deletePlayers == true)
+	{
+		int i = 0;
+   		for (Player& plr : players)
+   			{
+   			if (plr.touchingMouse())
+   				{
+   					players.erase(players.begin() + i);
+   				}
+   				i++;
+   			}
+   		players.shrink_to_fit();
 	}
 
 	window.clear();
@@ -108,7 +132,7 @@ void gameLoop()
 int main(int argc, char* args[])
 {
 	while (gameRunning) // main game loop ran every frame
-	{ 
+	{
 		gameLoop();
 		SDL_Delay(16);
 	}

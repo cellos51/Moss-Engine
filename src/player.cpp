@@ -145,7 +145,7 @@ void Player::physics(float grav_x, float grav_y)
 
 void Player::goToMouse(bool p_tru)
 {
-	if (mouseX >= getPos().x && mouseX <= getPos().x + size && mouseY >= getPos().y && mouseY <= getPos().y + size && p_tru)
+	if (touchingMouse() && p_tru)
 	{
 		offset = (Vector2(mouseX - getPos().x, mouseY - getPos().y));
 		priority++;
@@ -161,4 +161,17 @@ void Player::goToMouse(bool p_tru)
 short Player::getSize()
 {
 	return size;
+}
+
+bool Player::touchingMouse()
+{
+	if (mouseX >= getPos().x && mouseX <= getPos().x + size && mouseY >= getPos().y && mouseY <= getPos().y + size)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+
 }
