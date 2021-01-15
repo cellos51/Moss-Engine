@@ -7,6 +7,8 @@
 
 #include "player.hpp"
 
+#include "event.hpp"
+
 const short SCREEN_WIDTH = 1000;
 const short SCREEN_HEIGHT = 600;
 
@@ -44,67 +46,30 @@ bool init() // used to initiate things before using
 
 void gameLoop()
 {
-	SDL_Event event;
-    while (SDL_PollEvent(&event))
-	{
-		switch (event.type) 
-		{
-    		case SDL_QUIT: 
-    		{
-      			gameRunning = false;
-      			break;
-    		}
-    		case SDL_MOUSEBUTTONDOWN:
-    		{
-    			if (event.button.button == SDL_BUTTON_LEFT)
-   				{
-   					for (Player& plr : players)
-   					{
-   						plr.goToMouse(true);
-   					}
-   				}	
-   				if (event.button.button == SDL_BUTTON_RIGHT)
-   				{
-   					createPlayers = true;
-   				}
-   				if (event.button.button == SDL_BUTTON_MIDDLE)
-   				{
-   					deletePlayers = true;
-   				}
-   				break;
-			}
-			case SDL_MOUSEBUTTONUP:
-    		{
-    			if (event.button.button == SDL_BUTTON_LEFT)
-   				{
-   					for (Player& plr : players)
-   					{
-   						plr.goToMouse(false);
-   					} 					
-   				}
-   				if (event.button.button == SDL_BUTTON_RIGHT)
-   				{
-   					createPlayers = false;
-   				}
-   				if (event.button.button == SDL_BUTTON_MIDDLE)
-   				{
-   					deletePlayers = false;
-   				}
-   				break;		
-			}
-		}
-	}
-
+  if (Event::MousePressed(SDLK_LEFTMOUSE))
+  {
+    for (Player& plr : players)
+    {
+      plr.goToMouse(true);
+    }
+  }
+  else if (Event::MousePressed(SDLK_LEFTMOUSE) == false)
+  {
+    for (Player& plr : players)
+    {
+      plr.goToMouse(false);
+    }
+  }
 	
-	if (createPlayers == true)
+	if (Event::MousePressed(SDLK_RIGHTMOUSE))
 	{
 		int mX, mY;
-	   	SDL_GetMouseState(&mX, &mY);
+    SDL_GetMouseState(&mX, &mY);
 		Player plr (Vector2(mX - plr.getSize() / 2, mY - plr.getSize() / 2), playerTex);
 		players.push_back(plr);
 	}
 
-		if (deletePlayers == true)
+	if (Event::MousePressed(SDLK_MIDDLEMOUSE))
 	{
 		int i = 0;
    		for (Player& plr : players)
@@ -118,22 +83,30 @@ void gameLoop()
    		players.shrink_to_fit();
 	}
 
-	window.clear();
-
 	for (Player& plr : players)
 	{
 		plr.update();
-		window.render(plr);
 	}
+}
 
-	window.display();
+void render()
+{
+  window.clear();
+  for (Player& plr : players)
+  {
+    window.render(plr);
+  }
+  window.display();
 }
 
 int main(int argc, char* args[])
 {
 	while (gameRunning) // main game loop ran every frame
 	{
+    Event::PollEvent();
+    gameRunning = Event::AppQuit();
 		gameLoop();
+    render();
 		SDL_Delay(16);
 	}
 
