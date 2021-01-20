@@ -8,7 +8,6 @@ void RenderWindow::create(const char* p_title, int p_w, int p_h)
 {
 	window = SDL_CreateWindow(p_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, p_w, p_h, SDL_WINDOW_SHOWN);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-	SDL_SetRenderDrawColor(renderer, 44, 47, 51, 0);
 }
 
 SDL_Texture* RenderWindow::loadTexture(const char* p_filePath) // used load textures :P
@@ -20,6 +19,7 @@ SDL_Texture* RenderWindow::loadTexture(const char* p_filePath) // used load text
 
 void RenderWindow::clear() // clears the renderer
 {
+	SDL_SetRenderDrawColor(renderer, 44, 47, 51, 0);
 	SDL_RenderClear(renderer);
 }
 

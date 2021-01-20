@@ -4,6 +4,14 @@
 		"selected_items":
 		[
 			[
+				"game",
+				"gameRunning"
+			],
+			[
+				"mou",
+				"MouseButton"
+			],
+			[
 				"in",
 				"inputs"
 			],
@@ -22,10 +30,6 @@
 			[
 				"play",
 				"players"
-			],
-			[
-				"mou",
-				"mouseX"
 			],
 			[
 				"m",
@@ -144,10 +148,6 @@
 				"SDL_Texture"
 			],
 			[
-				"game",
-				"gameLoop"
-			],
-			[
 				"I",
 				"InitAll"
 			],
@@ -231,7 +231,7 @@
 	],
 	"find":
 	{
-		"height": 40.0
+		"height": 27.0
 	},
 	"find_in_files":
 	{
@@ -296,7 +296,7 @@
 	"menu_visible": true,
 	"output.exec":
 	{
-		"height": 32.0
+		"height": 138.0
 	},
 	"output.find_results":
 	{
