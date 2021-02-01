@@ -37,7 +37,15 @@ void RenderWindow::render(Entity& p_ent) // i think this copys the texture to th
 	dst.w = p_ent.getCurrentFrame().w * 4;
 	dst.h = p_ent.getCurrentFrame().h * 4;
 
-	SDL_RenderCopy(renderer, p_ent.getTex(), &src, &dst);
+    if (p_ent.getTex() != NULL)
+    {
+    	SDL_RenderCopy(renderer, p_ent.getTex(), &src, &dst);
+    }
+    else
+    {
+    	SDL_SetRenderDrawColor( renderer, 153, 170, 181, 0 );
+    	SDL_RenderFillRect(renderer, &dst );
+    }
 }
 
 void RenderWindow::display() // used to display information from the renderer to the window
