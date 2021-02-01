@@ -4,12 +4,28 @@
 		"selected_items":
 		[
 			[
-				"game",
-				"gameRunning"
+				"SDL",
+				"SDLK_LEFTMOUSE"
+			],
+			[
+				"player",
+				"players"
+			],
+			[
+				"pl",
+				"players"
 			],
 			[
 				"mou",
-				"MouseButton"
+				"mouseY"
+			],
+			[
+				"mouse",
+				"mouseX"
+			],
+			[
+				"game",
+				"gameRunning"
 			],
 			[
 				"in",
@@ -52,10 +68,6 @@
 				"createPlayers"
 			],
 			[
-				"pl",
-				"plr"
-			],
-			[
 				"Pl",
 				"Player"
 			],
@@ -90,10 +102,6 @@
 			[
 				"v",
 				"velocity"
-			],
-			[
-				"player",
-				"playerTex"
 			],
 			[
 				"mo",
@@ -138,10 +146,6 @@
 			[
 				"ple",
 				"player"
-			],
-			[
-				"SDL",
-				"SDL_Rect"
 			],
 			[
 				"SDL_",
@@ -205,13 +209,14 @@
 	},
 	"file_history":
 	[
+		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/include/entity.hpp",
+		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/main.cpp",
+		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/renderwindow.cpp",
+		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/include/renderwindow.hpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/include/inputhandler.hpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/inputhandler.cpp",
-		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/renderwindow.cpp",
-		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/include/entity.hpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/player.cpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/include/player.hpp",
-		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/main.cpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/entity.cpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL Game/include/entity.hpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL Game/src/main.cpp",
@@ -231,7 +236,7 @@
 	],
 	"find":
 	{
-		"height": 27.0
+		"height": 40.0
 	},
 	"find_in_files":
 	{
@@ -245,6 +250,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"velocity",
 			"Input",
 			"gravity",
 			"Entity",

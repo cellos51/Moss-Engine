@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <iostream>
 
 #include "entity.hpp"
 #include "player.hpp"
@@ -14,6 +15,8 @@ const float bounciness = -0.8;
 const short size = 64;
 
 short priority = 0;
+
+bool mouseDown = false;
 
 int mouseX, mouseY;
 
@@ -34,125 +37,23 @@ void Player::update()
 	if (mouseDown && localPriority == priority)
 	{
 		setPos(Vector2(mouseX - offset.x, mouseY - offset.y));
-		velocity = Vector2(getPos().x - lastFrame.x, getPos().y - lastFrame.y);
+		setVol(Vector2(getPos().x - lastFrame.x, getPos().y - lastFrame.y));
 	}
 
 	lastFrame = getPos();
 }
 
-void Player::physics(float grav_x, float grav_y)
-{
-	velocity.x += grav_x;
-	velocity.y += grav_y;
-	setPos(Vector2(getPos().x + velocity.x, getPos().y + velocity.y));
-
-	if(velocity.x >= -0.1 && velocity.x <= 0.1) // air drag
-	{
-		velocity.x = 0;
-	}
-	else if (velocity.x >= 0.1)
-	{
-		velocity.x -= drag;
-	}
-	else if (velocity.x <= -0.1)
-	{
-		velocity.x += drag;
-	}
-
-	if(velocity.y >= -0.1 && velocity.y <= 0.1)
-	{
-		velocity.y = 0;
-	}
-	else if (velocity.y >= 0.1)
-	{
-		velocity.y -= drag;
-	}
-	else if (velocity.y <= -0.1)
-	{
-		velocity.y += drag;
-	}
-
-	if (getPos().y >= SCREEN_HEIGHT - size) // prevent leaving screen on y axis and bounces and friction :)
-	{
-		setY(SCREEN_HEIGHT - size);
-		velocity.y = velocity.y * bounciness;
-		if(velocity.x >= -0.5 && velocity.x <= 0.5)
-		{
-			velocity.x = 0;
-		}
-		else if (velocity.x >= 0.1)
-		{
-			velocity.x -= grav_y * friction;
-		}
-		else if (velocity.x <= -0.1)
-		{
-			velocity.x += grav_y * friction;
-		}
-	}
-	else if (getPos().y <= 0)
-	{
-		setY(0);
-		velocity.y = -velocity.y * -bounciness;
-		if(velocity.x >= -0.5 && velocity.x <= 0.5)
-		{
-			velocity.x = 0;
-		}
-		else if (velocity.x >= 0.1)
-		{
-			velocity.x -= grav_y * friction;
-		}
-		else if (velocity.x <= -0.1)
-		{
-			velocity.x += grav_y * friction;
-		}
-	}
-
-	if (getPos().x >= SCREEN_WIDTH - size) // prevent leaving screen on x axis and bounces and friction :)
-	{
-		setX(SCREEN_WIDTH - size);
-		velocity.x = velocity.x * bounciness;
-		if(velocity.y >= -0.5 && velocity.y <= 0.5)
-		{
-			velocity.y = 0;
-		}
-		else if (velocity.y >= 0.1)
-		{
-			velocity.y -= grav_x * friction;
-		}
-		else if (velocity.y <= -0.1)
-		{
-			velocity.y += grav_x * friction;
-		}
-	}
-	else if (getPos().x <= 0)
-	{
-		setX(0);
-		velocity.x = -velocity.x * -bounciness;
-		if(velocity.y >= -0.5 && velocity.y <= 0.5)
-		{
-			velocity.y = 0;
-		}
-		else if (velocity.y >= 0.1)
-		{
-			velocity.y -= grav_x * friction;
-		}
-		else if (velocity.y <= -0.1)
-		{
-			velocity.y += grav_x * friction;
-		}
-	}
-}
 
 void Player::goToMouse(bool p_tru)
 {
-	if (touchingMouse() && p_tru)
+	if (touchingMouse() && p_tru && mouseDown == false)
 	{
 		offset = (Vector2(mouseX - getPos().x, mouseY - getPos().y));
 		priority++;
 		localPriority = priority;
 		mouseDown = true;
 	}
-	else
+	else if (p_tru == false)
 	{
 		mouseDown = false;
 	}

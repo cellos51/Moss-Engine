@@ -19,9 +19,16 @@ public:
 	void setPos(Vector2 p_pos);
 	void setX(float p_x);
 	void setY(float p_y);
+	void setVolX(float p_x);
+	void setVolY(float p_y);
+	void setVol(Vector2 p_vol);
+	Vector2 getVol();
 	Vector2 getPos();
+	void physics(float grav_x, float grav_y);
+	void update();
 private:
 	Vector2 transform;
+	Vector2 velocity;
 	SDL_Rect currentFrame;
 	SDL_Texture* tex;
 };

@@ -46,21 +46,11 @@ bool init() // used to initiate things before using
 
 void gameLoop()
 {
-  if (Event::MousePressed(SDLK_LEFTMOUSE))
+  for (int i = players.size(); i > 0; i--)
   {
-    for (Player& plr : players)
-    {
-      plr.goToMouse(true);
-    }
+    players[i - 1].goToMouse(Event::MousePressed(SDLK_LEFTMOUSE));
   }
-  else if (Event::MousePressed(SDLK_LEFTMOUSE) == false)
-  {
-    for (Player& plr : players)
-    {
-      plr.goToMouse(false);
-    }
-  }
-	
+
 	if (Event::MousePressed(SDLK_RIGHTMOUSE))
 	{
 		int mX, mY;
