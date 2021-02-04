@@ -34,8 +34,8 @@ void RenderWindow::render(Entity& p_ent) // i think this copys the texture to th
 	SDL_Rect dst;
 	dst.x = p_ent.getPos().x;
 	dst.y = p_ent.getPos().y;
-	dst.w = p_ent.getCurrentFrame().w * 4;
-	dst.h = p_ent.getCurrentFrame().h * 4;
+	dst.w = p_ent.getCurrentFrame().w;
+	dst.h = p_ent.getCurrentFrame().h;
 
     if (p_ent.getTex() != NULL)
     {

@@ -6,28 +6,23 @@
 const short SCREEN_WIDTH = 1000;
 const short SCREEN_HEIGHT = 600;
 
-const float gravity = 1;
-const float friction = 1;
-const float drag = 0.05;
-const float bounciness = -0.8;
-const short size = 64;
 
-Entity::Entity(Vector2 p_pos, SDL_Texture* p_tex) : transform(p_pos), tex(p_tex)
+Entity::Entity(Vector2 p_pos, SDL_Texture* p_tex, Vector2 p_size) : transform(p_pos), tex(p_tex), size(p_size)
 {
 	init();
 }
 
-Entity::Entity(SDL_Texture* p_tex) : transform(Vector2(0.0, 0.0)), tex(p_tex)
+Entity::Entity(SDL_Texture* p_tex, Vector2 p_size) : transform(Vector2(0.0, 0.0)), tex(p_tex), size(p_size)
 {
 	init();
 }
 
-Entity::Entity(Vector2 p_pos) : transform(p_pos), tex(NULL)
+Entity::Entity(Vector2 p_pos, Vector2 p_size) : transform(p_pos), tex(NULL)
 {
 	init();
 }
 
-Entity::Entity() : transform(Vector2(0.0, 0.0)), tex(NULL)
+Entity::Entity(Vector2 p_size) : transform(Vector2(0.0, 0.0)), tex(NULL), size(p_size)
 {
 	init();
 }
@@ -36,8 +31,8 @@ void Entity::init()
 {
 	currentFrame.x = 0;
 	currentFrame.y = 0;
-	currentFrame.w = 16;
-	currentFrame.h = 16;
+	currentFrame.w = size.x;
+	currentFrame.h = size.y;
 }
 
 SDL_Texture* Entity::getTex()
@@ -95,110 +90,118 @@ Vector2 Entity::getPos()
 	return transform;
 }
 
-void Entity::physics(float grav_x, float grav_y)
+Vector2 Entity::getSize()
 {
-	velocity.x += grav_x;
-	velocity.y += grav_y;
-	setPos(Vector2(getPos().x + velocity.x, getPos().y + velocity.y));
+	return size;
+}
 
-	if(velocity.x >= -0.1 && velocity.x <= 0.1) // air drag
+void Entity::physics(bool p_phys)
+{
+	if (p_phys == true)
 	{
-		velocity.x = 0;
-	}
-	else if (velocity.x >= 0.1)
-	{
-		velocity.x -= drag;
-	}
-	else if (velocity.x <= -0.1)
-	{
-		velocity.x += drag;
-	}
+		velocity.x += gravity.x;
+		velocity.y += gravity.y;
+		setPos(Vector2(getPos().x + velocity.x, getPos().y + velocity.y));
 
-	if(velocity.y >= -0.1 && velocity.y <= 0.1)
-	{
-		velocity.y = 0;
-	}
-	else if (velocity.y >= 0.1)
-	{
-		velocity.y -= drag;
-	}
-	else if (velocity.y <= -0.1)
-	{
-		velocity.y += drag;
-	}
-
-	if (getPos().y >= SCREEN_HEIGHT - size) // prevent leaving screen on y axis and bounces and friction :)
-	{
-		setY(SCREEN_HEIGHT - size);
-		velocity.y = velocity.y * bounciness;
-		if(velocity.x >= -0.5 && velocity.x <= 0.5)
+		if(velocity.x >= -0.1 && velocity.x <= 0.1) // air drag
 		{
 			velocity.x = 0;
 		}
 		else if (velocity.x >= 0.1)
 		{
-			velocity.x -= grav_y * friction;
+			velocity.x -= drag;
 		}
 		else if (velocity.x <= -0.1)
 		{
-			velocity.x += grav_y * friction;
+			velocity.x += drag;
 		}
-	}
-	else if (getPos().y <= 0)
-	{
-		setY(0);
-		velocity.y = -velocity.y * -bounciness;
-		if(velocity.x >= -0.5 && velocity.x <= 0.5)
-		{
-			velocity.x = 0;
-		}
-		else if (velocity.x >= 0.1)
-		{
-			velocity.x -= grav_y * friction;
-		}
-		else if (velocity.x <= -0.1)
-		{
-			velocity.x += grav_y * friction;
-		}
-	}
 
-	if (getPos().x >= SCREEN_WIDTH - size) // prevent leaving screen on x axis and bounces and friction :)
-	{
-		setX(SCREEN_WIDTH - size);
-		velocity.x = velocity.x * bounciness;
-		if(velocity.y >= -0.5 && velocity.y <= 0.5)
+		if(velocity.y >= -0.1 && velocity.y <= 0.1)
 		{
 			velocity.y = 0;
 		}
 		else if (velocity.y >= 0.1)
 		{
-			velocity.y -= grav_x * friction;
+			velocity.y -= drag;
 		}
 		else if (velocity.y <= -0.1)
 		{
-			velocity.y += grav_x * friction;
+			velocity.y += drag;
 		}
-	}
-	else if (getPos().x <= 0)
-	{
-		setX(0);
-		velocity.x = -velocity.x * -bounciness;
-		if(velocity.y >= -0.5 && velocity.y <= 0.5)
+
+		if (getPos().y >= SCREEN_HEIGHT - currentFrame.h) // prevent leaving screen on y axis and bounces and friction :)
 		{
-			velocity.y = 0;
+			setY(SCREEN_HEIGHT - currentFrame.h);
+			velocity.y = velocity.y * bounciness;
+			if(velocity.x >= -0.5 && velocity.x <= 0.5)
+			{
+				velocity.x = 0;
+			}
+			else if (velocity.x >= 0.1)
+			{
+				velocity.x -= gravity.y * friction;
+			}
+			else if (velocity.x <= -0.1)
+			{
+				velocity.x += gravity.y * friction;
+			}
 		}
-		else if (velocity.y >= 0.1)
+		else if (getPos().y <= 0)
 		{
-			velocity.y -= grav_x * friction;
+			setY(0);
+			velocity.y = -velocity.y * -bounciness;
+			if(velocity.x >= -0.5 && velocity.x <= 0.5)
+			{
+				velocity.x = 0;
+			}
+			else if (velocity.x >= 0.1)
+			{
+				velocity.x -= gravity.y * friction;
+			}
+			else if (velocity.x <= -0.1)
+			{
+				velocity.x += gravity.y * friction;
+			}
 		}
-		else if (velocity.y <= -0.1)
+
+		if (getPos().x >= SCREEN_WIDTH - currentFrame.w) // prevent leaving screen on x axis and bounces and friction :)
 		{
-			velocity.y += grav_x * friction;
+			setX(SCREEN_WIDTH - currentFrame.w);
+			velocity.x = velocity.x * bounciness;
+			if(velocity.y >= -0.5 && velocity.y <= 0.5)
+			{
+				velocity.y = 0;
+			}
+			else if (velocity.y >= 0.1)
+			{
+				velocity.y -= gravity.x * friction;
+			}
+			else if (velocity.y <= -0.1)
+			{
+				velocity.y += gravity.x * friction;
+			}
+		}
+		else if (getPos().x <= 0)
+		{
+			setX(0);
+			velocity.x = -velocity.x * -bounciness;
+			if(velocity.y >= -0.5 && velocity.y <= 0.5)
+			{
+				velocity.y = 0;
+			}
+			else if (velocity.y >= 0.1)
+			{
+				velocity.y -= gravity.x * friction;
+			}
+			else if (velocity.y <= -0.1)
+			{
+				velocity.y += gravity.x * friction;
+			}
 		}
 	}
 }
 
 void Entity::update()
 {
-	Entity::physics(0, gravity);
+	Entity::physics(phys);
 }

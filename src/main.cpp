@@ -27,9 +27,6 @@ bool load = init(); // this is the end of textures and windows OK NVM
 
 std::vector<Player> players;
 
-bool createPlayers;
-bool deletePlayers;
-
 bool init() // used to initiate things before using
 {
 	SDL_Init(SDL_INIT_EVERYTHING);
@@ -46,16 +43,16 @@ bool init() // used to initiate things before using
 
 void gameLoop()
 {
-  for (int i = players.size(); i > 0; i--)
-  {
-    players[i - 1].goToMouse(Event::MousePressed(SDLK_LEFTMOUSE));
-  }
+	for (int i = players.size(); i > 0; i--)
+	{
+		players[i - 1].goToMouse(Event::MousePressed(SDLK_LEFTMOUSE));
+	}
 
 	if (Event::MousePressed(SDLK_RIGHTMOUSE))
 	{
 		int mX, mY;
-    SDL_GetMouseState(&mX, &mY);
-		Player plr (Vector2(mX - plr.getSize() / 2, mY - plr.getSize() / 2), playerTex);
+    	SDL_GetMouseState(&mX, &mY);
+		Player plr (Vector2(mX - 32, mY - 32), playerTex, Vector2(64, 64));
 		players.push_back(plr);
 	}
 
