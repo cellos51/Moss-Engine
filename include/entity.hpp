@@ -5,7 +5,7 @@
 
 #include "math.hpp"
 
-class Entity
+class Entity // i don't feel like figuring out how to make this non instantiable. so dont instatiate it pls :)
 {
 public:
 	Entity(Vector2 p_pos, SDL_Texture* p_tex, Vector2 p_size);

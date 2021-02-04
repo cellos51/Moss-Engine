@@ -4,15 +4,31 @@
 		"selected_items":
 		[
 			[
+				"ve",
+				"Vector2"
+			],
+			[
+				"pl",
+				"plr"
+			],
+			[
+				"g",
+				"getSize"
+			],
+			[
+				"pla",
+				"playerTex"
+			],
+			[
+				"size",
+				"sizeH"
+			],
+			[
 				"SDL",
 				"SDLK_LEFTMOUSE"
 			],
 			[
 				"player",
-				"players"
-			],
-			[
-				"pl",
 				"players"
 			],
 			[
@@ -38,10 +54,6 @@
 			[
 				"leftmo",
 				"leftmouseDown"
-			],
-			[
-				"pla",
-				"players"
 			],
 			[
 				"play",
@@ -94,10 +106,6 @@
 			[
 				"re",
 				"return"
-			],
-			[
-				"ve",
-				"velocity"
 			],
 			[
 				"v",
@@ -209,9 +217,9 @@
 	},
 	"file_history":
 	[
+		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/renderwindow.cpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/include/entity.hpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/main.cpp",
-		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/renderwindow.cpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/include/renderwindow.hpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/include/inputhandler.hpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/inputhandler.cpp",
@@ -236,7 +244,7 @@
 	],
 	"find":
 	{
-		"height": 27.0
+		"height": 40.0
 	},
 	"find_in_files":
 	{
@@ -250,6 +258,9 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"grav_",
+			"grav",
+			"size",
 			"velocity",
 			"Input",
 			"gravity",
