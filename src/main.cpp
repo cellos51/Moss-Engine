@@ -26,6 +26,8 @@ bool load = init(); // this is the end of textures and windows OK NVM
 
 std::vector<Player> players;
 
+Entity wall (Vector2(500, 300), Vector2(128, 128));
+
 bool init() // used to initiate things before using
 {
 	SDL_Init(SDL_INIT_EVERYTHING);
@@ -82,6 +84,7 @@ void render()
   {
     window.render(plr);
   }
+  window.render(wall);
   window.display();
 }
 
@@ -89,10 +92,10 @@ int main(int argc, char* args[])
 {
 	while (gameRunning) // main game loop ran every frame
 	{
-    Event::PollEvent();
-    gameRunning = Event::AppQuit();
+    	Event::PollEvent();
+    	gameRunning = Event::AppQuit();
 		gameLoop();
-    render();
+    	render();
 		SDL_Delay(16);
 	}
 

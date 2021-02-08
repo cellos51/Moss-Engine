@@ -17,7 +17,7 @@ Entity::Entity(SDL_Texture* p_tex, Vector2 p_size) : transform(Vector2(0.0, 0.0)
 	init();
 }
 
-Entity::Entity(Vector2 p_pos, Vector2 p_size) : transform(p_pos), tex(NULL)
+Entity::Entity(Vector2 p_pos, Vector2 p_size) : transform(p_pos), tex(NULL), size(p_size)
 {
 	init();
 }
