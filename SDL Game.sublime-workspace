@@ -4,6 +4,14 @@
 		"selected_items":
 		[
 			[
+				"vector",
+				"vector\tstandard header"
+			],
+			[
+				"player",
+				"playerTex"
+			],
+			[
 				"ve",
 				"Vector2"
 			],
@@ -26,10 +34,6 @@
 			[
 				"SDL",
 				"SDLK_LEFTMOUSE"
-			],
-			[
-				"player",
-				"players"
 			],
 			[
 				"mou",
@@ -218,12 +222,13 @@
 	"file_history":
 	[
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/renderwindow.cpp",
+		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/include/renderwindow.hpp",
+		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/player.cpp",
+		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/event.cpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/include/entity.hpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/main.cpp",
-		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/include/renderwindow.hpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/include/inputhandler.hpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/inputhandler.cpp",
-		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/player.cpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/include/player.hpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/entity.cpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL Game/include/entity.hpp",
@@ -244,7 +249,7 @@
 	],
 	"find":
 	{
-		"height": 40.0
+		"height": 27.0
 	},
 	"find_in_files":
 	{
@@ -313,7 +318,7 @@
 	"menu_visible": true,
 	"output.exec":
 	{
-		"height": 32.0
+		"height": 172.0
 	},
 	"output.find_results":
 	{
