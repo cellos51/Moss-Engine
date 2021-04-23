@@ -4,4 +4,4 @@ Its more like a tech demo than anything.
 
 # Screenshots
 
-![name-of-you-image] (https://media.discordapp.net/attachments/808879654084804630/835274263572774973/Capture.PNG)
+![Screenshot 4 23 2021] (https://raw.githubusercontent.com/cellos51/SDL-Game/main/Screenshot%204%2023%202021.PNG)
