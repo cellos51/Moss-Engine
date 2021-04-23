@@ -57,7 +57,7 @@ void gameLoop()
 		players.push_back(plr);
 	}
 
-	if (Event::MousePressed(SDLK_MIDDLEMOUSE)) // delets players
+	if (Event::MousePressed(SDLK_MIDDLEMOUSE)) // deletes players
 	{
 		int i = 0;
    		for (Player& plr : players)
@@ -75,6 +75,11 @@ void gameLoop()
 	{
 		plr.update();
 	}
+
+	for (Player& plr : players) // physics calculations for collisions
+  	{
+  		plr.getCol(wall);
+  	}
 }
 
 void render()

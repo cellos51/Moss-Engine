@@ -1,7 +1,11 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <iostream>
+#include <math.h>
 
 #include "entity.hpp"
+
+#include "math.hpp"
 
 const short SCREEN_WIDTH = 1000;
 const short SCREEN_HEIGHT = 600;
@@ -93,6 +97,86 @@ Vector2 Entity::getPos()
 Vector2 Entity::getSize()
 {
 	return size;
+}
+
+void Entity::getCol(Entity& p_ent)
+{
+	Vector2 boxNum = Vector2(transform.x - currentFrame.w / 2 - p_ent.transform.x, transform.y - currentFrame.w / 2 - p_ent.transform.y);
+
+	if (getPos().y >= p_ent.transform.y - currentFrame.h && getPos().y <= p_ent.transform.y + p_ent.currentFrame.h && getPos().x >= p_ent.transform.x - currentFrame.w && getPos().x <= p_ent.transform.x + p_ent.currentFrame.w)
+	{
+
+		if (boxNum.y < 0 && fabs(boxNum.y) > fabs(boxNum.x))
+		{
+			setY(p_ent.transform.y - currentFrame.h);
+			velocity.y = velocity.y * bounciness;
+			if(velocity.x >= -0.5 && velocity.x <= 0.5)
+			{
+				velocity.x = 0;
+			}
+			else if (velocity.x >= 0.1)
+			{
+				velocity.x -= gravity.y * friction;
+			}
+			else if (velocity.x <= -0.1)
+			{
+				velocity.x += gravity.y * friction;
+			}
+		}
+		else if (boxNum.y > 0 && fabs(boxNum.y) > fabs(boxNum.x))
+		{
+			setY(p_ent.transform.y + p_ent.currentFrame.h);
+			velocity.y = -velocity.y * -bounciness;
+			if(velocity.x >= -0.5 && velocity.x <= 0.5)
+			{
+				velocity.x = 0;
+			}
+			else if (velocity.x >= 0.1)
+			{
+				velocity.x -= gravity.y * friction;
+			}
+			else if (velocity.x <= -0.1)
+			{
+				velocity.x += gravity.y * friction;
+			}
+		}
+		else if (boxNum.x > 0 && fabs(boxNum.x) > fabs(boxNum.y))
+		{
+			setX(p_ent.transform.x + p_ent.currentFrame.w);
+			velocity.x = -velocity.x * -bounciness;
+			if(velocity.y >= -0.5 && velocity.y <= 0.5)
+			{
+				velocity.y = 0;
+			}
+			else if (velocity.y >= 0.1)
+			{
+				velocity.y -= gravity.x * friction;
+			}
+			else if (velocity.y <= -0.1)
+			{
+				velocity.y += gravity.x * friction;
+			}
+		}
+		else if (boxNum.x < 0 && fabs(boxNum.x) > fabs(boxNum.y))
+		{
+			setX(p_ent.transform.x - currentFrame.w);
+			velocity.x = velocity.x * bounciness;
+			if(velocity.y >= -0.5 && velocity.y <= 0.5)
+			{
+				velocity.y = 0;
+			}
+			else if (velocity.y >= 0.1)
+			{
+				velocity.y -= gravity.x * friction;
+			}
+			else if (velocity.y <= -0.1)
+			{
+				velocity.y += gravity.x * friction;
+			}
+		}
+	}
+
+
 }
 
 void Entity::physics(bool p_phys)
@@ -205,3 +289,4 @@ void Entity::update()
 {
 	Entity::physics(phys);
 }
+

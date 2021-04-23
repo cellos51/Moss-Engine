@@ -5,7 +5,7 @@
 
 #include "math.hpp"
 
-class Entity // i don't feel like figuring out how to make this non instantiable. so dont instatiate it pls :)
+class Entity // i don't feel like figuring out how to make this non instantiable. so dont instatiate it pls :) Edit: i ended up not following that rule :P
 {
 public:
 	Entity(Vector2 p_pos, SDL_Texture* p_tex, Vector2 p_size);
@@ -30,6 +30,7 @@ public:
 	Vector2 getVol();
 	Vector2 getPos();
 	Vector2 getSize();
+	void getCol(Entity& p_ent);
 	void physics(bool p_phys);
 	void update();
 protected:
