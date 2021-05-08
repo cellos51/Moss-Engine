@@ -9,8 +9,8 @@
 
 #include "event.hpp"
 
-const short SCREEN_WIDTH = 1000;
-const short SCREEN_HEIGHT = 600;
+const short SCREEN_WIDTH = 1024;
+const short SCREEN_HEIGHT = 640;
 
 // random shit needed to be here to run
 bool init();
@@ -21,12 +21,40 @@ RenderWindow window;
 
 // textures
 SDL_Texture* playerTex;
+SDL_Texture* grass;
+SDL_Texture* dirt1;
+SDL_Texture* dirt2;
+SDL_Texture* dirt3;
+SDL_Texture* dirt4;
+SDL_Texture* dirt5;
+SDL_Texture* dirt6;
+SDL_Texture* dirt7;
+SDL_Texture* dirt8;
+SDL_Texture* dirt9;
+SDL_Texture* dirt10;
+SDL_Texture* dirt11;
+SDL_Texture* dirt12;
+SDL_Texture* dirt13;
+
+std::vector<Entity> walls; // literally just walls
+
+int level [10][16] = { // testing out a tile based level system
+
+	{11,8,8,8,8,8,8,8,8,8,8,8,8,8,8,9},
+	{7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
+	{7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
+	{7,1,1,0,0,0,0,0,0,0,0,0,0,0,0,7},
+	{7,3,12,1,1,1,0,0,0,1,1,1,0,0,0,7},
+	{7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
+	{7,0,0,0,0,0,0,0,0,0,0,0,0,0,1,7},
+	{7,0,0,0,0,0,0,0,1,0,0,0,0,1,5,6},
+	{7,1,1,1,0,0,0,1,7,1,1,1,1,5,2,6},
+	{10,3,3,12,1,1,1,10,3,3,3,3,3,3,3,12},
+};
 
 bool load = init(); // this is the end of textures and windows OK NVM
 
-std::vector<Player> players;
-
-Entity wall (Vector2(500, 300), Vector2(128, 128));
+Player plr (Vector2(100, 0), playerTex, Vector2(64, 64));
 
 bool init() // used to initiate things before using
 {
@@ -37,60 +65,176 @@ bool init() // used to initiate things before using
 	window.create("SDL Game", SCREEN_WIDTH, SCREEN_HEIGHT); // name and size of application window
 
 	//textures
-	playerTex = window.loadTexture("res/textures/player.png"); // the texture used for the player
+	playerTex = window.loadTexture("assets/textures/player.png");
+	grass = window.loadTexture("assets/textures/grass.png");
+	dirt1 = window.loadTexture("assets/textures/dirt1.png");
+	dirt2 = window.loadTexture("assets/textures/dirt2.png");
+	dirt3 = window.loadTexture("assets/textures/dirt3.png");
+	dirt4 = window.loadTexture("assets/textures/dirt4.png");
+	dirt5 = window.loadTexture("assets/textures/dirt5.png");
+	dirt6 = window.loadTexture("assets/textures/dirt6.png");
+	dirt7 = window.loadTexture("assets/textures/dirt7.png");
+	dirt8 = window.loadTexture("assets/textures/dirt8.png"); // the texture used for the player
+	dirt9 = window.loadTexture("assets/textures/dirt9.png");
+	dirt10 = window.loadTexture("assets/textures/dirt10.png");
+	dirt11 = window.loadTexture("assets/textures/dirt11.png");
+	dirt12 = window.loadTexture("assets/textures/dirt12.png");
+	dirt13 = window.loadTexture("assets/textures/dirt13.png");
+
+	int a;
+	int b;
+	for(a = 0; a < 10; a++) // make these numbers the same as "level"
+	{
+		for(b = 0; b < 16; b++)
+		{
+			switch (level[a][b])
+			{
+				case 1:
+				{
+					Entity ent (Vector2(b * 64, a * 64), grass, Vector2(64,64));
+					walls.push_back (ent);
+				}
+				break;
+
+				case 2:
+				{
+					Entity ent (Vector2(b * 64, a * 64), dirt1, Vector2(64,64));
+					walls.push_back (ent);
+				}
+				break;
+
+				case 3:
+				{
+					Entity ent (Vector2(b * 64, a * 64), dirt2, Vector2(64,64));
+					walls.push_back (ent);
+				}
+				break;
+
+				case 4:
+				{
+					Entity ent (Vector2(b * 64, a * 64), dirt3, Vector2(64,64));
+					walls.push_back (ent);
+				}
+				break;
+
+				case 5:
+				{
+					Entity ent (Vector2(b * 64, a * 64), dirt4, Vector2(64,64));
+					walls.push_back (ent);
+				}
+				break;
+
+				case 6:
+				{
+					Entity ent (Vector2(b * 64, a * 64), dirt5, Vector2(64,64));
+					walls.push_back (ent);
+				}
+				break;
+
+				case 7:
+				{
+					Entity ent (Vector2(b * 64, a * 64), dirt6, Vector2(64,64));
+					walls.push_back (ent);
+				}
+				break;
+
+				case 8:
+				{
+					Entity ent (Vector2(b * 64, a * 64), dirt7, Vector2(64,64));
+					walls.push_back (ent);
+				}
+				break;
+
+				case 9:
+				{
+					Entity ent (Vector2(b * 64, a * 64), dirt8, Vector2(64,64));
+					walls.push_back (ent);
+				}
+				break;
+
+				case 10:
+				{
+					Entity ent (Vector2(b * 64, a * 64), dirt9, Vector2(64,64));
+					walls.push_back (ent);
+				}
+				break;
+
+				case 11:
+				{
+					Entity ent (Vector2(b * 64, a * 64), dirt10, Vector2(64,64));
+					walls.push_back (ent);
+				}
+				break;
+
+				case 12:
+				{
+					Entity ent (Vector2(b * 64, a * 64), dirt11, Vector2(64,64));
+					walls.push_back (ent);
+				}
+				break;
+
+				case 13:
+				{
+					Entity ent (Vector2(b * 64, a * 64), dirt12, Vector2(64,64));
+					walls.push_back (ent);
+				}
+				break;
+
+				case 14:
+				{
+					Entity ent (Vector2(b * 64, a * 64), dirt13, Vector2(64,64));
+					walls.push_back (ent);
+				}
+				break;
+			}
+		}
+	}
 
 	return true;
 }
 
-void gameLoop()
+void gameLoop() // it runs forever
 {
-	for (int i = players.size(); i > 0; i--) // picks up players
+	plr.goToMouse(Event::MousePressed(SDLK_LEFTMOUSE));
+
+	if (Event::KeyPressed(SDLK_RIGHTARROW))
 	{
-		players[i - 1].goToMouse(Event::MousePressed(SDLK_LEFTMOUSE));
+		plr.velocity.x += 1;
 	}
 
-	if (Event::MousePressed(SDLK_RIGHTMOUSE)) // spawns players
+	if (Event::KeyPressed(SDLK_LEFTARROW))
 	{
-		int mX, mY;
-    	SDL_GetMouseState(&mX, &mY);
-		Player plr (Vector2(mX - 32, mY - 32), playerTex, Vector2(64, 64));
-		players.push_back(plr);
+		plr.velocity.x += -1;
 	}
 
-	if (Event::MousePressed(SDLK_MIDDLEMOUSE)) // deletes players
+	if (Event::KeyPressed(SDLK_UPARROW) && plr.touchground == true)
 	{
-		int i = 0;
-   		for (Player& plr : players)
-   			{
-   			if (plr.touchingMouse())
-   				{
-   					players.erase(players.begin() + i);
-   				}
-   				i++;
-   			}
-   		players.shrink_to_fit();
+		plr.touchground = false;
+		plr.velocity.y = -25;
 	}
 
-	for (Player& plr : players) // make a wild guess dumbass
+	if (Event::KeyPressed(SDLK_DOWNARROW))
 	{
-		plr.update();
+		plr.velocity.y += 1;
 	}
-
-	for (Player& plr : players) // physics calculations for collisions
-  	{
-  		plr.getCol(wall);
-  	}
 }
 
-void render()
+void render() // honestly i feel like putting the stuff that is at the end of the gameloop in here
 {
-  window.clear();
-  for (Player& plr : players)
-  {
-    window.render(plr);
-  }
-  window.render(wall);
-  window.display();
+	plr.update();
+	
+	for (Entity wall : walls)
+	{
+			plr.getCol(wall);
+	}
+
+	window.clear();
+	window.render(plr);
+	for (Entity wall : walls)
+	{
+		window.render(wall);
+	}
+	window.display();
 }
 
 int main(int argc, char* args[])

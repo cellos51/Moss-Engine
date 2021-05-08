@@ -7,8 +7,8 @@
 
 #include "math.hpp"
 
-const short SCREEN_WIDTH = 1000;
-const short SCREEN_HEIGHT = 600;
+const short SCREEN_WIDTH = 1024;
+const short SCREEN_HEIGHT = 640;
 
 
 Entity::Entity(Vector2 p_pos, SDL_Texture* p_tex, Vector2 p_size) : transform(p_pos), tex(p_tex), size(p_size)
@@ -99,17 +99,19 @@ Vector2 Entity::getSize()
 	return size;
 }
 
-void Entity::getCol(Entity& p_ent)
+void Entity::getCol(Entity& p_ent) // ok the collision is fucky as hell so only use squares with this
 {
-	Vector2 boxNum = Vector2(transform.x - currentFrame.w / 2 - p_ent.transform.x, transform.y - currentFrame.w / 2 - p_ent.transform.y);
+	Vector2 boxNum = Vector2(transform.x - p_ent.size.x / 2 + size.x / 2 - p_ent.transform.x, transform.y - p_ent.size.y / 2 + size.y / 2 - p_ent.transform.y);
+	//std::cout << boxNum.x << " " << boxNum.y << "\n";
 
 	if (getPos().y >= p_ent.transform.y - currentFrame.h && getPos().y <= p_ent.transform.y + p_ent.currentFrame.h && getPos().x >= p_ent.transform.x - currentFrame.w && getPos().x <= p_ent.transform.x + p_ent.currentFrame.w)
 	{
 
 		if (boxNum.y < 0 && fabs(boxNum.y) > fabs(boxNum.x))
 		{
+			touchground = true;
 			setY(p_ent.transform.y - currentFrame.h);
-			velocity.y = velocity.y * bounciness;
+			velocity.y = velocity.y * bounciness - 1;
 			if(velocity.x >= -0.5 && velocity.x <= 0.5)
 			{
 				velocity.x = 0;
@@ -126,7 +128,7 @@ void Entity::getCol(Entity& p_ent)
 		else if (boxNum.y > 0 && fabs(boxNum.y) > fabs(boxNum.x))
 		{
 			setY(p_ent.transform.y + p_ent.currentFrame.h);
-			velocity.y = -velocity.y * -bounciness;
+			velocity.y = -velocity.y * -bounciness + 1;
 			if(velocity.x >= -0.5 && velocity.x <= 0.5)
 			{
 				velocity.x = 0;
@@ -143,7 +145,7 @@ void Entity::getCol(Entity& p_ent)
 		else if (boxNum.x > 0 && fabs(boxNum.x) > fabs(boxNum.y))
 		{
 			setX(p_ent.transform.x + p_ent.currentFrame.w);
-			velocity.x = -velocity.x * -bounciness;
+			velocity.x = -velocity.x * -bounciness + 1;
 			if(velocity.y >= -0.5 && velocity.y <= 0.5)
 			{
 				velocity.y = 0;
@@ -160,7 +162,7 @@ void Entity::getCol(Entity& p_ent)
 		else if (boxNum.x < 0 && fabs(boxNum.x) > fabs(boxNum.y))
 		{
 			setX(p_ent.transform.x - currentFrame.w);
-			velocity.x = velocity.x * bounciness;
+			velocity.x = velocity.x * bounciness - 1;
 			if(velocity.y >= -0.5 && velocity.y <= 0.5)
 			{
 				velocity.y = 0;
@@ -193,11 +195,11 @@ void Entity::physics(bool p_phys)
 		}
 		else if (velocity.x >= 0.1)
 		{
-			velocity.x -= drag;
+			velocity.x -= dragX * velocity.x;
 		}
 		else if (velocity.x <= -0.1)
 		{
-			velocity.x += drag;
+			velocity.x -= dragX * velocity.x;
 		}
 
 		if(velocity.y >= -0.1 && velocity.y <= 0.1)
@@ -206,82 +208,82 @@ void Entity::physics(bool p_phys)
 		}
 		else if (velocity.y >= 0.1)
 		{
-			velocity.y -= drag;
+			velocity.y -= dragY * velocity.y;
 		}
 		else if (velocity.y <= -0.1)
 		{
-			velocity.y += drag;
+			velocity.y -= dragY * velocity.y;
 		}
 
-		if (getPos().y >= SCREEN_HEIGHT - currentFrame.h) // prevent leaving screen on y axis and bounces and friction :)
-		{
-			setY(SCREEN_HEIGHT - currentFrame.h);
-			velocity.y = velocity.y * bounciness;
-			if(velocity.x >= -0.5 && velocity.x <= 0.5)
-			{
-				velocity.x = 0;
-			}
-			else if (velocity.x >= 0.1)
-			{
-				velocity.x -= gravity.y * friction;
-			}
-			else if (velocity.x <= -0.1)
-			{
-				velocity.x += gravity.y * friction;
-			}
-		}
-		else if (getPos().y <= 0)
-		{
-			setY(0);
-			velocity.y = -velocity.y * -bounciness;
-			if(velocity.x >= -0.5 && velocity.x <= 0.5)
-			{
-				velocity.x = 0;
-			}
-			else if (velocity.x >= 0.1)
-			{
-				velocity.x -= gravity.y * friction;
-			}
-			else if (velocity.x <= -0.1)
-			{
-				velocity.x += gravity.y * friction;
-			}
-		}
+		// if (getPos().y >= SCREEN_HEIGHT - currentFrame.h) // prevent leaving screen on y axis and bounces and friction :)
+		// {
+		// 	setY(SCREEN_HEIGHT - currentFrame.h);
+		// 	velocity.y = velocity.y * bounciness;
+		// 	if(velocity.x >= -0.5 && velocity.x <= 0.5)
+		// 	{
+		// 		velocity.x = 0;
+		// 	}
+		// 	else if (velocity.x >= 0.1)
+		// 	{
+		// 		velocity.x -= gravity.y * friction;
+		// 	}
+		// 	else if (velocity.x <= -0.1)
+		// 	{
+		// 		velocity.x += gravity.y * friction;
+		// 	}
+		// }
+		// else if (getPos().y <= 0)
+		// {
+		// 	setY(0);
+		// 	velocity.y = -velocity.y * -bounciness;
+		// 	if(velocity.x >= -0.5 && velocity.x <= 0.5)
+		// 	{
+		// 		velocity.x = 0;
+		// 	}
+		// 	else if (velocity.x >= 0.1)
+		// 	{
+		// 		velocity.x -= gravity.y * friction;
+		// 	}
+		// 	else if (velocity.x <= -0.1)
+		// 	{
+		// 		velocity.x += gravity.y * friction;
+		// 	}
+		// }
 
-		if (getPos().x >= SCREEN_WIDTH - currentFrame.w) // prevent leaving screen on x axis and bounces and friction :)
-		{
-			setX(SCREEN_WIDTH - currentFrame.w);
-			velocity.x = velocity.x * bounciness;
-			if(velocity.y >= -0.5 && velocity.y <= 0.5)
-			{
-				velocity.y = 0;
-			}
-			else if (velocity.y >= 0.1)
-			{
-				velocity.y -= gravity.x * friction;
-			}
-			else if (velocity.y <= -0.1)
-			{
-				velocity.y += gravity.x * friction;
-			}
-		}
-		else if (getPos().x <= 0)
-		{
-			setX(0);
-			velocity.x = -velocity.x * -bounciness;
-			if(velocity.y >= -0.5 && velocity.y <= 0.5)
-			{
-				velocity.y = 0;
-			}
-			else if (velocity.y >= 0.1)
-			{
-				velocity.y -= gravity.x * friction;
-			}
-			else if (velocity.y <= -0.1)
-			{
-				velocity.y += gravity.x * friction;
-			}
-		}
+		// if (getPos().x >= SCREEN_WIDTH - currentFrame.w) // prevent leaving screen on x axis and bounces and friction :)
+		// {
+		// 	setX(SCREEN_WIDTH - currentFrame.w);
+		// 	velocity.x = velocity.x * bounciness;
+		// 	if(velocity.y >= -0.5 && velocity.y <= 0.5)
+		// 	{
+		// 		velocity.y = 0;
+		// 	}
+		// 	else if (velocity.y >= 0.1)
+		// 	{
+		// 		velocity.y -= gravity.x * friction;
+		// 	}
+		// 	else if (velocity.y <= -0.1)
+		// 	{
+		// 		velocity.y += gravity.x * friction;
+		// 	}
+		// }
+		// else if (getPos().x <= 0)
+		// {
+		// 	setX(0);
+		// 	velocity.x = -velocity.x * -bounciness;
+		// 	if(velocity.y >= -0.5 && velocity.y <= 0.5)
+		// 	{
+		// 		velocity.y = 0;
+		// 	}
+		// 	else if (velocity.y >= 0.1)
+		// 	{
+		// 		velocity.y -= gravity.x * friction;
+		// 	}
+		// 	else if (velocity.y <= -0.1)
+		// 	{
+		// 		velocity.y += gravity.x * friction;
+		// 	}
+		// }
 	}
 }
 

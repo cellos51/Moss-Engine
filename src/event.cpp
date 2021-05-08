@@ -6,6 +6,8 @@ bool quit = false;
 
 bool mouse[3];
 
+bool keyboard[4];
+
 void Event::PollEvent()
 {
 	SDL_Event event;
@@ -13,43 +15,83 @@ void Event::PollEvent()
 	{
 		switch (event.type) 
 		{
-    		case SDL_QUIT: 
-    		{
+    	case SDL_QUIT: 
       			quit = true;
       			break;
-    		}
     		case SDL_MOUSEBUTTONDOWN:
     		{
-    			if (event.button.button == SDL_BUTTON_LEFT)
-   				{
-   					mouse[0] = true;
-   				}	
-   				if (event.button.button == SDL_BUTTON_RIGHT)
-   				{
-   					mouse[1] = true;
-   				}
-   				if (event.button.button == SDL_BUTTON_MIDDLE)
-   				{
-   					mouse[2] = true;
-   				}
+          switch (event.button.button)
+          {
+      			case SDL_BUTTON_LEFT:
+     					mouse[0] = true;
+              break;
+     				case SDL_BUTTON_RIGHT:
+     					mouse[1] = true;
+              break;
+     				case SDL_BUTTON_MIDDLE:
+     					mouse[2] = true;
+              break;
+          }
    				break;
-			}
+			  }
+        break;
 			case SDL_MOUSEBUTTONUP:
-    		{
-    			if (event.button.button == SDL_BUTTON_LEFT)
-   				{
-   					mouse[0] = false;
-   				}
-   				if (event.button.button == SDL_BUTTON_RIGHT)
-   				{
-   					mouse[1] = false;
-   				}
-   				if (event.button.button == SDL_BUTTON_MIDDLE)
-   				{
-   					mouse[2] = false;
-   				}
-   				break;		
+    	{
+    		switch (event.button.button)
+        {
+          case SDL_BUTTON_LEFT:
+            mouse[0] = false;
+            break;
+          case SDL_BUTTON_RIGHT:
+            mouse[1] = false;
+            break;
+          case SDL_BUTTON_MIDDLE:
+            mouse[2] = false;
+            break;
+        }
+   			break;		
 			}
+      break;
+      case SDL_KEYDOWN:
+      {
+        switch (event.key.keysym.sym)
+        {
+          case SDLK_LEFT:
+              keyboard[0] = true;
+              break;
+            case SDLK_RIGHT:
+              keyboard[1] = true;
+              break;
+            case SDLK_UP:
+              keyboard[2] = true;
+              break;
+            case SDLK_DOWN:
+              keyboard[3] = true;
+              break;
+        }
+        break;
+      }
+      break;
+      case SDL_KEYUP:
+      {
+        switch (event.key.keysym.sym)
+        {
+          case SDLK_LEFT:
+              keyboard[0] = false;
+              break;
+            case SDLK_RIGHT:
+              keyboard[1] = false;
+              break;
+            case SDLK_UP:
+              keyboard[2] = false;
+              break;
+            case SDLK_DOWN:
+              keyboard[3] = false;
+              break;
+        }
+        break;
+      }
+      break;
 		}
 	}
 }
@@ -66,9 +108,9 @@ bool Event::AppQuit()
 	}
 }
 
-bool Event::KeyPressed()
+bool Event::KeyPressed(KeyButton i)
 {
-	return true;
+	return keyboard[i];
 }
 
 bool Event::MousePressed(MouseButton i)

@@ -4,16 +4,20 @@
 		"selected_items":
 		[
 			[
-				"vector",
-				"vector\tstandard header"
+				"ve",
+				"Vector2"
 			],
 			[
 				"player",
-				"playerTex"
+				"player"
 			],
 			[
-				"ve",
-				"Vector2"
+				"bo",
+				"boxNum"
+			],
+			[
+				"vector",
+				"vector\tstandard header"
 			],
 			[
 				"pl",
@@ -221,6 +225,10 @@
 	},
 	"file_history":
 	[
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/entity.cpp",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/renderwindow.cpp",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/player.cpp",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/event.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/event.hpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/renderwindow.cpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/include/renderwindow.hpp",
@@ -250,7 +258,7 @@
 	],
 	"find":
 	{
-		"height": 27.0
+		"height": 28.0
 	},
 	"find_in_files":
 	{
@@ -288,7 +296,7 @@
 	},
 	"incremental_find":
 	{
-		"height": 27.0
+		"height": 28.0
 	},
 	"input":
 	{
@@ -319,7 +327,7 @@
 	"menu_visible": true,
 	"output.exec":
 	{
-		"height": 45.0
+		"height": 32.0
 	},
 	"output.find_results":
 	{
@@ -328,7 +336,7 @@
 	"pinned_build_system": "SDL2 Debug",
 	"replace":
 	{
-		"height": 50.0
+		"height": 52.0
 	},
 	"save_all_on_build": true,
 	"select_file":

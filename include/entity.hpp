@@ -12,11 +12,18 @@ public:
 	Entity(SDL_Texture* p_tex, Vector2 p_size);
 	Entity(Vector2 p_pos, Vector2 p_size);
 	Entity(Vector2 p_size);
+	// Vector2 gravity = Vector2(0.0, 1.0);
+	// float friction = 1;
+	// float drag = 0.05;
+	// float bounciness = -0.8;
+	Vector2 velocity;
 	Vector2 gravity = Vector2(0.0, 1.0);
-	float friction = 1;
-	float drag = 0.05;
-	float bounciness = -0.8;
+	float friction = 0;
+	float dragX = 0.10;
+	float dragY = 0.05;
+	float bounciness = 0;
 	bool phys = true;
+	bool touchground = false;
 	void init();
 	SDL_Texture* getTex();
 	void setTex(SDL_Texture* p_tex);
@@ -36,7 +43,6 @@ public:
 protected:
 	Vector2 transform;
 	SDL_Texture* tex;
-	Vector2 velocity;
 	Vector2 size;
 	SDL_Rect currentFrame;
 };
