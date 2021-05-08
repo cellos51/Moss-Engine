@@ -21,36 +21,8 @@ RenderWindow window;
 
 // textures
 SDL_Texture* playerTex;
-SDL_Texture* grass;
-SDL_Texture* dirt1;
-SDL_Texture* dirt2;
-SDL_Texture* dirt3;
-SDL_Texture* dirt4;
-SDL_Texture* dirt5;
-SDL_Texture* dirt6;
-SDL_Texture* dirt7;
-SDL_Texture* dirt8;
-SDL_Texture* dirt9;
-SDL_Texture* dirt10;
-SDL_Texture* dirt11;
-SDL_Texture* dirt12;
-SDL_Texture* dirt13;
 
 std::vector<Entity> walls; // literally just walls
-
-int level [10][16] = { // testing out a tile based level system
-
-	{11,8,8,8,8,8,8,8,8,8,8,8,8,8,8,9},
-	{7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
-	{7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
-	{7,1,1,0,0,0,0,0,0,0,0,0,0,0,0,7},
-	{7,3,12,1,1,1,0,0,0,1,1,1,0,0,0,7},
-	{7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
-	{7,0,0,0,0,0,0,0,0,0,0,0,0,0,1,7},
-	{7,0,0,0,0,0,0,0,1,0,0,0,0,1,5,6},
-	{7,1,1,1,0,0,0,1,7,1,1,1,1,5,2,6},
-	{10,3,3,12,1,1,1,10,3,3,3,3,3,3,3,12},
-};
 
 bool load = init(); // this is the end of textures and windows OK NVM
 
@@ -66,20 +38,34 @@ bool init() // used to initiate things before using
 
 	//textures
 	playerTex = window.loadTexture("assets/textures/player.png");
-	grass = window.loadTexture("assets/textures/grass.png");
-	dirt1 = window.loadTexture("assets/textures/dirt1.png");
-	dirt2 = window.loadTexture("assets/textures/dirt2.png");
-	dirt3 = window.loadTexture("assets/textures/dirt3.png");
-	dirt4 = window.loadTexture("assets/textures/dirt4.png");
-	dirt5 = window.loadTexture("assets/textures/dirt5.png");
-	dirt6 = window.loadTexture("assets/textures/dirt6.png");
-	dirt7 = window.loadTexture("assets/textures/dirt7.png");
-	dirt8 = window.loadTexture("assets/textures/dirt8.png"); // the texture used for the player
-	dirt9 = window.loadTexture("assets/textures/dirt9.png");
-	dirt10 = window.loadTexture("assets/textures/dirt10.png");
-	dirt11 = window.loadTexture("assets/textures/dirt11.png");
-	dirt12 = window.loadTexture("assets/textures/dirt12.png");
-	dirt13 = window.loadTexture("assets/textures/dirt13.png");
+	SDL_Texture* grass = window.loadTexture("assets/textures/grass.png");
+	SDL_Texture* dirt1 = window.loadTexture("assets/textures/dirt1.png");
+	SDL_Texture* dirt2 = window.loadTexture("assets/textures/dirt2.png");
+	SDL_Texture* dirt3 = window.loadTexture("assets/textures/dirt3.png");
+	SDL_Texture* dirt4 = window.loadTexture("assets/textures/dirt4.png");
+	SDL_Texture* dirt5 = window.loadTexture("assets/textures/dirt5.png");
+	SDL_Texture* dirt6 = window.loadTexture("assets/textures/dirt6.png");
+	SDL_Texture* dirt7 = window.loadTexture("assets/textures/dirt7.png");
+	SDL_Texture* dirt8 = window.loadTexture("assets/textures/dirt8.png"); // the texture used for the player
+	SDL_Texture* dirt9 = window.loadTexture("assets/textures/dirt9.png");
+	SDL_Texture* dirt10 = window.loadTexture("assets/textures/dirt10.png");
+	SDL_Texture* dirt11 = window.loadTexture("assets/textures/dirt11.png");
+	SDL_Texture* dirt12 = window.loadTexture("assets/textures/dirt12.png");
+	SDL_Texture* dirt13 = window.loadTexture("assets/textures/dirt13.png");
+
+	int level [10][16] = { // testing out a tile based level system
+
+		{11,8,8,8,8,8,8,8,8,8,8,8,8,8,8,9},
+		{7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
+		{7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
+		{7,1,1,0,0,0,0,0,0,0,0,0,0,0,0,7},
+		{7,3,12,1,1,1,0,0,0,1,1,1,0,0,0,7},
+		{7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
+		{7,0,0,0,0,0,0,0,0,0,0,0,0,0,1,7},
+		{7,0,0,0,0,0,0,0,1,0,0,0,0,1,5,6},
+		{7,1,1,1,0,0,0,1,7,1,1,1,1,5,2,6},
+		{10,3,3,12,1,1,1,10,3,3,3,3,3,3,3,12},
+	};
 
 	int a;
 	int b;
