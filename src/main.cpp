@@ -181,6 +181,11 @@ bool init() // used to initiate things before using
 
 void gameLoop() // it runs forever
 {
+	float cameraX = plr.getPos().x - plr.getPos().x * 2 - window.camera.x + SCREEN_WIDTH / 2 - plr.getSize().x / 2;
+	window.camera.x += cameraX / 10;
+	float cameraY = plr.getPos().y - plr.getPos().y * 2 - window.camera.y + SCREEN_HEIGHT / 2 - plr.getSize().y / 2;
+	window.camera.y += cameraY / 10;
+
 	plr.goToMouse(Event::MousePressed(SDLK_LEFTMOUSE));
 
 	if (Event::KeyPressed(SDLK_RIGHTARROW))
