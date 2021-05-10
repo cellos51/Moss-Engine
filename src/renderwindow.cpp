@@ -32,8 +32,8 @@ void RenderWindow::render(Entity& p_ent) // i think this copys the texture to th
 	src.h = p_ent.getCurrentFrame().h;	
 
 	SDL_Rect dst;
-	dst.x = p_ent.getPos().x + camera.x;
-	dst.y = p_ent.getPos().y + camera.y;
+	dst.x = p_ent.getPos().x;
+	dst.y = p_ent.getPos().y;
 	dst.w = p_ent.getCurrentFrame().w;
 	dst.h = p_ent.getCurrentFrame().h;
 
