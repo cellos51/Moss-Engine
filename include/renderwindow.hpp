@@ -5,6 +5,8 @@
 
 #include "entity.hpp"
 
+#include "math.hpp"
+
 class RenderWindow
 {
 public:
@@ -14,6 +16,7 @@ public:
 	void render(Entity& p_ent);
 	void display();
 	void quit();
+	Vector2 camera = Vector2(0,0);
 private:
 	SDL_Window* window;
 	SDL_Renderer* renderer;
