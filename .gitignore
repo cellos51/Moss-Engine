@@ -31,9 +31,8 @@
 *.out
 *.app
 
-# Readme
-*.md
-
 # Directories
 /bin/*
-/screenshots/*
+
+README.md
+screenshots/1.PNG
