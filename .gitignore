@@ -31,5 +31,9 @@
 *.out
 *.app
 
+# Readme
+*.md
+
 # Directories
 /bin/*
+/screenshots*
