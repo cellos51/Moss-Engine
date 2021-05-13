@@ -26,7 +26,7 @@ void Level::LoadLevel(std::string path, std::vector<Entity>& p_ent, RenderWindow
 	SDL_Texture* dirt13 = p_win.loadTexture("assets/textures/dirt13.png");
 
 
-	std::ifstream inFile("assets/levels/level1.lvl"); // file based level loader (will be moved to its own class)
+	std::ifstream inFile(path); // file based level loader (will be moved to its own class)
 	std::vector<std::string> level;
     if (inFile.is_open())
     {
