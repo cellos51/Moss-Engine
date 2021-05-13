@@ -10,6 +10,7 @@ class Player : public Entity
 {
 public:
 	using Entity::Entity;
+	bool phys = true;
 	void update();
 	void goToMouse(bool p_tru);
 	bool touchingMouse();

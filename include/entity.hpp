@@ -22,8 +22,7 @@ public:
 	float dragX = 0.10;
 	float dragY = 0.05;
 	float bounciness = 0;
-	bool phys = true;
-	bool touchground = false;
+	bool phys = false;
 	void init();
 	SDL_Texture* getTex();
 	void setTex(SDL_Texture* p_tex);

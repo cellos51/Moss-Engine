@@ -4,6 +4,10 @@
 		"selected_items":
 		[
 			[
+				"map",
+				"mapFile"
+			],
+			[
 				"camer",
 				"cameraX"
 			],
@@ -237,9 +241,10 @@
 	},
 	"file_history":
 	[
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/.gitignore",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/renderwindow.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/SDL Game.sublime-workspace",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/renderwindow.hpp",
-		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/renderwindow.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/entity.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/init.hpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/player.cpp",

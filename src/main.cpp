@@ -2,6 +2,8 @@
 #include <SDL2/SDL_image.h>
 #include <vector>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 #include "renderwindow.hpp"
 
@@ -53,27 +55,29 @@ bool init() // used to initiate things before using
 	SDL_Texture* dirt12 = window.loadTexture("assets/textures/dirt12.png");
 	SDL_Texture* dirt13 = window.loadTexture("assets/textures/dirt13.png");
 
-	int level [10][16] = { // testing out a tile based level system
+	std::ifstream inFile("assets/levels/level1.lvl"); // file based level loader (will be moved to its own class)
+	std::vector<std::string> level;
+    if (inFile.is_open())
+    {
+        std::string line;
+        while(std::getline(inFile,line))
+        {
+            std::stringstream ss(line);
+            std::string course;
+            while(std::getline(ss,course,','))
+            {
+                level.push_back(course); 
+            }
+        }
+    }
 
-		{11,8,8,8,8,8,8,8,8,8,8,8,8,8,8,9},
-		{7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
-		{7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
-		{7,1,1,0,0,0,0,0,0,0,0,0,0,0,0,7},
-		{7,3,12,1,1,1,0,0,0,1,1,1,0,0,0,7},
-		{7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
-		{7,0,0,0,0,0,0,0,0,0,0,0,0,0,1,7},
-		{7,0,0,0,0,0,0,0,1,0,0,0,0,1,5,6},
-		{7,1,1,1,0,0,0,1,7,1,1,1,1,5,2,6},
-		{10,3,3,12,1,1,1,10,3,3,3,3,3,3,3,12},
-	};
 
-	int a;
-	int b;
-	for(a = 0; a < 10; a++) // make these numbers the same as "level"
+	int a, b;
+	for(a = 0; a < std::stoi(level[0]); a++) // make these numbers the same as "level"
 	{
-		for(b = 0; b < 16; b++)
+		for(b = 0; b < std::stoi(level[1]); b++)
 		{
-			switch (level[a][b])
+			switch (std::stoi(level[b + a * 16 + 2]))
 			{
 				case 1:
 				{
@@ -198,9 +202,8 @@ void gameLoop() // it runs forever
 		plr.velocity.x += -1;
 	}
 
-	if (Event::KeyPressed(SDLK_UPARROW) && plr.touchground == true)
+	if (Event::KeyPressed(SDLK_UPARROW))
 	{
-		plr.touchground = false;
 		plr.velocity.y = -25;
 	}
 

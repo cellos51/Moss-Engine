@@ -109,7 +109,6 @@ void Entity::getCol(Entity& p_ent) // ok the collision is fucky as hell so only 
 
 		if (boxNum.y < 0 && fabs(boxNum.y) > fabs(boxNum.x))
 		{
-			touchground = true;
 			setY(p_ent.transform.y - currentFrame.h);
 			velocity.y = velocity.y * bounciness - 1;
 			if(velocity.x >= -0.5 && velocity.x <= 0.5)
