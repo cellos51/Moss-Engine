@@ -81,7 +81,7 @@ void render() // honestly i feel like putting the stuff that is at the end of th
 	
 	for (Entity wall : walls)
 	{
-			plr.getCol(wall);
+		plr.getCol(wall);
 	}
 
 	window.clear();
