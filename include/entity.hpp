@@ -23,6 +23,7 @@ public:
 	float dragY = 0.05;
 	float bounciness = 0;
 	bool phys = false;
+	bool colUp = true, colDown = true, colLeft = true, colRight = true;
 	void init();
 	SDL_Texture* getTex();
 	void setTex(SDL_Texture* p_tex);

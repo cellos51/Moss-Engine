@@ -23,7 +23,7 @@ void RenderWindow::clear() // clears the renderer
 	SDL_RenderClear(renderer);
 }
 
-void RenderWindow::render(Entity& p_ent) // i think this copys the texture to the renderer
+void RenderWindow::render(Entity& p_ent, bool cam) // i think this copys the texture to the renderer
 {
 	SDL_Rect src;
 	src.x = p_ent.getCurrentFrame().x;
@@ -32,10 +32,22 @@ void RenderWindow::render(Entity& p_ent) // i think this copys the texture to th
 	src.h = p_ent.getCurrentFrame().h;	
 
 	SDL_Rect dst;
-	dst.x = p_ent.getPos().x + camera.x;
-	dst.y = p_ent.getPos().y + camera.y;
-	dst.w = p_ent.getCurrentFrame().w;
-	dst.h = p_ent.getCurrentFrame().h;
+	
+	if (cam == true)
+	{
+		dst.x = p_ent.getPos().x + camera.x;
+		dst.y = p_ent.getPos().y + camera.y;
+		dst.w = p_ent.getCurrentFrame().w;
+		dst.h = p_ent.getCurrentFrame().h;
+	}
+	else
+	{
+		dst.x = p_ent.getPos().x;
+		dst.y = p_ent.getPos().y;
+		dst.w = p_ent.getCurrentFrame().w;
+		dst.h = p_ent.getCurrentFrame().h;
+	}
+
 
 	if (p_ent.getTex() != NULL)
 	{

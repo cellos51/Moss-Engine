@@ -4,6 +4,22 @@
 		"selected_items":
 		[
 			[
+				"ios",
+				"iostream\tstandard header"
+			],
+			[
+				"SD",
+				"SDL_Texture"
+			],
+			[
+				"ve",
+				"vector\tstd::vector"
+			],
+			[
+				"en",
+				"enrolled"
+			],
+			[
 				"map",
 				"mapFile"
 			],
@@ -21,10 +37,6 @@
 			],
 			[
 				"vec",
-				"Vector2"
-			],
-			[
-				"ve",
 				"Vector2"
 			],
 			[
@@ -140,10 +152,6 @@
 				"mouseY"
 			],
 			[
-				"en",
-				"Entity"
-			],
-			[
 				"M",
 				"mouseY"
 			],
@@ -241,14 +249,19 @@
 	},
 	"file_history":
 	[
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/entity.cpp",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/entity.hpp",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/level.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/.gitignore",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/level.hpp",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/event.cpp",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/player.cpp",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/main.cpp",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/assets/levels/level1.lvl",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/renderwindow.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/SDL Game.sublime-workspace",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/renderwindow.hpp",
-		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/entity.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/init.hpp",
-		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/player.cpp",
-		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/event.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/event.hpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/renderwindow.cpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/include/renderwindow.hpp",
@@ -278,7 +291,7 @@
 	],
 	"find":
 	{
-		"height": 28.0
+		"height": 40.0
 	},
 	"find_in_files":
 	{
@@ -292,6 +305,8 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"window",
+			"walls",
 			"grav_",
 			"grav",
 			"size",
@@ -307,6 +322,9 @@
 		"regex": false,
 		"replace_history":
 		[
+			"p_win",
+			"p_ent",
+			"ent"
 		],
 		"reverse": false,
 		"show_context": true,
@@ -356,7 +374,7 @@
 	"pinned_build_system": "SDL2 Debug",
 	"replace":
 	{
-		"height": 52.0
+		"height": 71.0
 	},
 	"save_all_on_build": true,
 	"select_file":

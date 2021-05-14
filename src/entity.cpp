@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <math.h>
+#include <iostream>
 
 #include "entity.hpp"
 
@@ -101,15 +102,13 @@ Vector2 Entity::getSize()
 void Entity::getCol(Entity& p_ent) // ok the collision is fucky as hell so only use squares with this
 {
 	Vector2 boxNum = Vector2(transform.x - p_ent.size.x / 2 + size.x / 2 - p_ent.transform.x, transform.y - p_ent.size.y / 2 + size.y / 2 - p_ent.transform.y);
-	//std::cout << boxNum.x << " " << boxNum.y << "\n";
 
 	if (getPos().y >= p_ent.transform.y - currentFrame.h && getPos().y <= p_ent.transform.y + p_ent.currentFrame.h && getPos().x >= p_ent.transform.x - currentFrame.w && getPos().x <= p_ent.transform.x + p_ent.currentFrame.w)
 	{
-
-		if (boxNum.y < 0 && fabs(boxNum.y) > fabs(boxNum.x))
+		if (boxNum.y < 0 && fabs(boxNum.y) > fabs(boxNum.x) && p_ent.colUp == true)
 		{
 			setY(p_ent.transform.y - currentFrame.h);
-			velocity.y = velocity.y * bounciness - 1;
+			velocity.y = velocity.y * bounciness;
 			if(velocity.x >= -0.5 && velocity.x <= 0.5)
 			{
 				velocity.x = 0;
@@ -123,10 +122,10 @@ void Entity::getCol(Entity& p_ent) // ok the collision is fucky as hell so only 
 				velocity.x += gravity.y * friction;
 			}
 		}
-		else if (boxNum.y > 0 && fabs(boxNum.y) > fabs(boxNum.x))
+		else if (boxNum.y > 0 && fabs(boxNum.y) > fabs(boxNum.x) && p_ent.colDown == true)
 		{
 			setY(p_ent.transform.y + p_ent.currentFrame.h);
-			velocity.y = -velocity.y * -bounciness + 1;
+			velocity.y = -velocity.y * -bounciness;
 			if(velocity.x >= -0.5 && velocity.x <= 0.5)
 			{
 				velocity.x = 0;
@@ -140,10 +139,10 @@ void Entity::getCol(Entity& p_ent) // ok the collision is fucky as hell so only 
 				velocity.x += gravity.y * friction;
 			}
 		}
-		else if (boxNum.x > 0 && fabs(boxNum.x) > fabs(boxNum.y))
+		else if (boxNum.x > 0 && fabs(boxNum.x) > fabs(boxNum.y) && p_ent.colRight == true)
 		{
 			setX(p_ent.transform.x + p_ent.currentFrame.w);
-			velocity.x = -velocity.x * -bounciness + 1;
+			velocity.x = -velocity.x * -bounciness;
 			if(velocity.y >= -0.5 && velocity.y <= 0.5)
 			{
 				velocity.y = 0;
@@ -157,10 +156,10 @@ void Entity::getCol(Entity& p_ent) // ok the collision is fucky as hell so only 
 				velocity.y += gravity.x * friction;
 			}
 		}
-		else if (boxNum.x < 0 && fabs(boxNum.x) > fabs(boxNum.y))
+		else if (boxNum.x < 0 && fabs(boxNum.x) > fabs(boxNum.y) && p_ent.colLeft == true)
 		{
 			setX(p_ent.transform.x - currentFrame.w);
-			velocity.x = velocity.x * bounciness - 1;
+			velocity.x = velocity.x * bounciness;
 			if(velocity.y >= -0.5 && velocity.y <= 0.5)
 			{
 				velocity.y = 0;

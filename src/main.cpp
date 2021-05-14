@@ -66,7 +66,7 @@ void gameLoop() // it runs forever
 
 	if (Event::KeyPressed(SDLK_UPARROW))
 	{
-		plr.velocity.y = -25;
+		plr.velocity.y = -20;
 	}
 
 	if (Event::KeyPressed(SDLK_DOWNARROW))
@@ -85,10 +85,10 @@ void render() // honestly i feel like putting the stuff that is at the end of th
 	}
 
 	window.clear();
-	window.render(plr);
+	window.render(plr, true);
 	for (Entity wall : walls)
 	{
-		window.render(wall);
+		window.render(wall, true);
 	}
 	window.display();
 }
