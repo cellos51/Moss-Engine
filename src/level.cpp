@@ -23,8 +23,13 @@ void checkAdjacent(Entity& _ent, int _a, int _b, std::vector<std::string> lvl)
 			_ent.colLeft = false;
 		}
 	}
+	else
+	{
+		_ent.colUp = false;
+		_ent.colLeft = false;
+	}
 
-	if (_b + _a * 16 + 2 + 16 <= std::stoi(lvl[0]) * std::stoi(lvl[1]))
+	if (_b + _a * 16 + 2 + 16 <= std::stoi(lvl[0]) * std::stoi(lvl[1])) // todo fix bug where colright does not get set to false even if there is a tile next to it
 	{
 		if (lvl[_b + _a * 16 + 2 + 16] != "0")
 		{
@@ -35,6 +40,11 @@ void checkAdjacent(Entity& _ent, int _a, int _b, std::vector<std::string> lvl)
 		{
 			_ent.colRight = false;
 		}
+	}
+	else
+	{
+		_ent.colDown = false;
+		_ent.colRight = false;
 	}
 }
 
@@ -56,7 +66,7 @@ void Level::LoadLevel(std::string path, std::vector<Entity>& p_ent, RenderWindow
 	SDL_Texture* dirt13 = p_win.loadTexture("assets/textures/dirt13.png");
 
 
-	std::ifstream inFile(path); // file based level loader (will be moved to its own class)
+	std::ifstream inFile(path); // file based level loader (will be moved to its own class) hey future person here uhhh yeah i did that ok bye :)
 	std::vector<std::string> level;
     if (inFile.is_open())
     {
@@ -74,7 +84,7 @@ void Level::LoadLevel(std::string path, std::vector<Entity>& p_ent, RenderWindow
     inFile.close();
 
 
-	int a, b;
+	int a, b; // these comments are fucking pointless now. on another note listen to lemon demon and red vox fucking amazing bands.
 	for (a = 0; a < std::stoi(level[0]); a++) // make these numbers the same as "level"
 	{
 		for (b = 0; b < std::stoi(level[1]); b++)
@@ -195,4 +205,4 @@ void Level::LoadLevel(std::string path, std::vector<Entity>& p_ent, RenderWindow
 			}
 		}
 	}
-}
+} // woulnd't it be funny if i just started venting my problems into this as comments and have a diary inside this? i might actually do that

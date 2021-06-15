@@ -10,8 +10,7 @@
 
 #include "level.hpp"
 
-const short SCREEN_WIDTH = 1024;
-const short SCREEN_HEIGHT = 640;
+#include "config.hpp" // this just has the screen size so if i change it i dont need to change it in every class
 
 // random shit needed to be here to run
 bool init();
@@ -47,32 +46,17 @@ bool init() // used to initiate things before using
 
 void gameLoop() // it runs forever
 {
-	float cameraX = plr.getPos().x - plr.getPos().x * 2 - window.camera.x + SCREEN_WIDTH / 2 - plr.getSize().x / 2;
-	window.camera.x += cameraX / 10;
-	float cameraY = plr.getPos().y - plr.getPos().y * 2 - window.camera.y + SCREEN_HEIGHT / 2 - plr.getSize().y / 2;
-	window.camera.y += cameraY / 10;
+	window.camera(plr);
 
-	plr.goToMouse(Event::MousePressed(SDLK_LEFTMOUSE));
 
-	if (Event::KeyPressed(SDLK_RIGHTARROW))
+	if (Event::MousePressed(SDLK_LEFTMOUSE)) // for debugging
 	{
-		plr.velocity.x += 1;
+		int x;
+		int y;
+		SDL_GetMouseState(&x, &y);
+		plr.setPos(Vector2(x, y));
 	}
-
-	if (Event::KeyPressed(SDLK_LEFTARROW))
-	{
-		plr.velocity.x += -1;
-	}
-
-	if (Event::KeyPressed(SDLK_UPARROW))
-	{
-		plr.velocity.y = -20;
-	}
-
-	if (Event::KeyPressed(SDLK_DOWNARROW))
-	{
-		plr.velocity.y += 1;
-	}
+	
 }
 
 void render() // honestly i feel like putting the stuff that is at the end of the gameloop in here
@@ -83,9 +67,9 @@ void render() // honestly i feel like putting the stuff that is at the end of th
 	{
 		plr.getCol(wall);
 	}
-
 	window.clear();
 	window.render(plr, true);
+
 	for (Entity wall : walls)
 	{
 		window.render(wall, true);

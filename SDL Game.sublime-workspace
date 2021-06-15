@@ -4,6 +4,14 @@
 		"selected_items":
 		[
 			[
+				"inc",
+				"include"
+			],
+			[
+				"if",
+				"if"
+			],
+			[
 				"ios",
 				"iostream\tstandard header"
 			],
@@ -249,18 +257,19 @@
 	},
 	"file_history":
 	[
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/event.cpp",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/config.hpp",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/renderwindow.cpp",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/renderwindow.hpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/entity.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/entity.hpp",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/main.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/level.cpp",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/assets/levels/level1.lvl",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/.gitignore",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/level.hpp",
-		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/event.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/player.cpp",
-		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/main.cpp",
-		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/assets/levels/level1.lvl",
-		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/renderwindow.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/SDL Game.sublime-workspace",
-		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/renderwindow.hpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/init.hpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/event.hpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/renderwindow.cpp",
@@ -327,8 +336,10 @@
 			"ent"
 		],
 		"reverse": false,
+		"scrollbar_highlights": true,
 		"show_context": true,
 		"use_buffer2": true,
+		"use_gitignore": true,
 		"whole_word": false,
 		"wrap": true
 	},
@@ -365,7 +376,7 @@
 	"menu_visible": true,
 	"output.exec":
 	{
-		"height": 32.0
+		"height": 31.0
 	},
 	"output.find_results":
 	{

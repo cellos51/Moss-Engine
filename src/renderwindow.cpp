@@ -3,6 +3,7 @@
 
 #include "renderwindow.hpp"
 #include "entity.hpp"
+#include "config.hpp"
 
 void RenderWindow::create(const char* p_title, int p_w, int p_h)
 {
@@ -35,8 +36,8 @@ void RenderWindow::render(Entity& p_ent, bool cam) // i think this copys the tex
 	
 	if (cam == true)
 	{
-		dst.x = p_ent.getPos().x + camera.x;
-		dst.y = p_ent.getPos().y + camera.y;
+		dst.x = p_ent.getPos().x + cameraPos.x;
+		dst.y = p_ent.getPos().y + cameraPos.y;
 		dst.w = p_ent.getCurrentFrame().w;
 		dst.h = p_ent.getCurrentFrame().h;
 	}
@@ -69,4 +70,12 @@ void RenderWindow::quit() // used before exiting the program
 {
 	SDL_DestroyWindow(window);
 	SDL_Quit();
+}
+
+void RenderWindow::camera(Entity& p_ent) // used before exiting the program
+{
+	float cameraX = p_ent.getPos().x - p_ent.getPos().x * 2 - cameraPos.x + SCREEN_WIDTH / 2 - p_ent.getSize().x / 2;
+	cameraPos.x += cameraX / 10;
+	float cameraY = p_ent.getPos().y - p_ent.getPos().y * 2 - cameraPos.y + SCREEN_HEIGHT / 2 - p_ent.getSize().y / 2;
+	cameraPos.y += cameraY / 10;
 }

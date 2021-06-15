@@ -15,13 +15,13 @@ public:
 	// Vector2 gravity = Vector2(0.0, 1.0);
 	// float friction = 1;
 	// float drag = 0.05;
-	// float bounciness = -0.8;
+	// float bounciness = 0.8;
 	Vector2 velocity;
 	Vector2 gravity = Vector2(0.0, 1.0);
 	float friction = 0;
 	float dragX = 0.10;
 	float dragY = 0.05;
-	float bounciness = 0;
+	float bounciness = 0.8;
 	bool phys = false;
 	bool colUp = true, colDown = true, colLeft = true, colRight = true;
 	void init();
@@ -40,7 +40,7 @@ public:
 	void getCol(Entity& p_ent);
 	void physics(bool p_phys);
 	void update();
-protected:
+protected: // holy shit im gonna have to refactor so much shit fuuuuuuccckkkk
 	Vector2 transform;
 	SDL_Texture* tex;
 	Vector2 size;

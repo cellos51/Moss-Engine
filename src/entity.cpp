@@ -7,8 +7,7 @@
 
 #include "math.hpp"
 
-const short SCREEN_WIDTH = 1024;
-const short SCREEN_HEIGHT = 640;
+#include "config.hpp"
 
 
 Entity::Entity(Vector2 p_pos, SDL_Texture* p_tex, Vector2 p_size) : transform(p_pos), tex(p_tex), size(p_size)
@@ -108,7 +107,11 @@ void Entity::getCol(Entity& p_ent) // ok the collision is fucky as hell so only 
 		if (boxNum.y < 0 && fabs(boxNum.y) > fabs(boxNum.x) && p_ent.colUp == true)
 		{
 			setY(p_ent.transform.y - currentFrame.h);
-			velocity.y = velocity.y * bounciness;
+			if (velocity.y > 0)
+			{
+				velocity.y = velocity.y * -bounciness;
+			}
+
 			if(velocity.x >= -0.5 && velocity.x <= 0.5)
 			{
 				velocity.x = 0;
@@ -125,7 +128,11 @@ void Entity::getCol(Entity& p_ent) // ok the collision is fucky as hell so only 
 		else if (boxNum.y > 0 && fabs(boxNum.y) > fabs(boxNum.x) && p_ent.colDown == true)
 		{
 			setY(p_ent.transform.y + p_ent.currentFrame.h);
-			velocity.y = -velocity.y * -bounciness;
+			if (velocity.y < 0)
+			{
+				velocity.y = -velocity.y * bounciness;
+			}
+
 			if(velocity.x >= -0.5 && velocity.x <= 0.5)
 			{
 				velocity.x = 0;
@@ -142,7 +149,11 @@ void Entity::getCol(Entity& p_ent) // ok the collision is fucky as hell so only 
 		else if (boxNum.x > 0 && fabs(boxNum.x) > fabs(boxNum.y) && p_ent.colRight == true)
 		{
 			setX(p_ent.transform.x + p_ent.currentFrame.w);
-			velocity.x = -velocity.x * -bounciness;
+			if (velocity.x < 0)
+			{
+				velocity.x = -velocity.x * bounciness;
+			}
+
 			if(velocity.y >= -0.5 && velocity.y <= 0.5)
 			{
 				velocity.y = 0;
@@ -159,7 +170,11 @@ void Entity::getCol(Entity& p_ent) // ok the collision is fucky as hell so only 
 		else if (boxNum.x < 0 && fabs(boxNum.x) > fabs(boxNum.y) && p_ent.colLeft == true)
 		{
 			setX(p_ent.transform.x - currentFrame.w);
-			velocity.x = velocity.x * bounciness;
+			if (velocity.x > 0)
+			{
+				velocity.x = velocity.x * -bounciness;
+			}
+			
 			if(velocity.y >= -0.5 && velocity.y <= 0.5)
 			{
 				velocity.y = 0;
@@ -211,7 +226,7 @@ void Entity::physics(bool p_phys)
 		{
 			velocity.y -= dragY * velocity.y;
 		}
-
+		// only enable this if you want collisions to happen on the edges of the screen
 		// if (getPos().y >= SCREEN_HEIGHT - currentFrame.h) // prevent leaving screen on y axis and bounces and friction :)
 		// {
 		// 	setY(SCREEN_HEIGHT - currentFrame.h);

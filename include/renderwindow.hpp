@@ -16,7 +16,8 @@ public:
 	void render(Entity& p_ent, bool cam);
 	void display();
 	void quit();
-	Vector2 camera = Vector2(0,0);
+	void camera(Entity& p_ent);
+	Vector2 cameraPos = Vector2(0,0);
 private:
 	SDL_Window* window;
 	SDL_Renderer* renderer;
