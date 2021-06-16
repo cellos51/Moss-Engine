@@ -1,6 +1,5 @@
-# SDL-Game
-Is a game I am working on to improve my skills with C++.
-Its more like a tech demo than anything.
+# SDL-Game Editor
+Just editing stuff in the main engine to allow me to make levels faster.
 
 # Screenshots
 
