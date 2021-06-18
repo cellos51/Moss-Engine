@@ -33,7 +33,7 @@ std::vector<Entity> walls; // literally just walls (for the level) (also why the
 
 bool load = init(); // this is the end of textures and windows OK NVM
 
-Player plr (Vector2(100, 0), playerTex, Vector2(64, 64));
+//Player plr (Vector2(100, 0), playerTex, Vector2(64, 64));
 
 Entity cursor (Vector2(64, 64), tileSetAplha[0]);
 
@@ -104,7 +104,7 @@ bool init() // used to initiate things before using
 			{
 				if (x == xpos && y == ypos)
 				{
-					levelData[x + width * y] = "1";
+					levelData[x + width * y] = wall.id;
 				}	
 			}
 		}
@@ -128,9 +128,17 @@ void gameLoop() // it runs forever
 	SDL_GetMouseState(&x, &y);
 
 	int xf = (x  - window.cameraPos.x) / (SCREEN_WIDTH / 16);
-	int yf = (y  - window.cameraPos.y) / (SCREEN_HEIGHT /10);
+	int yf = (y  - window.cameraPos.y) / (SCREEN_HEIGHT / 10);
 
-	cursor.setPos(Vector2(xf * (SCREEN_WIDTH / 16), yf * (SCREEN_HEIGHT /10)));
+	if(Vector2(xf * (SCREEN_WIDTH / 16), yf * (SCREEN_HEIGHT / 10)).x < 0 || Vector2(xf * (SCREEN_WIDTH / 16), yf * (SCREEN_HEIGHT / 10)).y < 0)
+	{	
+	}
+	else if (Vector2(xf * (SCREEN_WIDTH / 16), yf * (SCREEN_HEIGHT / 10)).x < 16 * 64 && Vector2(xf * (SCREEN_WIDTH / 16), yf * (SCREEN_HEIGHT / 10)).y < 10 * 64)
+	{
+		cursor.setPos(Vector2(xf * (SCREEN_WIDTH / 16), yf * (SCREEN_HEIGHT / 10)));
+	}
+
+
 
 	if (Event::MousePressed(SDLK_MIDDLEMOUSE))
 	{
@@ -142,37 +150,45 @@ void gameLoop() // it runs forever
 		offsetCam = window.cameraPos;
 	}
 
-
-
-	if (Event::MousePressed(SDLK_LEFTMOUSE)) // for debugging
+	if (Event::MousePressed(SDLK_LEFTMOUSE))
 	{
-		Level::LoadLevel(Level::LoadFile("assets/levels/test.lvl"), walls, window, tileSet);
-		// int x;
-		// int y;
-		// SDL_GetMouseState(&x, &y);
-		// plr.setPos(Vector2(x, y));
+		bool obstructed = false;
+		for (Entity wall : walls)
+		{
+			if (wall.getPos().x == cursor.getPos().x && wall.getPos().y == cursor.getPos().y)
+			{
+				obstructed = true;
+			}
+		}
+		if (obstructed == false)
+		{
+			Entity tile (cursor.getPos(), tileSet[0], Vector2(64, 64));
+			walls.push_back(tile);
+		}
 	}
-	else if (Event::MousePressed(SDLK_RIGHTMOUSE)) // for debugging
+	else if (Event::MousePressed(SDLK_RIGHTMOUSE))
 	{
-		Level::LoadLevel(Level::LoadFile("assets/levels/level1.lvl"), walls, window, tileSet);
-		// int x;
-		// int y;
-		// SDL_GetMouseState(&x, &y);
-		// plr.setPos(Vector2(x, y));
+		for (unsigned i = 0; i < walls.size(); i++)
+		{
+			if (walls[i].getPos().x == cursor.getPos().x && walls[i].getPos().y == cursor.getPos().y)
+			{
+				walls.erase(walls.begin() + i);
+			}
+		}
 	}
-	
+
 }
 
 void render() // honestly i feel like putting the stuff that is at the end of the gameloop in here
 {
-	plr.update();
+	//plr.update();
 	
-	for (Entity wall : walls)
-	{
-		plr.getCol(wall);
-	}
+	// for (Entity wall : walls)
+	// {
+	// 	plr.getCol(wall);
+	// }
 	window.clear();
-	window.render(plr, true);
+	//window.render(plr, true);
 
 	for (Entity wall : walls)
 	{

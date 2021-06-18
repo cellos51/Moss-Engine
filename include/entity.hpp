@@ -2,6 +2,7 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <string>
 
 #include "math.hpp"
 
@@ -13,6 +14,7 @@ public:
 	Entity(Vector2 p_pos, Vector2 p_size);
 	Entity(Vector2 p_size, SDL_Texture* p_tex);
 	Entity(Vector2 p_size);
+	std::string id = "1";
 	// Vector2 gravity = Vector2(0.0, 1.0);
 	// float friction = 1;
 	// float drag = 0.05;
