@@ -199,12 +199,14 @@ void Level::LoadLevel(std::vector<std::string> data, std::vector<Entity>& p_ent,
 	}
 } // woulnd't it be funny if i just started venting my problems into this as comments and have a diary inside this? i might actually do that
 
-void Level::SaveLevel(std::string path, std::vector<std::string> lvl)
+void Level::SaveLevel(std::string path, std::string *lvl, int sizeX, int sizeY)
 {	
 	std::ofstream outFile(path);
     if (outFile.is_open())
   	{
-    	for(unsigned i = 0; i < lvl.size(); i ++)
+  		outFile << std::to_string(sizeY) << "," ;
+  		outFile << std::to_string(sizeX) << "," ;
+    	for(int i = 0; i < sizeX * sizeY; i ++)
     	{
         outFile << lvl[i] << "," ;
     	}

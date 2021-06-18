@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <vector>
+#include <iostream>
 
 #include "renderwindow.hpp"
 
@@ -26,12 +27,15 @@ Vector2 offsetMouse;
 // textures
 SDL_Texture* playerTex;
 SDL_Texture* tileSet[13];
+SDL_Texture* tileSetAplha[13];
 
 std::vector<Entity> walls; // literally just walls (for the level) (also why the fuck don't i make a seperete entity derived class for the level??? ahh fuck it)
 
 bool load = init(); // this is the end of textures and windows OK NVM
 
 Player plr (Vector2(100, 0), playerTex, Vector2(64, 64));
+
+Entity cursor (Vector2(64, 64), tileSetAplha[0]);
 
 bool init() // used to initiate things before using
 {
@@ -57,40 +61,105 @@ bool init() // used to initiate things before using
 	tileSet[11] = window.loadTexture("assets/textures/dirt11.png");
 	tileSet[12] = window.loadTexture("assets/textures/dirt12.png");
 	tileSet[13] = window.loadTexture("assets/textures/dirt13.png");
+	tileSetAplha[0] = window.loadTexture("assets/textures/grass.png"); // ok if you are browsing my code on github to learn. PLEASE. DO. NOT. DO. THIS. it is very bad and im only doing this because this isn't very important.
+	tileSetAplha[1] = window.loadTexture("assets/textures/dirt1.png");
+	tileSetAplha[2] = window.loadTexture("assets/textures/dirt2.png");
+	tileSetAplha[3] = window.loadTexture("assets/textures/dirt3.png");
+	tileSetAplha[4] = window.loadTexture("assets/textures/dirt4.png");
+	tileSetAplha[5] = window.loadTexture("assets/textures/dirt5.png");
+	tileSetAplha[6] = window.loadTexture("assets/textures/dirt6.png");
+	tileSetAplha[7] = window.loadTexture("assets/textures/dirt7.png");
+	tileSetAplha[8] = window.loadTexture("assets/textures/dirt8.png"); 
+	tileSetAplha[9] = window.loadTexture("assets/textures/dirt9.png");
+	tileSetAplha[10] = window.loadTexture("assets/textures/dirt10.png");
+	tileSetAplha[11] = window.loadTexture("assets/textures/dirt11.png");
+	tileSetAplha[12] = window.loadTexture("assets/textures/dirt12.png");
+	tileSetAplha[13] = window.loadTexture("assets/textures/dirt13.png");
 
+	for (unsigned i = 0; i < sizeof tileSetAplha/sizeof tileSetAplha[0]; i++)
+	{
+		SDL_SetTextureAlphaMod(tileSetAplha[i], 128);
+	}
 
+	Level::LoadLevel(Level::LoadFile("assets/levels/level1.lvl"), walls, window, tileSet); // i'd rather be lonely than tied to a phase
 
-	Level::LoadLevel(Level::LoadFile("assets/levels/level1.lvl"), walls, window, tileSet);
+	int width = 16;
+	int height = 10;
+
+	std::string levelData[width * height];
+
+	for (int i = 0; i < width * height; i++)
+	{
+		levelData[i] = "0";
+	}
+
+	for (Entity wall : walls)
+	{
+		int xpos = wall.getPos().x / 64;
+		int ypos = wall.getPos().y / 64;
+
+		for (int y = 0; y < height; y++)
+		{
+			for (int x = 0; x < width; x++)
+			{
+				if (x == xpos && y == ypos)
+				{
+					levelData[x + width * y] = "1";
+				}	
+			}
+		}
+	}
+
+	for (int i = 0; i < width * height; i++)
+	{
+		std::cout << levelData[i] << " ";
+	}
+
+	Level::SaveLevel("assets/levels/test.lvl", levelData, width, height);
 
 	return true;
 }
 
 void gameLoop() // it runs forever
 {
-	window.camera(plr);
+	//window.camera(plr);
 
-	// if (Event::MousePressed(SDLK_MIDDLEMOUSE))
-	// {
-	// 	int x, y;
-	// 	SDL_GetMouseState(&x, &y);
-	// 	window.cameraPos = Vector2(x - offsetMouse.x + offsetCam.x, y - offsetMouse.y + offsetCam.y);
-	// }
-	// else if(!Event::MousePressed(SDLK_MIDDLEMOUSE))
-	// {
-	// 	int x, y;
-	// 	SDL_GetMouseState(&x, &y);
-	// 	offsetMouse = Vector2(x, y);
-	// 	offsetCam = window.cameraPos;
-	// }
+	int x, y;
+	SDL_GetMouseState(&x, &y);
 
-	// if (Event::MousePressed(SDLK_LEFTMOUSE)) // for debugging
-	// {
-	// 	Level::LoadLevel(Level::LoadFile("assets/levels/level1.lvl"), walls, window, tileSet);
-	// 	// int x;
-	// 	// int y;
-	// 	// SDL_GetMouseState(&x, &y);
-	// 	// plr.setPos(Vector2(x, y));
-	// }
+	int xf = (x  - window.cameraPos.x) / (SCREEN_WIDTH / 16);
+	int yf = (y  - window.cameraPos.y) / (SCREEN_HEIGHT /10);
+
+	cursor.setPos(Vector2(xf * (SCREEN_WIDTH / 16), yf * (SCREEN_HEIGHT /10)));
+
+	if (Event::MousePressed(SDLK_MIDDLEMOUSE))
+	{
+		window.cameraPos = Vector2(x - offsetMouse.x + offsetCam.x, y - offsetMouse.y + offsetCam.y);
+	}
+	else if(!Event::MousePressed(SDLK_MIDDLEMOUSE))
+	{
+		offsetMouse = Vector2(x, y);
+		offsetCam = window.cameraPos;
+	}
+
+
+
+	if (Event::MousePressed(SDLK_LEFTMOUSE)) // for debugging
+	{
+		Level::LoadLevel(Level::LoadFile("assets/levels/test.lvl"), walls, window, tileSet);
+		// int x;
+		// int y;
+		// SDL_GetMouseState(&x, &y);
+		// plr.setPos(Vector2(x, y));
+	}
+	else if (Event::MousePressed(SDLK_RIGHTMOUSE)) // for debugging
+	{
+		Level::LoadLevel(Level::LoadFile("assets/levels/level1.lvl"), walls, window, tileSet);
+		// int x;
+		// int y;
+		// SDL_GetMouseState(&x, &y);
+		// plr.setPos(Vector2(x, y));
+	}
 	
 }
 
@@ -109,6 +178,7 @@ void render() // honestly i feel like putting the stuff that is at the end of th
 	{
 		window.render(wall, true);
 	}
+	window.render(cursor, true);
 	window.display();
 }
 

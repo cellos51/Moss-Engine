@@ -4,6 +4,26 @@
 		"selected_items":
 		[
 			[
+				"tileS",
+				"tileSetAplha"
+			],
+			[
+				"cur",
+				"cursorX"
+			],
+			[
+				"vec",
+				"Vector2"
+			],
+			[
+				"cl",
+				"clear"
+			],
+			[
+				"ve",
+				"Vector2"
+			],
+			[
 				"inc",
 				"include"
 			],
@@ -18,10 +38,6 @@
 			[
 				"SD",
 				"SDL_Texture"
-			],
-			[
-				"ve",
-				"vector\tstd::vector"
 			],
 			[
 				"en",
@@ -42,10 +58,6 @@
 			[
 				"sc",
 				"SCREEN_WIDTH"
-			],
-			[
-				"vec",
-				"Vector2"
 			],
 			[
 				"player",
@@ -300,7 +312,7 @@
 	],
 	"find":
 	{
-		"height": 40.0
+		"height": 39.0
 	},
 	"find_in_files":
 	{
@@ -314,6 +326,10 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"p_tex",
+			"level",
+			"path",
+			"p_win",
 			"window",
 			"walls",
 			"grav_",

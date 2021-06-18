@@ -11,6 +11,7 @@ public:
 	Entity(Vector2 p_pos, SDL_Texture* p_tex, Vector2 p_size);
 	Entity(SDL_Texture* p_tex, Vector2 p_size);
 	Entity(Vector2 p_pos, Vector2 p_size);
+	Entity(Vector2 p_size, SDL_Texture* p_tex);
 	Entity(Vector2 p_size);
 	// Vector2 gravity = Vector2(0.0, 1.0);
 	// float friction = 1;
