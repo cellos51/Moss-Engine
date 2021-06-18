@@ -8,6 +8,8 @@ bool mouse[3];
 
 bool keyboard[4];
 
+int scrollId = 0;
+
 void Event::PollEvent()
 {
 	SDL_Event event;
@@ -18,6 +20,35 @@ void Event::PollEvent()
     	case SDL_QUIT: 
       			quit = true;
       			break;
+        case SDL_MOUSEWHEEL:
+        {
+          if (event.wheel.y > 0)
+          {
+            scrollId += 1;
+            if (scrollId > 13)
+            {
+              scrollId = 0;
+            }
+            mouse[3] = true;
+            mouse[4] = false;
+          }
+          else if (event.wheel.y < 0)
+          {
+            scrollId -= 1;
+            if (scrollId < 0)
+            {
+              scrollId = 13;
+            }
+            mouse[3] = false;
+            mouse[4] = true;
+          }
+          else 
+          {
+            mouse[3] = false;
+            mouse[4] = false;
+          }
+        }
+        break;
     		case SDL_MOUSEBUTTONDOWN:
     		{
           switch (event.button.button)
@@ -116,4 +147,9 @@ bool Event::KeyPressed(KeyButton i)
 bool Event::MousePressed(MouseButton i)
 {
 	return mouse[i];
+}
+
+int Event::MouseWheel()
+{
+  return scrollId;
 }

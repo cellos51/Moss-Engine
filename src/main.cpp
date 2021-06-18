@@ -35,7 +35,8 @@ bool load = init(); // this is the end of textures and windows OK NVM
 
 //Player plr (Vector2(100, 0), playerTex, Vector2(64, 64));
 
-Entity cursor (Vector2(64, 64), tileSetAplha[0]);
+unsigned cursorTexId = 0;
+Entity cursor (Vector2(64, 64), tileSetAplha[cursorTexId]);
 
 bool init() // used to initiate things before using
 {
@@ -76,7 +77,7 @@ bool init() // used to initiate things before using
 	tileSetAplha[12] = window.loadTexture("assets/textures/dirt12.png");
 	tileSetAplha[13] = window.loadTexture("assets/textures/dirt13.png");
 
-	for (unsigned i = 0; i < sizeof tileSetAplha/sizeof tileSetAplha[0]; i++)
+	for (unsigned i = 0; i < sizeof tileSetAplha/sizeof tileSetAplha[0] + 1; i++)
 	{
 		SDL_SetTextureAlphaMod(tileSetAplha[i], 128);
 	}
@@ -138,7 +139,7 @@ void gameLoop() // it runs forever
 		cursor.setPos(Vector2(xf * (SCREEN_WIDTH / 16), yf * (SCREEN_HEIGHT / 10)));
 	}
 
-
+	cursor.setTex(tileSetAplha[Event::MouseWheel()]);
 
 	if (Event::MousePressed(SDLK_MIDDLEMOUSE))
 	{
@@ -162,7 +163,7 @@ void gameLoop() // it runs forever
 		}
 		if (obstructed == false)
 		{
-			Entity tile (cursor.getPos(), tileSet[0], Vector2(64, 64));
+			Entity tile (cursor.getPos(), tileSet[Event::MouseWheel()], Vector2(64, 64));
 			walls.push_back(tile);
 		}
 	}

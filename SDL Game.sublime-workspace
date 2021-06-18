@@ -4,6 +4,50 @@
 		"selected_items":
 		[
 			[
+				"tile",
+				"tileSetAplha"
+			],
+			[
+				"c",
+				"cursor"
+			],
+			[
+				"Get",
+				"getPos"
+			],
+			[
+				"t",
+				"tileSet"
+			],
+			[
+				"size",
+				"sizeY"
+			],
+			[
+				"siz",
+				"sizeY"
+			],
+			[
+				"s",
+				"sizeX"
+			],
+			[
+				"leve",
+				"levelData"
+			],
+			[
+				"wi",
+				"width"
+			],
+			[
+				"get",
+				"getPos"
+			],
+			[
+				"f",
+				"for"
+			],
+			[
 				"tileS",
 				"tileSetAplha"
 			],
@@ -84,10 +128,6 @@
 				"playerTex"
 			],
 			[
-				"size",
-				"sizeH"
-			],
-			[
 				"SDL",
 				"SDLK_LEFTMOUSE"
 			],
@@ -130,10 +170,6 @@
 			[
 				"gra",
 				"grav_y"
-			],
-			[
-				"c",
-				"createPlayers"
 			],
 			[
 				"cre",
@@ -270,20 +306,21 @@
 	"file_history":
 	[
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/event.cpp",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/event.hpp",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/level.cpp",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/level.hpp",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/entity.cpp",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/entity.hpp",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/assets/levels/level1.lvl",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/assets/levels/test.lvl",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/config.hpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/renderwindow.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/renderwindow.hpp",
-		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/entity.cpp",
-		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/entity.hpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/main.cpp",
-		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/level.cpp",
-		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/assets/levels/level1.lvl",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/.gitignore",
-		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/level.hpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/player.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/SDL Game.sublime-workspace",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/init.hpp",
-		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/event.hpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/renderwindow.cpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/include/renderwindow.hpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/player.cpp",
@@ -326,6 +363,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"string",
 			"p_tex",
 			"level",
 			"path",
