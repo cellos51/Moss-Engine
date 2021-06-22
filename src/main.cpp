@@ -27,8 +27,8 @@ Vector2 offsetMouse;
 
 // textures
 SDL_Texture* playerTex;
-SDL_Texture* tileSet[13];
-SDL_Texture* tileSetAplha[13];
+SDL_Texture* tileSet[15];
+SDL_Texture* tileSetAplha[15];
 
 std::vector<Entity> walls; // literally just walls (for the level) (also why the fuck don't i make a seperete entity derived class for the level??? ahh fuck it)
 
@@ -50,6 +50,8 @@ bool load = init(); // this is the end of textures and windows OK NVM
 
 //Player plr (Vector2(100, 0), playerTex, Vector2(64, 64));
 
+Entity border (Vector2(0,0), Vector2(LVLwidth * 64, LVLheight * 64));
+
 unsigned cursorTexId = 0;
 Entity cursor (Vector2(64, 64), tileSetAplha[cursorTexId]);
 
@@ -62,7 +64,7 @@ bool init() // used to initiate things before using
 	window.create("Moss Level Editor", SCREEN_WIDTH, SCREEN_HEIGHT); // name and size of application window
 
 	// textures
-	playerTex = window.loadTexture("assets/textures/player.png"); // the texture used for the player
+	//playerTex = window.loadTexture("assets/textures/player.png"); // the texture used for the player
 	tileSet[0] = window.loadTexture("assets/textures/grass.png");
 	tileSet[1] = window.loadTexture("assets/textures/dirt1.png");
 	tileSet[2] = window.loadTexture("assets/textures/dirt2.png");
@@ -77,6 +79,7 @@ bool init() // used to initiate things before using
 	tileSet[11] = window.loadTexture("assets/textures/dirt11.png");
 	tileSet[12] = window.loadTexture("assets/textures/dirt12.png");
 	tileSet[13] = window.loadTexture("assets/textures/dirt13.png");
+	tileSet[14] = window.loadTexture("assets/textures/player.png");
 	tileSetAplha[0] = window.loadTexture("assets/textures/grass.png"); // ok if you are browsing my code on github to learn. PLEASE. DO. NOT. DO. THIS. it is very bad and im only doing this because this isn't very important.
 	tileSetAplha[1] = window.loadTexture("assets/textures/dirt1.png");
 	tileSetAplha[2] = window.loadTexture("assets/textures/dirt2.png");
@@ -91,6 +94,7 @@ bool init() // used to initiate things before using
 	tileSetAplha[11] = window.loadTexture("assets/textures/dirt11.png");
 	tileSetAplha[12] = window.loadTexture("assets/textures/dirt12.png");
 	tileSetAplha[13] = window.loadTexture("assets/textures/dirt13.png");
+	tileSetAplha[14] = window.loadTexture("assets/textures/player.png");
 
 	for (unsigned i = 0; i < sizeof tileSetAplha/sizeof tileSetAplha[0] + 1; i++)
 	{
@@ -247,6 +251,7 @@ void gameLoop() // it runs forever
 		if (obstructed == false)
 		{
 			Entity tile (cursor.getPos(), tileSet[Event::MouseWheel()], Vector2(64, 64));
+			tile.id = std::to_string(Event::MouseWheel() + 1);
 			walls.push_back(tile);
 		}
 	}
@@ -272,6 +277,7 @@ void render() // honestly i feel like putting the stuff that is at the end of th
 	// }
 	window.clear();
 	//window.render(plr, true);
+	window.render(border, true);
 
 	for (Entity wall : walls)
 	{

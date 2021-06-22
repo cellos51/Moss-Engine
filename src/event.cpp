@@ -25,7 +25,7 @@ void Event::PollEvent()
           if (event.wheel.y > 0)
           {
             scrollId += 1;
-            if (scrollId > 13)
+            if (scrollId > 14)
             {
               scrollId = 0;
             }
@@ -35,7 +35,7 @@ void Event::PollEvent()
             scrollId -= 1;
             if (scrollId < 0)
             {
-              scrollId = 13;
+              scrollId = 14;
             }
           }
         }

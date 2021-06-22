@@ -11,41 +11,41 @@
 
 void checkAdjacent(Entity& _ent, int _a, int _b, std::vector<std::string> lvl)
 {
-	if (_b + _a * 16 + 2 - 16 >= 0)
-	{
-		if (lvl[_b + _a * 16 + 2 - 16] != "0")
-		{
-			_ent.colUp = false;
-		}
+	// if (_b + _a * 16 + 2 - 16 >= 0)
+	// {
+	// 	if (lvl[_b + _a * 16 + 2 - 16] != "0")
+	// 	{
+	// 		_ent.colUp = false;
+	// 	}
 
-		if (lvl[_b + _a * 16 + 2 - 1] != "0")
-		{
-			_ent.colLeft = false;
-		}
-	}
-	else
-	{
-		_ent.colUp = false;
-		_ent.colLeft = false;
-	}
+	// 	if (lvl[_b + _a * 16 + 2 - 1] != "0")
+	// 	{
+	// 		_ent.colLeft = false;
+	// 	}
+	// }
+	// else
+	// {
+	// 	_ent.colUp = false;
+	// 	_ent.colLeft = false;
+	// }
 
-	if (_b + _a * 16 + 2 + 16 <= std::stoi(lvl[0]) * std::stoi(lvl[1])) // todo fix bug where colright does not get set to false even if there is a tile next to it
-	{
-		if (lvl[_b + _a * 16 + 2 + 16] != "0")
-		{
-			_ent.colDown = false;
-		}
+	// if (_b + _a * 16 + 2 + 16 <= std::stoi(lvl[0]) * std::stoi(lvl[1])) // todo fix bug where colright does not get set to false even if there is a tile next to it
+	// {
+	// 	if (lvl[_b + _a * 16 + 2 + 16] != "0")
+	// 	{
+	// 		_ent.colDown = false;
+	// 	}
 
-		if (lvl[_b + _a * 16 + 2 + 1] != "0")
-		{
-			_ent.colRight = false;
-		}
-	}
-	else
-	{
-		_ent.colDown = false;
-		_ent.colRight = false;
-	}
+	// 	if (lvl[_b + _a * 16 + 2 + 1] != "0")
+	// 	{
+	// 		_ent.colRight = false;
+	// 	}
+	// }
+	// else
+	// {
+	// 	_ent.colDown = false;
+	// 	_ent.colRight = false;
+	// }
 }
 
 std::vector<std::string> Level::LoadFile(std::string path)
@@ -81,12 +81,12 @@ std::tuple<int, int> Level::LoadLevel(std::vector<std::string> data, std::vector
 	{
 		for (b = 0; b < std::stoi(data[1]); b++)
 		{
-			switch (std::stoi(data[b + a * 16 + 2]))
+			switch (std::stoi(data[b + a * std::stoi(data[1]) + 2]))
 			{
 				case 1:
 				{
-					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * 16 + 2]) - 1], Vector2(64,64));
-					ent.id = data[b + a * 16 + 2];
+					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(64,64));
+					ent.id = data[b + a * std::stoi(data[1]) + 2];
 					checkAdjacent(ent, a, b, data);
 					p_ent.push_back (ent);
 				}
@@ -94,8 +94,8 @@ std::tuple<int, int> Level::LoadLevel(std::vector<std::string> data, std::vector
 
 				case 2:
 				{
-					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * 16 + 2]) - 1], Vector2(64,64));
-					ent.id = data[b + a * 16 + 2];
+					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(64,64));
+					ent.id = data[b + a * std::stoi(data[1]) + 2];
 					checkAdjacent(ent, a, b, data);
 					p_ent.push_back (ent);
 				}
@@ -103,8 +103,8 @@ std::tuple<int, int> Level::LoadLevel(std::vector<std::string> data, std::vector
 
 				case 3:
 				{
-					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * 16 + 2]) - 1], Vector2(64,64));
-					ent.id = data[b + a * 16 + 2];
+					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(64,64));
+					ent.id = data[b + a * std::stoi(data[1]) + 2];
 					checkAdjacent(ent, a, b, data);
 					p_ent.push_back (ent);
 				}
@@ -112,8 +112,8 @@ std::tuple<int, int> Level::LoadLevel(std::vector<std::string> data, std::vector
 
 				case 4:
 				{
-					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * 16 + 2]) - 1], Vector2(64,64));
-					ent.id = data[b + a * 16 + 2];
+					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(64,64));
+					ent.id = data[b + a * std::stoi(data[1]) + 2];
 					checkAdjacent(ent, a, b, data);
 					p_ent.push_back (ent);
 				}
@@ -121,8 +121,8 @@ std::tuple<int, int> Level::LoadLevel(std::vector<std::string> data, std::vector
 
 				case 5:
 				{
-					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * 16 + 2]) - 1], Vector2(64,64));
-					ent.id = data[b + a * 16 + 2];
+					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(64,64));
+					ent.id = data[b + a * std::stoi(data[1]) + 2];
 					checkAdjacent(ent, a, b, data);
 					p_ent.push_back (ent);
 				}
@@ -130,8 +130,8 @@ std::tuple<int, int> Level::LoadLevel(std::vector<std::string> data, std::vector
 
 				case 6:
 				{
-					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * 16 + 2]) - 1], Vector2(64,64));
-					ent.id = data[b + a * 16 + 2];
+					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(64,64));
+					ent.id = data[b + a * std::stoi(data[1]) + 2];
 					checkAdjacent(ent, a, b, data);
 					p_ent.push_back (ent);
 				}
@@ -139,8 +139,8 @@ std::tuple<int, int> Level::LoadLevel(std::vector<std::string> data, std::vector
 
 				case 7:
 				{
-					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * 16 + 2]) - 1], Vector2(64,64));
-					ent.id = data[b + a * 16 + 2];
+					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(64,64));
+					ent.id = data[b + a * std::stoi(data[1]) + 2];
 					checkAdjacent(ent, a, b, data);
 					p_ent.push_back (ent);
 				}
@@ -148,8 +148,8 @@ std::tuple<int, int> Level::LoadLevel(std::vector<std::string> data, std::vector
 
 				case 8:
 				{
-					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * 16 + 2]) - 1], Vector2(64,64));
-					ent.id = data[b + a * 16 + 2];
+					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(64,64));
+					ent.id = data[b + a * std::stoi(data[1]) + 2];
 					checkAdjacent(ent, a, b, data);
 					p_ent.push_back (ent);
 				}
@@ -157,8 +157,8 @@ std::tuple<int, int> Level::LoadLevel(std::vector<std::string> data, std::vector
 
 				case 9:
 				{
-					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * 16 + 2]) - 1], Vector2(64,64));
-					ent.id = data[b + a * 16 + 2];
+					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(64,64));
+					ent.id = data[b + a * std::stoi(data[1]) + 2];
 					checkAdjacent(ent, a, b, data);
 					p_ent.push_back (ent);
 				}
@@ -166,8 +166,8 @@ std::tuple<int, int> Level::LoadLevel(std::vector<std::string> data, std::vector
 
 				case 10:
 				{
-					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * 16 + 2]) - 1], Vector2(64,64));
-					ent.id = data[b + a * 16 + 2];
+					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(64,64));
+					ent.id = data[b + a * std::stoi(data[1]) + 2];
 					checkAdjacent(ent, a, b, data);
 					p_ent.push_back (ent);
 				}
@@ -175,8 +175,8 @@ std::tuple<int, int> Level::LoadLevel(std::vector<std::string> data, std::vector
 
 				case 11:
 				{
-					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * 16 + 2]) - 1], Vector2(64,64));
-					ent.id = data[b + a * 16 + 2];
+					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(64,64));
+					ent.id = data[b + a * std::stoi(data[1]) + 2];
 					checkAdjacent(ent, a, b, data);
 					p_ent.push_back (ent);
 				}
@@ -184,8 +184,8 @@ std::tuple<int, int> Level::LoadLevel(std::vector<std::string> data, std::vector
 
 				case 12:
 				{
-					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * 16 + 2]) - 1], Vector2(64,64));
-					ent.id = data[b + a * 16 + 2];
+					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(64,64));
+					ent.id = data[b + a * std::stoi(data[1]) + 2];
 					checkAdjacent(ent, a, b, data);
 					p_ent.push_back (ent);
 				}
@@ -193,8 +193,8 @@ std::tuple<int, int> Level::LoadLevel(std::vector<std::string> data, std::vector
 
 				case 13:
 				{
-					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * 16 + 2]) - 1], Vector2(64,64));
-					ent.id = data[b + a * 16 + 2];
+					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(64,64));
+					ent.id = data[b + a * std::stoi(data[1]) + 2];
 					checkAdjacent(ent, a, b, data);
 					p_ent.push_back (ent);
 				}
@@ -202,8 +202,17 @@ std::tuple<int, int> Level::LoadLevel(std::vector<std::string> data, std::vector
 
 				case 14:
 				{
-					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * 16 + 2]) - 1], Vector2(64,64));
-					ent.id = data[b + a * 16 + 2];
+					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(64,64));
+					ent.id = data[b + a * std::stoi(data[1]) + 2];
+					checkAdjacent(ent, a, b, data);
+					p_ent.push_back (ent);
+				}
+				break;
+
+				case 15:
+				{
+					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(64,64));
+					ent.id = data[b + a * std::stoi(data[1]) + 2];
 					checkAdjacent(ent, a, b, data);
 					p_ent.push_back (ent);
 				}
