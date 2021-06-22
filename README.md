@@ -1,4 +1,4 @@
-# SDL-Game
+# Moss Engine
 Is a game I am working on to improve my skills with C++.
 Its more like a tech demo than anything.
 
