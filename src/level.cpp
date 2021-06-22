@@ -71,7 +71,7 @@ std::vector<std::string> Level::LoadFile(std::string path)
     return level;
 }
 
-void Level::LoadLevel(std::vector<std::string> data, std::vector<Entity>& p_ent, RenderWindow& p_win, SDL_Texture* p_tex[])
+std::tuple<int, int> Level::LoadLevel(std::vector<std::string> data, std::vector<Entity>& p_ent, RenderWindow& p_win, SDL_Texture* p_tex[])
 {	
 	p_ent.clear();
 	p_ent.shrink_to_fit();
@@ -211,6 +211,7 @@ void Level::LoadLevel(std::vector<std::string> data, std::vector<Entity>& p_ent,
 			}
 		}
 	}
+	return std::make_tuple(std::stoi(data[0]), std::stoi(data[1]));
 } // woulnd't it be funny if i just started venting my problems into this as comments and have a diary inside this? i might actually do that
 
 void Level::SaveLevel(std::string path, std::string *lvl, int sizeX, int sizeY)

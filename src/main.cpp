@@ -2,6 +2,7 @@
 #include <SDL2/SDL_image.h>
 #include <vector>
 #include <iostream>
+#include <tuple>
 
 #include "renderwindow.hpp"
 
@@ -31,6 +32,20 @@ SDL_Texture* tileSetAplha[13];
 
 std::vector<Entity> walls; // literally just walls (for the level) (also why the fuck don't i make a seperete entity derived class for the level??? ahh fuck it)
 
+// width height of level (defualt: 16:10)
+int LVLwidth = 16;
+int LVLheight = 10;
+
+inline bool isInteger(const std::string & s) // yeah i just fucking copied this from stackoverflow credits to paercebal i think
+{
+   if(s.empty() || ((!isdigit(s[0])) && (s[0] != '-') && (s[0] != '+'))) return false;
+
+   char * p;
+   strtol(s.c_str(), &p, 10);
+
+   return (*p == 0);
+}
+
 bool load = init(); // this is the end of textures and windows OK NVM
 
 //Player plr (Vector2(100, 0), playerTex, Vector2(64, 64));
@@ -44,7 +59,7 @@ bool init() // used to initiate things before using
 	SDL_Init(SDL_INIT_VIDEO);
 	IMG_Init(IMG_INIT_PNG);
 
-	window.create("SDL Game", SCREEN_WIDTH, SCREEN_HEIGHT); // name and size of application window
+	window.create("Moss Level Editor", SCREEN_WIDTH, SCREEN_HEIGHT); // name and size of application window
 
 	// textures
 	playerTex = window.loadTexture("assets/textures/player.png"); // the texture used for the player
@@ -56,7 +71,7 @@ bool init() // used to initiate things before using
 	tileSet[5] = window.loadTexture("assets/textures/dirt5.png");
 	tileSet[6] = window.loadTexture("assets/textures/dirt6.png");
 	tileSet[7] = window.loadTexture("assets/textures/dirt7.png");
-	tileSet[8] = window.loadTexture("assets/textures/dirt8.png"); 
+	tileSet[8] = window.loadTexture("assets/textures/dirt8.png");
 	tileSet[9] = window.loadTexture("assets/textures/dirt9.png");
 	tileSet[10] = window.loadTexture("assets/textures/dirt10.png");
 	tileSet[11] = window.loadTexture("assets/textures/dirt11.png");
@@ -82,61 +97,129 @@ bool init() // used to initiate things before using
 		SDL_SetTextureAlphaMod(tileSetAplha[i], 128);
 	}
 
-	Level::LoadLevel(Level::LoadFile("assets/levels/level1.lvl"), walls, window, tileSet); // i'd rather be lonely than tied to a phase
+	std::cout << "Welcome to Moss Level Editor." << std::endl;
+	std::cout << "Would you like to load a level or create a new one? (load/new)" << std::endl;
 
-	int width = 16;
-	int height = 10;
+	while (true)
+	{
+		std::string input;
+		std::cin >> input;
+		if (input == "load")
+		{
+			std::cout << std::endl << "Please input the name of the level you wish to load (test)" << std::endl;
+			std::cin >> input;
+			std::cout << std::endl << "Loading..." << std::endl;
+			std::tie(LVLheight, LVLwidth) = Level::LoadLevel(Level::LoadFile("assets/levels/" + input + ".lvl"), walls, window, tileSet); // i'd rather be lonely than tied to a phase
+			std::cout << "Loading complete!" << std::endl;
+			std::cout << "When you are ready press 'S' to save your level." << std::endl;
+			break;
+		}
+		else if (input == "new")
+		{
+			std::cout << std::endl << "Please input the width value of the level (16)" << std::endl;
+			while (true)
+			{
+				std::cin >> input;
+				if (isInteger(input))
+				{
+					LVLwidth = std::stoi(input);
+					break;	
+				}
+				else
+				{
+					std::cout << std::endl << "Error: did not recieve valid int" << std::endl;
+				}
+			}
+			std::cout << std::endl << "Please input the height value of the level (10)" << std::endl;
+			while (true)
+			{
+				std::cin >> input;
 
-	std::string levelData[width * height];
+				if (isInteger(input))
+				{
+					LVLheight = std::stoi(input);
+					break;	
+				}
+				else
+				{
+					std::cout << std::endl << "Error: did not recieve valid int" << std::endl;
+				}
+			}
+			std::cout << "Setup complete." << std::endl << "When you are ready press 'S' to save your level." << std::endl;
+			break;
+		}
+		else
+		{
+			std::cout << std::endl << "Error: string recieved not (load/new)" << std::endl;
+		}
+	}
 
-	for (int i = 0; i < width * height; i++)
+	return true;
+}
+
+void LevelCompile (std::vector<Entity>& p_ent, int lvlX, int lvlY)
+{
+	std::string input;
+	std::cout << "Please enter the name you wish the file to be saved as (same names as preesxisting files will be overwritten.)" << std::endl;
+	std::cin >> input;
+	input = input + ".lvl";
+
+	std::cout << std::endl << "Saving..." << std::endl;
+	std::string levelData[lvlX * lvlY];
+
+	for (int i = 0; i < lvlX * lvlY; i++)
 	{
 		levelData[i] = "0";
 	}
 
-	for (Entity wall : walls)
+	for (Entity wall : p_ent)
 	{
 		int xpos = wall.getPos().x / 64;
 		int ypos = wall.getPos().y / 64;
 
-		for (int y = 0; y < height; y++)
+		for (int y = 0; y < lvlY; y++)
 		{
-			for (int x = 0; x < width; x++)
+			for (int x = 0; x < lvlX; x++)
 			{
 				if (x == xpos && y == ypos)
 				{
-					levelData[x + width * y] = wall.id;
+					levelData[x + lvlX * y] = wall.id;
 				}	
 			}
 		}
 	}
 
-	for (int i = 0; i < width * height; i++)
+	for (int i = 0; i < lvlX * lvlY; i++)
 	{
 		std::cout << levelData[i] << " ";
 	}
 
-	Level::SaveLevel("assets/levels/test.lvl", levelData, width, height);
+	Level::SaveLevel("assets/levels/" + input, levelData, lvlX, lvlY);
 
-	return true;
+	std::cout << std::endl << "Saving complete!" << std::endl;
+	std::cout << "File saved as: " + input << std::endl;
 }
 
 void gameLoop() // it runs forever
 {
+	if (Event::KeyPressed(SDLK_S))
+	{
+		LevelCompile(walls, LVLwidth, LVLheight);
+	}
 	//window.camera(plr);
 
 	int x, y;
 	SDL_GetMouseState(&x, &y);
 
-	int xf = (x  - window.cameraPos.x) / (SCREEN_WIDTH / 16);
-	int yf = (y  - window.cameraPos.y) / (SCREEN_HEIGHT / 10);
+	int xf = (x  - window.cameraPos.x) / 64;
+	int yf = (y  - window.cameraPos.y) / 64;
 
-	if(Vector2(xf * (SCREEN_WIDTH / 16), yf * (SCREEN_HEIGHT / 10)).x < 0 || Vector2(xf * (SCREEN_WIDTH / 16), yf * (SCREEN_HEIGHT / 10)).y < 0)
+	if(Vector2(xf * 64, yf * 64).x < 0 || Vector2(xf * 64, yf * 64).y < 0)
 	{	
 	}
-	else if (Vector2(xf * (SCREEN_WIDTH / 16), yf * (SCREEN_HEIGHT / 10)).x < 16 * 64 && Vector2(xf * (SCREEN_WIDTH / 16), yf * (SCREEN_HEIGHT / 10)).y < 10 * 64)
+	else if (Vector2(xf * 64, yf * 64).x < LVLwidth * 64 && Vector2(xf * 64, yf * 64).y < LVLheight * 64)
 	{
-		cursor.setPos(Vector2(xf * (SCREEN_WIDTH / 16), yf * (SCREEN_HEIGHT / 10)));
+		cursor.setPos(Vector2(xf * 64, yf * 64));
 	}
 
 	cursor.setTex(tileSetAplha[Event::MouseWheel()]);
@@ -177,7 +260,6 @@ void gameLoop() // it runs forever
 			}
 		}
 	}
-
 }
 
 void render() // honestly i feel like putting the stuff that is at the end of the gameloop in here
@@ -207,7 +289,7 @@ int main(int argc, char* args[])
     	gameRunning = Event::AppQuit();
 		gameLoop();
     	render();
-		SDL_Delay(16);
+		//SDL_Delay(16);
 	}
 
 	window.quit(); // run when user asks to exit program

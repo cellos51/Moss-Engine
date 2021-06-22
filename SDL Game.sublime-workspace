@@ -4,6 +4,26 @@
 		"selected_items":
 		[
 			[
+				"LVL",
+				"LVLheight"
+			],
+			[
+				"lev",
+				"LevelCompile"
+			],
+			[
+				"lvl",
+				"LVLheight"
+			],
+			[
+				"if",
+				"if"
+			],
+			[
+				"le",
+				"levelName"
+			],
+			[
 				"tile",
 				"tileSetAplha"
 			],
@@ -70,10 +90,6 @@
 			[
 				"inc",
 				"include"
-			],
-			[
-				"if",
-				"if"
 			],
 			[
 				"ios",
@@ -305,6 +321,8 @@
 	},
 	"file_history":
 	[
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/config.hpp",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/renderwindow.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/event.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/event.hpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/level.cpp",
@@ -313,8 +331,6 @@
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/entity.hpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/assets/levels/level1.lvl",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/assets/levels/test.lvl",
-		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/config.hpp",
-		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/renderwindow.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/renderwindow.hpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/main.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/.gitignore",
@@ -399,7 +415,7 @@
 	},
 	"incremental_find":
 	{
-		"height": 28.0
+		"height": 29.0
 	},
 	"input":
 	{
@@ -430,7 +446,7 @@
 	"menu_visible": true,
 	"output.exec":
 	{
-		"height": 31.0
+		"height": 63.0
 	},
 	"output.find_results":
 	{

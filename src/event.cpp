@@ -4,9 +4,9 @@
 
 bool quit = false;
 
-bool mouse[3];
+bool mouse[3] = {0};
 
-bool keyboard[4];
+bool keyboard[5] = {0};
 
 int scrollId = 0;
 
@@ -29,8 +29,6 @@ void Event::PollEvent()
             {
               scrollId = 0;
             }
-            mouse[3] = true;
-            mouse[4] = false;
           }
           else if (event.wheel.y < 0)
           {
@@ -39,13 +37,6 @@ void Event::PollEvent()
             {
               scrollId = 13;
             }
-            mouse[3] = false;
-            mouse[4] = true;
-          }
-          else 
-          {
-            mouse[3] = false;
-            mouse[4] = false;
           }
         }
         break;
@@ -99,6 +90,9 @@ void Event::PollEvent()
             case SDLK_DOWN:
               keyboard[3] = true;
               break;
+            case SDLK_s:
+              keyboard[4] = true;
+              break;      
         }
         break;
       }
@@ -119,6 +113,9 @@ void Event::PollEvent()
             case SDLK_DOWN:
               keyboard[3] = false;
               break;
+            case SDLK_s:
+              keyboard[4] = false;
+              break;  
         }
         break;
       }
