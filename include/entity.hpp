@@ -12,19 +12,16 @@ public:
 	Entity(SDL_Texture* p_tex, Vector2 p_size);
 	Entity(Vector2 p_pos, Vector2 p_size);
 	Entity(Vector2 p_size);
-	// Vector2 gravity = Vector2(0.0, 1.0);
-	// float friction = 1;
-	// float drag = 0.05;
-	// float bounciness = 0.8;
 	Vector2 velocity;
 	Vector2 gravity = Vector2(0.0, 1.0);
 	float friction = 0;
 	float dragX = 0.10;
-	float dragY = 0.05;
-	float bounciness = 0.8;
+	float dragY = 0.01;
+	float bounciness = 0; // 0.8
 	bool phys = false;
 	bool colUp = true, colDown = true, colLeft = true, colRight = true;
 	void init();
+	// void setParams(); // give me my fucking human rights and make it so i dont have to do this shit
 	SDL_Texture* getTex();
 	void setTex(SDL_Texture* p_tex);
 	SDL_Rect getCurrentFrame();
@@ -40,7 +37,8 @@ public:
 	void getCol(Entity& p_ent);
 	void physics(bool p_phys);
 	void update();
-protected: // holy shit im gonna have to refactor so much shit fuuuuuuccckkkk
+protected: // holy shit im gonna have to refactor so much shit fuuuuuuccckkkk (future person: but am i really?)
+	bool OnGround = false;
 	Vector2 transform;
 	SDL_Texture* tex;
 	Vector2 size;

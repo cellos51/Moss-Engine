@@ -7,7 +7,7 @@
 
 void RenderWindow::create(const char* p_title, int p_w, int p_h)
 {
-	window = SDL_CreateWindow(p_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, p_w, p_h, SDL_WINDOW_SHOWN);
+	window = SDL_CreateWindow(p_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, p_w, p_h, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 }
 
@@ -74,8 +74,16 @@ void RenderWindow::quit() // used before exiting the program
 
 void RenderWindow::camera(Entity& p_ent) // used before exiting the program
 {
-	float cameraX = p_ent.getPos().x - p_ent.getPos().x * 2 - cameraPos.x + SCREEN_WIDTH / 2 - p_ent.getSize().x / 2;
+	float cameraX = p_ent.getPos().x - p_ent.getPos().x * 2 - cameraPos.x + getSize().x / 2 - p_ent.getSize().x / 2;
 	cameraPos.x += cameraX / 10;
-	float cameraY = p_ent.getPos().y - p_ent.getPos().y * 2 - cameraPos.y + SCREEN_HEIGHT / 2 - p_ent.getSize().y / 2;
+	float cameraY = p_ent.getPos().y - p_ent.getPos().y * 2 - cameraPos.y + getSize().y / 2 - p_ent.getSize().y / 2;
 	cameraPos.y += cameraY / 10;
+}
+
+Vector2 RenderWindow::getSize()
+{
+	int w, h;
+	SDL_GetWindowSize(window, &w, &h);
+
+	return Vector2(w, h);
 }

@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <vector>
+#include <iostream>
 
 #include "renderwindow.hpp"
 
@@ -29,9 +30,12 @@ SDL_Texture* tileSet[13];
 
 std::vector<Entity> walls; // literally just walls (for the level) (also why the fuck don't i make a seperete entity derived class for the level??? ahh fuck it)
 
+Vector2 PlayerSpawn = Vector2(0,0);
+
 bool load = init(); // this is the end of textures and windows OK NVM
 
-Player plr (Vector2(100, 0), playerTex, Vector2(64, 64));
+
+Player plr (PlayerSpawn, playerTex, Vector2(64,64));
 
 bool init() // used to initiate things before using
 {
@@ -60,15 +64,15 @@ bool init() // used to initiate things before using
 
 
 
-	Level::LoadLevel(Level::LoadFile("assets/levels/level1.lvl"), walls, window, tileSet);
+	PlayerSpawn = Level::LoadLevel(Level::LoadFile("assets/levels/level1.lvl"), walls, window, tileSet);
 
 	return true;
 }
 
 void gameLoop() // it runs forever
 {
-	window.camera(plr);
 
+	window.camera(plr);
 	// if (Event::MousePressed(SDLK_MIDDLEMOUSE))
 	// {
 	// 	int x, y;

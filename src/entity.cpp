@@ -12,22 +12,22 @@
 
 Entity::Entity(Vector2 p_pos, SDL_Texture* p_tex, Vector2 p_size) : transform(p_pos), tex(p_tex), size(p_size)
 {
-	init();
+	Entity::init();
 }
 
 Entity::Entity(SDL_Texture* p_tex, Vector2 p_size) : transform(Vector2(0.0, 0.0)), tex(p_tex), size(p_size)
 {
-	init();
+	Entity::init();
 }
 
 Entity::Entity(Vector2 p_pos, Vector2 p_size) : transform(p_pos), tex(NULL), size(p_size)
 {
-	init();
+	Entity::init();
 }
 
 Entity::Entity(Vector2 p_size) : transform(Vector2(0.0, 0.0)), tex(NULL), size(p_size)
 {
-	init();
+	Entity::init();
 }
 
 void Entity::init()
@@ -37,6 +37,11 @@ void Entity::init()
 	currentFrame.w = size.x;
 	currentFrame.h = size.y;
 }
+
+// void Entity::setParams()
+// {
+	
+// }
 
 SDL_Texture* Entity::getTex()
 {
@@ -103,9 +108,10 @@ void Entity::getCol(Entity& p_ent) // ok the collision is fucky as hell so only 
 	Vector2 boxNum = Vector2(transform.x - p_ent.size.x / 2 + size.x / 2 - p_ent.transform.x, transform.y - p_ent.size.y / 2 + size.y / 2 - p_ent.transform.y);
 
 	if (getPos().y >= p_ent.transform.y - currentFrame.h && getPos().y <= p_ent.transform.y + p_ent.currentFrame.h && getPos().x >= p_ent.transform.x - currentFrame.w && getPos().x <= p_ent.transform.x + p_ent.currentFrame.w)
-	{
+	{	
 		if (boxNum.y < 0 && fabs(boxNum.y) > fabs(boxNum.x) && p_ent.colUp == true)
 		{
+			OnGround = true;
 			setY(p_ent.transform.y - currentFrame.h);
 			if (velocity.y > 0)
 			{
@@ -303,4 +309,3 @@ void Entity::update()
 {
 	Entity::physics(phys);
 }
-

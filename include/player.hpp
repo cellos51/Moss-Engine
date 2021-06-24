@@ -11,7 +11,9 @@ class Player : public Entity
 public:
 	using Entity::Entity;
 	bool phys = true;
+	void init();
 	void update();
+	bool test;
 	// void goToMouse(bool p_tru);
 	// bool touchingMouse();
 private:

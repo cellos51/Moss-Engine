@@ -17,6 +17,7 @@ public:
 	void display();
 	void quit();
 	void camera(Entity& p_ent);
+	Vector2 getSize();
 	Vector2 cameraPos = Vector2(0,0);
 private:
 	SDL_Window* window;
