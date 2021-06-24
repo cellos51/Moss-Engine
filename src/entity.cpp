@@ -38,11 +38,6 @@ void Entity::init()
 	currentFrame.h = size.y;
 }
 
-// void Entity::setParams()
-// {
-	
-// }
-
 SDL_Texture* Entity::getTex()
 {
 	return tex;

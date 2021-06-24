@@ -21,7 +21,6 @@ public:
 	bool phys = false;
 	bool colUp = true, colDown = true, colLeft = true, colRight = true;
 	void init();
-	// void setParams(); // give me my fucking human rights and make it so i dont have to do this shit
 	SDL_Texture* getTex();
 	void setTex(SDL_Texture* p_tex);
 	SDL_Rect getCurrentFrame();

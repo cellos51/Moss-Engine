@@ -12,22 +12,8 @@
 
 // int mouseX, mouseY;
 
-void Player::init()
-{
-	currentFrame.x = 0;
-	currentFrame.y = 0;
-	currentFrame.w = size.x;
-	currentFrame.h = size.y;
-	gravity = Vector2(0.0, 1.0);
-	friction = 0;
-	dragX = 0.10;
-	dragY = 0.01;
-	bounciness = 1; // 0.8
-}
-
 void Player::update()
 {
-	Player::test = true;
 	// SDL_GetMouseState(&mouseX, &mouseY);
 	if (Event::KeyPressed(SDLK_RIGHTARROW))
 	{
