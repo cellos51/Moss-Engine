@@ -14,6 +14,7 @@ public:
 	SDL_Texture* loadTexture(const char* p_filePath);
 	void clear();
 	void render(Entity& p_ent, bool cam);
+	void render(Entity& p_ent, int offx, int offy, bool cam);
 	void display();
 	void quit();
 	void camera(Entity& p_ent);

@@ -61,6 +61,43 @@ void RenderWindow::render(Entity& p_ent, bool cam) // i think this copys the tex
 	}
 }
 
+void RenderWindow::render(Entity& p_ent, int offx, int offy, bool cam)
+{
+	SDL_Rect src;
+	src.x = p_ent.getCurrentFrame().x;
+	src.y = p_ent.getCurrentFrame().y;
+	src.w = p_ent.getCurrentFrame().w;
+	src.h = p_ent.getCurrentFrame().h;	
+
+	SDL_Rect dst;
+	
+	if (cam == true)
+	{
+		dst.x = p_ent.getPos().x + offx + cameraPos.x;
+		dst.y = p_ent.getPos().y + offy + cameraPos.y;
+		dst.w = p_ent.getCurrentFrame().w;
+		dst.h = p_ent.getCurrentFrame().h;
+	}
+	else
+	{
+		dst.x = p_ent.getPos().x;
+		dst.y = p_ent.getPos().y;
+		dst.w = p_ent.getCurrentFrame().w;
+		dst.h = p_ent.getCurrentFrame().h;
+	}
+
+
+	if (p_ent.getTex() != NULL)
+	{
+		SDL_RenderCopy(renderer, p_ent.getTex(), &src, &dst);
+	}
+	else
+	{
+		SDL_SetRenderDrawColor( renderer, 153, 170, 181, 0);        
+    	SDL_RenderFillRect( renderer, &dst );
+	}
+}
+
 void RenderWindow::display() // used to display information from the renderer to the window
 {
 	SDL_RenderPresent(renderer);
