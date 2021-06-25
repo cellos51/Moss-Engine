@@ -43,7 +43,7 @@ bool init() // used to initiate things before using
 	SDL_Init(SDL_INIT_VIDEO);
 	IMG_Init(IMG_INIT_PNG);
 
-	window.create("SDL Game", SCREEN_WIDTH, SCREEN_HEIGHT); // name and size of application window
+	window.create("Moss Engine", SCREEN_WIDTH, SCREEN_HEIGHT); // name and size of application window
 
 	// textures
 	playerTex = window.loadTexture("assets/textures/player.png"); // the texture used for the player

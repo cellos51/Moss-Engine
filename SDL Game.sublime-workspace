@@ -4,6 +4,10 @@
 		"selected_items":
 		[
 			[
+				"ve",
+				"velocity"
+			],
+			[
 				"Ve",
 				"Vector2"
 			],
@@ -22,10 +26,6 @@
 			[
 				"SD",
 				"SDL_Texture"
-			],
-			[
-				"ve",
-				"vector\tstd::vector"
 			],
 			[
 				"en",
@@ -314,6 +314,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"bounciness",
 			"100",
 			"vector",
 			"vector ",
