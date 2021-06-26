@@ -15,12 +15,12 @@ void checkAdjacent(Entity& _ent, int _a, int _b, std::vector<std::string> lvl)
 {
 	if (_b + _a * std::stoi(lvl[1]) + 2 - std::stoi(lvl[1]) >= 0)
 	{
-		if (lvl[_b + _a * std::stoi(lvl[1]) + 2 - std::stoi(lvl[1])] != "0")
+		if (lvl[_b + _a * std::stoi(lvl[1]) + 2 - std::stoi(lvl[1])] != "0" && lvl[_b + _a * std::stoi(lvl[1]) + 2 - std::stoi(lvl[1])] != "15")
 		{
 			_ent.colUp = false;
 		}
 
-		if (lvl[_b + _a * std::stoi(lvl[1]) + 2 - 1] != "0")
+		if (lvl[_b + _a * std::stoi(lvl[1]) + 2 - 1] != "0" && lvl[_b + _a * std::stoi(lvl[1]) + 2 - 1] != "15")
 		{
 			_ent.colLeft = false;
 		}
@@ -33,12 +33,12 @@ void checkAdjacent(Entity& _ent, int _a, int _b, std::vector<std::string> lvl)
 
 	if (_b + _a * std::stoi(lvl[1]) + 2 + std::stoi(lvl[1]) <= std::stoi(lvl[0]) * std::stoi(lvl[1])) // todo fix bug where colright does not get set to false even if there is a tile next to it
 	{
-		if (lvl[_b + _a * std::stoi(lvl[1]) + 2 + std::stoi(lvl[1])] != "0")
+		if (lvl[_b + _a * std::stoi(lvl[1]) + 2 + std::stoi(lvl[1])] != "0" && lvl[_b + _a * std::stoi(lvl[1]) + 2 + std::stoi(lvl[1])] != "15")
 		{
 			_ent.colDown = false;
 		}
 
-		if (lvl[_b + _a * std::stoi(lvl[1]) + 2 + 1] != "0")
+		if (lvl[_b + _a * std::stoi(lvl[1]) + 2 + 1] != "0" && lvl[_b + _a * std::stoi(lvl[1]) + 2 + 1] != "15")
 		{
 			_ent.colRight = false;
 		}

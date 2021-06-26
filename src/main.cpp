@@ -26,7 +26,7 @@ Vector2 offsetMouse;
 
 // textures
 SDL_Texture* playerTex;
-SDL_Texture* tileSet[13];
+SDL_Texture* tileSet[14];
 
 std::vector<Entity> walls; // literally just walls (for the level) (also why the fuck don't i make a seperete entity derived class for the level??? ahh fuck it)
 
@@ -35,7 +35,7 @@ Vector2 PlayerSpawn = Vector2(0,0);
 bool load = init(); // this is the end of textures and windows OK NVM
 
 
-Player plr (PlayerSpawn, playerTex, Vector2(64,64));
+Player plr (PlayerSpawn, window.loadTexture("assets/textures/player.png"), Vector2(64,64));
 
 bool init() // used to initiate things before using
 {
@@ -46,7 +46,6 @@ bool init() // used to initiate things before using
 	window.create("Moss Engine", SCREEN_WIDTH, SCREEN_HEIGHT); // name and size of application window
 
 	// textures
-	playerTex = window.loadTexture("assets/textures/player.png"); // the texture used for the player
 	tileSet[0] = window.loadTexture("assets/textures/grass.png");
 	tileSet[1] = window.loadTexture("assets/textures/dirt1.png");
 	tileSet[2] = window.loadTexture("assets/textures/dirt2.png");
