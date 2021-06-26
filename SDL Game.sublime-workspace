@@ -4,92 +4,20 @@
 		"selected_items":
 		[
 			[
-				"LVL",
-				"LVLheight"
-			],
-			[
-				"lev",
-				"LevelCompile"
-			],
-			[
-				"lvl",
-				"LVLheight"
-			],
-			[
-				"if",
-				"if"
-			],
-			[
-				"le",
-				"levelName"
-			],
-			[
-				"tile",
-				"tileSetAplha"
-			],
-			[
-				"c",
-				"cursor"
-			],
-			[
-				"Get",
-				"getPos"
-			],
-			[
-				"t",
-				"tileSet"
-			],
-			[
-				"size",
-				"sizeY"
-			],
-			[
-				"siz",
-				"sizeY"
-			],
-			[
-				"s",
-				"sizeX"
-			],
-			[
-				"leve",
-				"levelData"
-			],
-			[
-				"wi",
-				"width"
-			],
-			[
-				"get",
-				"getPos"
-			],
-			[
-				"f",
-				"for"
-			],
-			[
-				"tileS",
-				"tileSetAplha"
-			],
-			[
-				"cur",
-				"cursorX"
-			],
-			[
-				"vec",
-				"Vector2"
-			],
-			[
-				"cl",
-				"clear"
-			],
-			[
 				"ve",
+				"velocity"
+			],
+			[
+				"Ve",
 				"Vector2"
 			],
 			[
 				"inc",
 				"include"
+			],
+			[
+				"if",
+				"if"
 			],
 			[
 				"ios",
@@ -120,6 +48,10 @@
 				"SCREEN_WIDTH"
 			],
 			[
+				"vec",
+				"Vector2"
+			],
+			[
 				"player",
 				"player"
 			],
@@ -142,6 +74,10 @@
 			[
 				"pla",
 				"playerTex"
+			],
+			[
+				"size",
+				"sizeH"
 			],
 			[
 				"SDL",
@@ -186,6 +122,10 @@
 			[
 				"gra",
 				"grav_y"
+			],
+			[
+				"c",
+				"createPlayers"
 			],
 			[
 				"cre",
@@ -237,10 +177,6 @@
 			],
 			[
 				"velo",
-				"velocityY"
-			],
-			[
-				"Ve",
 				"velocityY"
 			],
 			[
@@ -321,22 +257,21 @@
 	},
 	"file_history":
 	[
-		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/config.hpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/renderwindow.cpp",
-		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/event.cpp",
-		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/event.hpp",
-		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/level.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/level.hpp",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/main.cpp",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/level.cpp",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/renderwindow.hpp",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/event.cpp",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/config.hpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/entity.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/entity.hpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/assets/levels/level1.lvl",
-		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/assets/levels/test.lvl",
-		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/renderwindow.hpp",
-		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/main.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/.gitignore",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/player.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/SDL Game.sublime-workspace",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/init.hpp",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/event.hpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/renderwindow.cpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/include/renderwindow.hpp",
 		"/C/Users/Gordie/Desktop/source code/Projects/SDL-Game/src/player.cpp",
@@ -365,7 +300,7 @@
 	],
 	"find":
 	{
-		"height": 39.0
+		"height": 40.0
 	},
 	"find_in_files":
 	{
@@ -379,11 +314,10 @@
 		"case_sensitive": false,
 		"find_history":
 		[
-			"string",
-			"p_tex",
-			"level",
-			"path",
-			"p_win",
+			"bounciness",
+			"100",
+			"vector",
+			"vector ",
 			"window",
 			"walls",
 			"grav_",
@@ -415,7 +349,7 @@
 	},
 	"incremental_find":
 	{
-		"height": 29.0
+		"height": 28.0
 	},
 	"input":
 	{
@@ -446,7 +380,7 @@
 	"menu_visible": true,
 	"output.exec":
 	{
-		"height": 63.0
+		"height": 32.0
 	},
 	"output.find_results":
 	{
