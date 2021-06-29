@@ -98,6 +98,12 @@ void RenderWindow::render(Entity& p_ent, int offx, int offy, bool cam)
 	}
 }
 
+void RenderWindow::drawLine(int x1, int y1, int x2, int y2, bool cam)
+{
+	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
+	SDL_RenderDrawLine(renderer, x1 + cameraPos.x, y1 + cameraPos.y, x2 + cameraPos.x, y2 + cameraPos.y);
+}
+
 void RenderWindow::display() // used to display information from the renderer to the window
 {
 	SDL_RenderPresent(renderer);

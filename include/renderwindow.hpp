@@ -15,6 +15,7 @@ public:
 	void clear();
 	void render(Entity& p_ent, bool cam);
 	void render(Entity& p_ent, int offx, int offy, bool cam);
+	void drawLine(int x1, int y1, int x2, int y2, bool cam);
 	void display();
 	void quit();
 	void camera(Entity& p_ent);
@@ -22,5 +23,4 @@ public:
 private:
 	SDL_Window* window;
 	SDL_Renderer* renderer;
-
 };

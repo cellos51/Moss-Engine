@@ -29,7 +29,6 @@ Vector2 offsetMouse;
 SDL_Texture* playerTex;
 SDL_Texture* tileSet[15];
 SDL_Texture* tileSetAplha[15];
-SDL_Texture* grid;
 
 std::vector<Entity> walls; // literally just walls (for the level) (also why the fuck don't i make a seperete entity derived class for the level??? ahh fuck it)
 
@@ -51,8 +50,6 @@ bool load = init(); // this is the end of textures and windows OK NVM
 
 //Player plr (Vector2(100, 0), playerTex, Vector2(64, 64));
 
-Entity border (Vector2(0,0), grid, Vector2(64, 64));
-
 unsigned cursorTexId = 0;
 Entity cursor (Vector2(64, 64), tileSetAplha[cursorTexId]);
 
@@ -64,7 +61,6 @@ bool init() // used to initiate things before using
 
 	window.create("Moss Level Editor", SCREEN_WIDTH, SCREEN_HEIGHT); // name and size of application window
 
-	grid = window.loadTexture("assets/textures/grid.png");
 	// textures
 	//playerTex = window.loadTexture("assets/textures/player.png"); // the texture used for the player
 	tileSet[0] = window.loadTexture("assets/textures/grass.png");
@@ -280,20 +276,22 @@ void render() // honestly i feel like putting the stuff that is at the end of th
 	window.clear();
 	//window.render(plr, true);
 	
-	for (int y = 0; y < LVLheight; y++)
-	{
-		for (int x = 0; x < LVLwidth; x++)
-		{
-			window.render(border, x * 64, y * 64, true);
-		}
-	}
+	window.render(cursor, true);
 
 	for (Entity wall : walls)
 	{
 		window.render(wall, true);
 	}
 
-	window.render(cursor, true);
+	for (int y = 0; y < LVLheight + 1; y++)
+	{
+		window.drawLine(0, y * 64, LVLwidth * 64, y * 64, true);
+	}
+	for (int x = 0; x < LVLwidth + 1; x++)
+	{
+		window.drawLine(x * 64, 0, x * 64, LVLheight * 64, true);
+	}
+
 	window.display();
 }
 
