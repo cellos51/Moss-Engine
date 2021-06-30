@@ -97,8 +97,21 @@ void gameLoop() // it runs forever
 	
 }
 
+bool fuckthis = true;
+
 void render() // honestly i feel like putting the stuff that is at the end of the gameloop in here
 {
+
+	if (Event::MousePressed(SDLK_MIDDLEMOUSE) && fuckthis == true)
+	{
+		window.zoom += 0.1;
+		fuckthis = false;
+	}
+	else if (!Event::MousePressed(SDLK_MIDDLEMOUSE))
+	{
+		fuckthis = true;
+	}
+
 	plr.update();
 	
 	for (Entity wall : walls)

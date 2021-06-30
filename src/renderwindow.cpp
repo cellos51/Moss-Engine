@@ -36,10 +36,10 @@ void RenderWindow::render(Entity& p_ent, bool cam) // i think this copys the tex
 	
 	if (cam == true)
 	{
-		dst.x = p_ent.getPos().x + cameraPos.x;
-		dst.y = p_ent.getPos().y + cameraPos.y;
-		dst.w = p_ent.getCurrentFrame().w;
-		dst.h = p_ent.getCurrentFrame().h;
+		dst.x = (p_ent.getPos().x - zoom * p_ent.getPos().x) + cameraPos.x - zoom * cameraPos.x;
+		dst.y = (p_ent.getPos().y - zoom * p_ent.getPos().y) + cameraPos.y - zoom * cameraPos.y;
+		dst.w = p_ent.getCurrentFrame().w - 64 * zoom;
+		dst.h = p_ent.getCurrentFrame().h  - 64 * zoom;
 	}
 	else
 	{
@@ -74,9 +74,9 @@ void RenderWindow::quit() // used before exiting the program
 
 void RenderWindow::camera(Entity& p_ent) // used before exiting the program
 {
-	float cameraX = p_ent.getPos().x - p_ent.getPos().x * 2 - cameraPos.x + getSize().x / 2 - p_ent.getSize().x / 2;
+	float cameraX = p_ent.getPos().x - p_ent.getPos().x * 2 + zoom - cameraPos.x + getSize().x / (2 - zoom * 2) - p_ent.getSize().x / (2 - zoom * 2);
 	cameraPos.x += cameraX / 10;
-	float cameraY = p_ent.getPos().y - p_ent.getPos().y * 2 - cameraPos.y + getSize().y / 2 - p_ent.getSize().y / 2;
+	float cameraY = p_ent.getPos().y - p_ent.getPos().y * 2 + zoom - cameraPos.y + getSize().y / (2 - zoom * 2) - p_ent.getSize().y / (2 - zoom * 2);
 	cameraPos.y += cameraY / 10;
 }
 
