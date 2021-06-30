@@ -17,7 +17,7 @@ public:
 	void display();
 	void quit();
 	void camera(Entity& p_ent);
-	float zoom = 0; // ok so this works but i'd reccomend only using it with even numbers
+	float zoom = 0; // i have no clue what numbers work best
 	Vector2 getSize();
 	Vector2 cameraPos = Vector2(0,0);
 private:
