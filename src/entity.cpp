@@ -110,20 +110,20 @@ void Entity::getCol(Entity& p_ent) // ok the collision is fucky as hell so only 
 			setY(p_ent.transform.y - currentFrame.h);
 			if (velocity.y > 0)
 			{
-				velocity.y = velocity.y * -bounciness;
+				velocity.y = (velocity.y * -bounciness) / 16 * Time::deltaTime();
 			}
 
-			if(velocity.x >= -0.5 && velocity.x <= 0.5)
+			if(velocity.x >= -0.5 / 16 * Time::deltaTime() && velocity.x <= 0.5 / 16 * Time::deltaTime())
 			{
 				velocity.x = 0;
 			}
-			else if (velocity.x >= 0.1)
+			else if (velocity.x > 0)
 			{
-				velocity.x -= gravity.y * friction;
+				velocity.x -= (gravity.y * friction) / 16 * Time::deltaTime();
 			}
-			else if (velocity.x <= -0.1)
+			else if (velocity.x < 0)
 			{
-				velocity.x += gravity.y * friction;
+				velocity.x += (gravity.y * friction) / 16 * Time::deltaTime();
 			}
 		}
 		else if (boxNum.y > 0 && fabs(boxNum.y) > fabs(boxNum.x) && p_ent.colDown == true)
@@ -134,17 +134,17 @@ void Entity::getCol(Entity& p_ent) // ok the collision is fucky as hell so only 
 				velocity.y = -velocity.y * bounciness;
 			}
 
-			if(velocity.x >= -0.5 && velocity.x <= 0.5)
+			if(velocity.x >= -0.5 / 16 * Time::deltaTime() && velocity.x <= 0.5 / 16 * Time::deltaTime())
 			{
 				velocity.x = 0;
 			}
-			else if (velocity.x >= 0.1)
+			else if (velocity.x > 0)
 			{
-				velocity.x -= gravity.y * friction;
+				velocity.x -= (gravity.y * friction) / 16 * Time::deltaTime();
 			}
-			else if (velocity.x <= -0.1)
+			else if (velocity.x < 0)
 			{
-				velocity.x += gravity.y * friction;
+				velocity.x += (gravity.y * friction) / 16 * Time::deltaTime();
 			}
 		}
 		else if (boxNum.x > 0 && fabs(boxNum.x) > fabs(boxNum.y) && p_ent.colRight == true)
@@ -152,20 +152,20 @@ void Entity::getCol(Entity& p_ent) // ok the collision is fucky as hell so only 
 			setX(p_ent.transform.x + p_ent.currentFrame.w);
 			if (velocity.x < 0)
 			{
-				velocity.x = -velocity.x * bounciness;
+				velocity.x = (-velocity.x * bounciness) / 16 * Time::deltaTime();
 			}
 
-			if(velocity.y >= -0.5 && velocity.y <= 0.5)
+			if(velocity.y >= -0.5 / 16 * Time::deltaTime() && velocity.y <= 0.5 / 16 * Time::deltaTime())
 			{
 				velocity.y = 0;
 			}
-			else if (velocity.y >= 0.1)
+			else if (velocity.y > 0)
 			{
-				velocity.y -= gravity.x * friction;
+				velocity.y -= (gravity.x * friction) / 16 * Time::deltaTime();
 			}
-			else if (velocity.y <= -0.1)
+			else if (velocity.y < 0)
 			{
-				velocity.y += gravity.x * friction;
+				velocity.y += (gravity.x * friction) / 16 * Time::deltaTime();
 			}
 		}
 		else if (boxNum.x < 0 && fabs(boxNum.x) > fabs(boxNum.y) && p_ent.colLeft == true)
@@ -173,20 +173,20 @@ void Entity::getCol(Entity& p_ent) // ok the collision is fucky as hell so only 
 			setX(p_ent.transform.x - currentFrame.w);
 			if (velocity.x > 0)
 			{
-				velocity.x = velocity.x * -bounciness;
+				velocity.x = (velocity.x * -bounciness) / 16 * Time::deltaTime();
 			}
 			
-			if(velocity.y >= -0.5 && velocity.y <= 0.5)
+			if(velocity.y >= -0.5 / 16 * Time::deltaTime() && velocity.y <= 0.5 / 16 * Time::deltaTime())
 			{
 				velocity.y = 0;
 			}
-			else if (velocity.y >= 0.1)
+			else if (velocity.y > 0)
 			{
-				velocity.y -= gravity.x * friction;
+				velocity.y -= (gravity.x * friction) / 16 * Time::deltaTime();
 			}
-			else if (velocity.y <= -0.1)
+			else if (velocity.y < 0)
 			{
-				velocity.y += gravity.x * friction;
+				velocity.y += (gravity.x * friction) / 16 * Time::deltaTime();
 			}
 		}
 	}
@@ -198,34 +198,34 @@ void Entity::physics(bool p_phys)
 {
 	if (p_phys == true)
 	{
-		velocity.x += gravity.x;
-		velocity.y += gravity.y;
-		setPos(Vector2(getPos().x + velocity.x, getPos().y + velocity.y));
+		velocity.x += gravity.x / 16 * Time::deltaTime();
+		velocity.y += gravity.y / 16 * Time::deltaTime();
+		setPos(Vector2(getPos().x + (velocity.x / 16 * Time::deltaTime()), getPos().y + (velocity.y / 16 * Time::deltaTime())));
 
-		if(velocity.x >= -0.1 && velocity.x <= 0.1) // air drag
+		if(velocity.x >= -0.1 / 16 * Time::deltaTime() && velocity.x <= 0.1 / 16 * Time::deltaTime()) // air drag
 		{
 			velocity.x = 0;
 		}
-		else if (velocity.x >= 0.1)
+		else if (velocity.x > 0)
 		{
-			velocity.x -= dragX * velocity.x;
+			velocity.x -= (dragX * velocity.x) / 16 * Time::deltaTime();
 		}
-		else if (velocity.x <= -0.1)
+		else if (velocity.x < 0)
 		{
-			velocity.x -= dragX * velocity.x;
+			velocity.x -= (dragX * velocity.x) / 16 * Time::deltaTime();
 		}
 
-		if(velocity.y >= -0.1 && velocity.y <= 0.1)
+		if(velocity.y >= -0.1 / 16 * Time::deltaTime() && velocity.y <= 0.1 / 16 * Time::deltaTime())
 		{
 			velocity.y = 0;
 		}
-		else if (velocity.y >= 0.1)
+		else if (velocity.y > 0)
 		{
-			velocity.y -= dragY * velocity.y;
+			velocity.y -= (dragY * velocity.y) / 16 * Time::deltaTime();
 		}
-		else if (velocity.y <= -0.1)
+		else if (velocity.y < 0)
 		{
-			velocity.y -= dragY * velocity.y;
+			velocity.y -= (dragY * velocity.y) / 16 * Time::deltaTime();
 		}
 		// only enable this if you want collisions to happen on the edges of the screen
 		// if (getPos().y >= SCREEN_HEIGHT - currentFrame.h) // prevent leaving screen on y axis and bounces and friction :)

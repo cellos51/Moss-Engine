@@ -3,6 +3,8 @@
 #include <vector>
 #include <iostream>
 
+#include "math.hpp"
+
 #include "renderwindow.hpp"
 
 #include "player.hpp"
@@ -70,12 +72,11 @@ bool init() // used to initiate things before using
 
 void gameLoop() // it runs forever
 {
-
 	window.camera(plr);
 
 	if (Event::KeyPressed(SDLK_ONE))
 	{
-		window.zoom = 0;
+		//window.zoom = 0;
 	}
 	else if (Event::KeyPressed(SDLK_TWO))
 	{
@@ -115,21 +116,9 @@ void gameLoop() // it runs forever
 	
 }
 
-bool fuckthis = true;
 
 void render() // honestly i feel like putting the stuff that is at the end of the gameloop in here
 {
-
-	if (Event::MousePressed(SDLK_MIDDLEMOUSE) && fuckthis == true)
-	{
-		window.zoom += 0.1;
-		fuckthis = false;
-	}
-	else if (!Event::MousePressed(SDLK_MIDDLEMOUSE))
-	{
-		fuckthis = true;
-	}
-
 	plr.update();
 	
 	for (Entity wall : walls)
@@ -150,11 +139,11 @@ int main(int argc, char* args[])
 {
 	while (gameRunning) // main game loop ran every frame
 	{
+		Time::Tick();
     	Event::PollEvent();
     	gameRunning = Event::AppQuit();
 		gameLoop();
     	render();
-		SDL_Delay(16);
 	}
 
 	window.quit(); // run when user asks to exit program

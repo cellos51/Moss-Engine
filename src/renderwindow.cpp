@@ -75,9 +75,9 @@ void RenderWindow::quit() // used before exiting the program
 void RenderWindow::camera(Entity& p_ent) // used before exiting the program
 {
 	float cameraX = p_ent.getPos().x - p_ent.getPos().x * 2 + zoom - cameraPos.x + getSize().x / (2 - zoom * 2) - p_ent.getSize().x / (2 - zoom * 2);
-	cameraPos.x += cameraX / 10;
+	cameraPos.x += cameraX * 0.01 * Time::deltaTime();
 	float cameraY = p_ent.getPos().y - p_ent.getPos().y * 2 + zoom - cameraPos.y + getSize().y / (2 - zoom * 2) - p_ent.getSize().y / (2 - zoom * 2);
-	cameraPos.y += cameraY / 10;
+	cameraPos.y += cameraY * 0.01 * Time::deltaTime();
 }
 
 Vector2 RenderWindow::getSize()

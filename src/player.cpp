@@ -17,12 +17,12 @@ void Player::update()
 	// SDL_GetMouseState(&mouseX, &mouseY);
 	if (Event::KeyPressed(SDLK_RIGHTARROW))
 	{
-		velocity.x += 1;
+		velocity.x += 0.0625 * Time::deltaTime();
 	}
 
 	if (Event::KeyPressed(SDLK_LEFTARROW))
 	{
-		velocity.x += -1;
+		velocity.x += -0.0625 * Time::deltaTime();
 	}
 
 	if (Event::KeyPressed(SDLK_UPARROW) && OnGround == true)
