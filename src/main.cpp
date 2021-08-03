@@ -76,7 +76,7 @@ void gameLoop() // it runs forever
 
 	if (Event::KeyPressed(SDLK_ONE))
 	{
-		//window.zoom = 0;
+		window.zoom = 0;
 	}
 	else if (Event::KeyPressed(SDLK_TWO))
 	{
@@ -89,31 +89,7 @@ void gameLoop() // it runs forever
 	else if (Event::KeyPressed(SDLK_FOUR))
 	{
 		window.zoom = 0.75;
-	}
-
-	// if (Event::MousePressed(SDLK_MIDDLEMOUSE))
-	// {
-	// 	int x, y;
-	// 	SDL_GetMouseState(&x, &y);
-	// 	window.cameraPos = Vector2(x - offsetMouse.x + offsetCam.x, y - offsetMouse.y + offsetCam.y);
-	// }
-	// else if(!Event::MousePressed(SDLK_MIDDLEMOUSE))
-	// {
-	// 	int x, y;
-	// 	SDL_GetMouseState(&x, &y);
-	// 	offsetMouse = Vector2(x, y);
-	// 	offsetCam = window.cameraPos;
-	// }
-
-	// if (Event::MousePressed(SDLK_LEFTMOUSE)) // for debugging
-	// {
-	// 	Level::LoadLevel(Level::LoadFile("assets/levels/level1.lvl"), walls, window, tileSet);
-	// 	// int x;
-	// 	// int y;
-	// 	// SDL_GetMouseState(&x, &y);
-	// 	// plr.setPos(Vector2(x, y));
-	// }
-	
+	}	
 }
 
 

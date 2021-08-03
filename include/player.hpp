@@ -13,10 +13,4 @@ public:
 	bool phys = true;
 	void init();
 	void update();
-	// void goToMouse(bool p_tru);
-	// bool touchingMouse();
-private:
-	// Vector2 offset;
-	// Vector2 lastFrame;
-	// short localPriority;
 };

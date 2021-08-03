@@ -227,7 +227,8 @@ void Entity::physics(bool p_phys)
 		{
 			velocity.y -= (dragY * velocity.y) / 16 * Time::deltaTime();
 		}
-		// only enable this if you want collisions to happen on the edges of the screen
+		
+		// only enable this if you want collisions to happen on the edges of the screen (made for 60fps only)
 		// if (getPos().y >= SCREEN_HEIGHT - currentFrame.h) // prevent leaving screen on y axis and bounces and friction :)
 		// {
 		// 	setY(SCREEN_HEIGHT - currentFrame.h);
