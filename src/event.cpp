@@ -6,7 +6,7 @@ bool quit = false;
 
 bool mouse[3];
 
-bool keyboard[8];
+bool keyboard[52];
 
 void Event::PollEvent()
 {
