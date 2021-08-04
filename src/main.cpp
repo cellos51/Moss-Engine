@@ -74,19 +74,19 @@ void gameLoop() // it runs forever
 {
 	window.camera(plr);
 
-	if (Event::KeyPressed(SDLK_ONE))
+	if (Event::KeyPressed(SDLK_1))
 	{
 		window.zoom = 0;
 	}
-	else if (Event::KeyPressed(SDLK_TWO))
+	else if (Event::KeyPressed(SDLK_2))
 	{
 		window.zoom = 0.25;
 	}
-	else if (Event::KeyPressed(SDLK_THREE))
+	else if (Event::KeyPressed(SDLK_3))
 	{
 		window.zoom = 0.5;
 	}
-	else if (Event::KeyPressed(SDLK_FOUR))
+	else if (Event::KeyPressed(SDLK_4))
 	{
 		window.zoom = 0.75;
 	}	

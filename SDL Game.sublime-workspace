@@ -261,13 +261,13 @@
 	},
 	"file_history":
 	[
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/event.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/assets/levels/level1.lvl",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/renderwindow.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/renderwindow.hpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/level.hpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/main.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/level.cpp",
-		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/event.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/config.hpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/entity.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/entity.hpp",
@@ -304,7 +304,7 @@
 	],
 	"find":
 	{
-		"height": 28.0
+		"height": 40.0
 	},
 	"find_in_files":
 	{
@@ -384,7 +384,7 @@
 	"menu_visible": true,
 	"output.exec":
 	{
-		"height": 32.0
+		"height": 39.0
 	},
 	"output.find_results":
 	{
