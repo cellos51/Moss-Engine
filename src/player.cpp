@@ -1,16 +1,31 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <iostream>
 
 #include "entity.hpp"
 #include "player.hpp"
 #include "event.hpp"
 
+Player::Player(Vector2 p_pos, SDL_Texture* p_tex, Vector2 p_size) : Entity(p_pos,p_tex, p_size)
+{
+	transform = p_pos;
+	tex = p_tex;
+	size = p_size;
+	Player::init();
+}
 
-// short priority = 0;
+void Player::init() // this was the biggest pain in the fucking ass ever
+{
+	Entity::friction = friction;
+	Entity::dragX = dragX;
+	Entity::dragY = dragY;
+	Entity::bounciness = bounciness;
 
-// bool mouseDown = false;
-
-// int mouseX, mouseY;
+	currentFrame.x = 0;
+	currentFrame.y = 0;
+	currentFrame.w = size.x;
+	currentFrame.h = size.y;
+}
 
 void Player::update()
 {
@@ -34,7 +49,7 @@ void Player::update()
 	{
 		if (velocity.y < 0)
 		{
-			velocity.y += 3 * Time::deltaTime();
+			velocity.y += 0.1875 * Time::deltaTime();
 		}
 	}
 

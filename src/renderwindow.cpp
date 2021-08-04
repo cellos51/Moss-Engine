@@ -27,26 +27,26 @@ void RenderWindow::clear() // clears the renderer
 void RenderWindow::render(Entity& p_ent, bool cam) // i think this copys the texture to the renderer
 {
 	SDL_Rect src;
-	src.x = p_ent.getCurrentFrame().x;
-	src.y = p_ent.getCurrentFrame().y;
-	src.w = p_ent.getCurrentFrame().w;
-	src.h = p_ent.getCurrentFrame().h;	
+	src.x = p_ent.currentFrame.x;
+	src.y = p_ent.currentFrame.y;
+	src.w = p_ent.currentFrame.w;
+	src.h = p_ent.currentFrame.h;	
 
 	SDL_Rect dst;
 	
 	if (cam == true)
 	{
-		dst.x = (p_ent.getPos().x - zoom * p_ent.getPos().x) + cameraPos.x - zoom * cameraPos.x;
-		dst.y = (p_ent.getPos().y - zoom * p_ent.getPos().y) + cameraPos.y - zoom * cameraPos.y;
-		dst.w = p_ent.getCurrentFrame().w - 64 * zoom;
-		dst.h = p_ent.getCurrentFrame().h  - 64 * zoom;
+		dst.x = (p_ent.transform.x - zoom * p_ent.transform.x) + cameraPos.x - zoom * cameraPos.x;
+		dst.y = (p_ent.transform.y - zoom * p_ent.transform.y) + cameraPos.y - zoom * cameraPos.y;
+		dst.w = p_ent.currentFrame.w - 64 * zoom;
+		dst.h = p_ent.currentFrame.h  - 64 * zoom;
 	}
 	else
 	{
-		dst.x = p_ent.getPos().x;
-		dst.y = p_ent.getPos().y;
-		dst.w = p_ent.getCurrentFrame().w;
-		dst.h = p_ent.getCurrentFrame().h;
+		dst.x = p_ent.transform.x;
+		dst.y = p_ent.transform.y;
+		dst.w = p_ent.currentFrame.w;
+		dst.h = p_ent.currentFrame.h;
 	}
 
 
@@ -74,9 +74,9 @@ void RenderWindow::quit() // used before exiting the program
 
 void RenderWindow::camera(Entity& p_ent) // used before exiting the program
 {
-	float cameraX = p_ent.getPos().x - p_ent.getPos().x * 2 + zoom - cameraPos.x + getSize().x / (2 - zoom * 2) - p_ent.getSize().x / (2 - zoom * 2);
+	float cameraX = p_ent.transform.x - p_ent.transform.x * 2 + zoom - cameraPos.x + getSize().x / (2 - zoom * 2) - p_ent.size.x / (2 - zoom * 2);
 	cameraPos.x += cameraX * 0.01 * Time::deltaTime();
-	float cameraY = p_ent.getPos().y - p_ent.getPos().y * 2 + zoom - cameraPos.y + getSize().y / (2 - zoom * 2) - p_ent.getSize().y / (2 - zoom * 2);
+	float cameraY = p_ent.transform.y - p_ent.transform.y * 2 + zoom - cameraPos.y + getSize().y / (2 - zoom * 2) - p_ent.size.y / (2 - zoom * 2);
 	cameraPos.y += cameraY * 0.01 * Time::deltaTime();
 }
 

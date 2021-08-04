@@ -9,7 +9,12 @@
 class Player : public Entity
 {
 public:
-	using Entity::Entity;
+	//using Entity::Entity;
+	Player(Vector2 p_pos, SDL_Texture* p_tex, Vector2 p_size);
+	float friction = 0;
+	float dragX = 0.10;
+	float dragY = 0.01;
+	float bounciness = 0; // 0.8
 	bool phys = true;
 	void init();
 	void update();
