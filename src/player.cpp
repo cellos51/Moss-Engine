@@ -19,6 +19,7 @@ void Player::init() // this was the biggest pain in the fucking ass ever
 	Entity::friction = friction;
 	Entity::dragX = dragX;
 	Entity::dragY = dragY;
+	Entity::gravity = gravity;
 	Entity::bounciness = bounciness;
 
 	currentFrame.x = 0;

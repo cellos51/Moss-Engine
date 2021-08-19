@@ -50,97 +50,99 @@ void Entity::setTex(SDL_Texture* p_tex)
 
 void Entity::getCol(Entity& p_ent) // ok the collision is fucky as hell so only use squares with this
 {
-	Vector2 boxNum = Vector2(transform.x - p_ent.size.x / 2 + size.x / 2 - p_ent.transform.x, transform.y - p_ent.size.y / 2 + size.y / 2 - p_ent.transform.y);
+	if (p_ent.colUp == true || p_ent.colDown == true || p_ent.colLeft == true || p_ent.colRight == true)
+	{
+		Vector2 boxNum = Vector2(transform.x - p_ent.size.x / 2 + size.x / 2 - p_ent.transform.x, transform.y - p_ent.size.y / 2 + size.y / 2 - p_ent.transform.y);
 
-	if (transform.y >= p_ent.transform.y - currentFrame.h && transform.y <= p_ent.transform.y + p_ent.currentFrame.h && transform.x >= p_ent.transform.x - currentFrame.w && transform.x <= p_ent.transform.x + p_ent.currentFrame.w)
-	{	
-		if (boxNum.y < 0 && fabs(boxNum.y) > fabs(boxNum.x) && p_ent.colUp == true)
-		{
-			OnGround = true;
-			transform.y = (p_ent.transform.y - currentFrame.h);
-			if (velocity.y > 0)
+		if (transform.y >= p_ent.transform.y - currentFrame.h && transform.y <= p_ent.transform.y + p_ent.currentFrame.h && transform.x >= p_ent.transform.x - currentFrame.w && transform.x <= p_ent.transform.x + p_ent.currentFrame.w)
+		{	
+			if (boxNum.y < 0 && fabs(boxNum.y) > fabs(boxNum.x) && p_ent.colUp == true)
 			{
-				velocity.y = (velocity.y * -bounciness) / 16 * Time::deltaTime();
-			}
+				OnGround = true;
+				transform.y = (p_ent.transform.y - currentFrame.h);
+				if (velocity.y > 0)
+				{
+					velocity.y = (velocity.y * -bounciness) / 16 * Time::deltaTime();
+				}
 
-			if(velocity.x >= -0.5 / 16 * Time::deltaTime() && velocity.x <= 0.5 / 16 * Time::deltaTime())
-			{
-				velocity.x = 0;
+				if(velocity.x >= -0.5 / 16 * Time::deltaTime() && velocity.x <= 0.5 / 16 * Time::deltaTime())
+				{
+					velocity.x = 0;
+				}
+				else if (velocity.x > 0)
+				{
+					velocity.x -= (gravity.y * friction) / 16 * Time::deltaTime();
+				}
+				else if (velocity.x < 0)
+				{
+					velocity.x += (gravity.y * friction) / 16 * Time::deltaTime();
+				}
 			}
-			else if (velocity.x > 0)
+			else if (boxNum.y > 0 && fabs(boxNum.y) > fabs(boxNum.x) && p_ent.colDown == true)
 			{
-				velocity.x -= (gravity.y * friction) / 16 * Time::deltaTime();
-			}
-			else if (velocity.x < 0)
-			{
-				velocity.x += (gravity.y * friction) / 16 * Time::deltaTime();
-			}
-		}
-		else if (boxNum.y > 0 && fabs(boxNum.y) > fabs(boxNum.x) && p_ent.colDown == true)
-		{
-			transform.y = (p_ent.transform.y + p_ent.currentFrame.h);
-			if (velocity.y < 0)
-			{
-				velocity.y = -velocity.y * bounciness;
-			}
+				transform.y = (p_ent.transform.y + p_ent.currentFrame.h);
+				if (velocity.y < 0)
+				{
+					velocity.y = -velocity.y * bounciness;
+				}
 
-			if(velocity.x >= -0.5 / 16 * Time::deltaTime() && velocity.x <= 0.5 / 16 * Time::deltaTime())
-			{
-				velocity.x = 0;
+				if(velocity.x >= -0.5 / 16 * Time::deltaTime() && velocity.x <= 0.5 / 16 * Time::deltaTime())
+				{
+					velocity.x = 0;
+				}
+				else if (velocity.x > 0)
+				{
+					velocity.x -= (gravity.y * friction) / 16 * Time::deltaTime();
+				}
+				else if (velocity.x < 0)
+				{
+					velocity.x += (gravity.y * friction) / 16 * Time::deltaTime();
+				}
 			}
-			else if (velocity.x > 0)
+			else if (boxNum.x > 0 && fabs(boxNum.x) > fabs(boxNum.y) && p_ent.colRight == true)
 			{
-				velocity.x -= (gravity.y * friction) / 16 * Time::deltaTime();
-			}
-			else if (velocity.x < 0)
-			{
-				velocity.x += (gravity.y * friction) / 16 * Time::deltaTime();
-			}
-		}
-		else if (boxNum.x > 0 && fabs(boxNum.x) > fabs(boxNum.y) && p_ent.colRight == true)
-		{
-			transform.x = (p_ent.transform.x + p_ent.currentFrame.w);
-			if (velocity.x < 0)
-			{
-				velocity.x = (-velocity.x * bounciness) / 16 * Time::deltaTime();
-			}
+				transform.x = (p_ent.transform.x + p_ent.currentFrame.w);
+				if (velocity.x < 0)
+				{
+					velocity.x = (-velocity.x * bounciness) / 16 * Time::deltaTime();
+				}
 
-			if(velocity.y >= -0.5 / 16 * Time::deltaTime() && velocity.y <= 0.5 / 16 * Time::deltaTime())
-			{
-				velocity.y = 0;
+				if(velocity.y >= -0.5 / 16 * Time::deltaTime() && velocity.y <= 0.5 / 16 * Time::deltaTime())
+				{
+					velocity.y = 0;
+				}
+				else if (velocity.y > 0)
+				{
+					velocity.y -= (gravity.x * friction) / 16 * Time::deltaTime();
+				}
+				else if (velocity.y < 0)
+				{
+					velocity.y += (gravity.x * friction) / 16 * Time::deltaTime();
+				}
 			}
-			else if (velocity.y > 0)
+			else if (boxNum.x < 0 && fabs(boxNum.x) > fabs(boxNum.y) && p_ent.colLeft == true)
 			{
-				velocity.y -= (gravity.x * friction) / 16 * Time::deltaTime();
-			}
-			else if (velocity.y < 0)
-			{
-				velocity.y += (gravity.x * friction) / 16 * Time::deltaTime();
-			}
-		}
-		else if (boxNum.x < 0 && fabs(boxNum.x) > fabs(boxNum.y) && p_ent.colLeft == true)
-		{
-			transform.x = (p_ent.transform.x - currentFrame.w);
-			if (velocity.x > 0)
-			{
-				velocity.x = (velocity.x * -bounciness) / 16 * Time::deltaTime();
-			}
-			
-			if(velocity.y >= -0.5 / 16 * Time::deltaTime() && velocity.y <= 0.5 / 16 * Time::deltaTime())
-			{
-				velocity.y = 0;
-			}
-			else if (velocity.y > 0)
-			{
-				velocity.y -= (gravity.x * friction) / 16 * Time::deltaTime();
-			}
-			else if (velocity.y < 0)
-			{
-				velocity.y += (gravity.x * friction) / 16 * Time::deltaTime();
+				transform.x = (p_ent.transform.x - currentFrame.w);
+				if (velocity.x > 0)
+				{
+					velocity.x = (velocity.x * -bounciness) / 16 * Time::deltaTime();
+				}
+				
+				if(velocity.y >= -0.5 / 16 * Time::deltaTime() && velocity.y <= 0.5 / 16 * Time::deltaTime())
+				{
+					velocity.y = 0;
+				}
+				else if (velocity.y > 0)
+				{
+					velocity.y -= (gravity.x * friction) / 16 * Time::deltaTime();
+				}
+				else if (velocity.y < 0)
+				{
+					velocity.y += (gravity.x * friction) / 16 * Time::deltaTime();
+				}
 			}
 		}
 	}
-
 
 }
 

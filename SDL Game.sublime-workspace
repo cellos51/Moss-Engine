@@ -4,6 +4,10 @@
 		"selected_items":
 		[
 			[
+				"bo",
+				"boxNum"
+			],
+			[
 				"ti",
 				"Time"
 			],
@@ -58,10 +62,6 @@
 			[
 				"player",
 				"player"
-			],
-			[
-				"bo",
-				"boxNum"
 			],
 			[
 				"vector",
@@ -384,13 +384,13 @@
 	"menu_visible": true,
 	"output.exec":
 	{
-		"height": 32.0
+		"height": 233.0
 	},
 	"output.find_results":
 	{
 		"height": 0.0
 	},
-	"pinned_build_system": "SDL2 Debug",
+	"pinned_build_system": "SDL2 Release",
 	"replace":
 	{
 		"height": 52.0

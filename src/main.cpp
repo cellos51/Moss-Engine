@@ -63,8 +63,6 @@ bool init() // used to initiate things before using
 	tileSet[12] = window.loadTexture("assets/textures/dirt12.png");
 	tileSet[13] = window.loadTexture("assets/textures/dirt13.png");
 
-
-
 	PlayerSpawn = Level::LoadLevel(Level::LoadFile("assets/levels/level1.lvl"), walls, window, tileSet);
 
 	return true;
@@ -90,17 +88,18 @@ void gameLoop() // it runs forever
 	{
 		window.zoom = 0.75;
 	}	
-}
 
-
-void render() // honestly i feel like putting the stuff that is at the end of the gameloop in here
-{
 	plr.update();
 	
 	for (Entity wall : walls)
 	{
 		plr.getCol(wall);
 	}
+}
+
+
+void render() // honestly i feel like putting the stuff that is at the end of the gameloop in here
+{
 	window.clear();
 	window.render(plr, true);
 
