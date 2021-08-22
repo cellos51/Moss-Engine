@@ -4,6 +4,7 @@
 #include "renderwindow.hpp"
 #include "entity.hpp"
 #include "config.hpp"
+#include "text.hpp"
 
 void RenderWindow::create(const char* p_title, int p_w, int p_h)
 {
@@ -38,8 +39,8 @@ void RenderWindow::render(Entity& p_ent, bool cam) // i think this copys the tex
 	{
 		dst.x = (p_ent.transform.x - zoom * p_ent.transform.x) + cameraPos.x - zoom * cameraPos.x;
 		dst.y = (p_ent.transform.y - zoom * p_ent.transform.y) + cameraPos.y - zoom * cameraPos.y;
-		dst.w = p_ent.currentFrame.w - 64 * zoom;
-		dst.h = p_ent.currentFrame.h  - 64 * zoom;
+		dst.w = p_ent.currentFrame.w - p_ent.currentFrame.w * zoom;
+		dst.h = p_ent.currentFrame.h  - p_ent.currentFrame.w * zoom;
 	}
 	else
 	{
@@ -59,6 +60,35 @@ void RenderWindow::render(Entity& p_ent, bool cam) // i think this copys the tex
 		SDL_SetRenderDrawColor( renderer, 153, 170, 181, 0);        
     	SDL_RenderFillRect( renderer, &dst );
 	}
+}
+
+void RenderWindow::render(Text& p_text, bool cam) // i think this copys the texture to the renderer
+{
+	// SDL_Rect src;
+	// src.x = p_ent.currentFrame.x;
+	// src.y = p_ent.currentFrame.y;
+	// src.w = p_ent.currentFrame.w;
+	// src.h = p_ent.currentFrame.h;	
+
+	SDL_Rect dst;
+	
+	if (cam == true)
+	{
+		dst.x = (p_text.transform.x - zoom * p_text.transform.x) + cameraPos.x - zoom * cameraPos.x;
+		dst.y = (p_text.transform.y - zoom * p_text.transform.y) + cameraPos.y - zoom * cameraPos.y;
+		dst.w = p_text.size.x - p_text.size.x * zoom;
+		dst.h = p_text.size.y  - p_text.size.y * zoom;
+	}
+	else
+	{
+		dst.x = p_text.transform.x;
+		dst.y = p_text.transform.y;
+		dst.w = p_text.size.x;
+		dst.h = p_text.size.y;
+	}
+	SDL_Texture* Message = SDL_CreateTextureFromSurface(renderer, p_text.messageSurface);
+	SDL_RenderCopy(renderer, Message, NULL, &dst);
+	SDL_DestroyTexture(Message);
 }
 
 void RenderWindow::display() // used to display information from the renderer to the window

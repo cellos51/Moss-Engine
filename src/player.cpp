@@ -31,22 +31,22 @@ void Player::init() // this was the biggest pain in the fucking ass ever
 void Player::update()
 {
 	// SDL_GetMouseState(&mouseX, &mouseY);
-	if (Event::KeyPressed(SDLK_RIGHT))
+	if (Event::KeyPressed(SDLK_RIGHT) || Event::KeyPressed(SDLK_d))
 	{
 		velocity.x += 0.0625 * Time::deltaTime();
 	}
 
-	if (Event::KeyPressed(SDLK_LEFT))
+	if (Event::KeyPressed(SDLK_LEFT) || Event::KeyPressed(SDLK_a))
 	{
 		velocity.x += -0.0625 * Time::deltaTime();
 	}
 
-	if (Event::KeyPressed(SDLK_UP) && OnGround == true)
+	if ((Event::KeyPressed(SDLK_UP) && OnGround == true) || (Event::KeyPressed(SDLK_w) && OnGround == true))
 	{
 		velocity.y = -25;
 
 	}
-	else if (!Event::KeyPressed(SDLK_UP))
+	else if (!Event::KeyPressed(SDLK_UP) && !Event::KeyPressed(SDLK_w))
 	{
 		if (velocity.y < 0)
 		{

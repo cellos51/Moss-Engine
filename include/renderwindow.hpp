@@ -7,6 +7,8 @@
 
 #include "math.hpp"
 
+#include "text.hpp"
+
 class RenderWindow
 {
 public:
@@ -14,6 +16,7 @@ public:
 	SDL_Texture* loadTexture(const char* p_filePath);
 	void clear();
 	void render(Entity& p_ent, bool cam);
+	void render(Text& p_text, bool cam);
 	void display();
 	void quit();
 	void camera(Entity& p_ent);

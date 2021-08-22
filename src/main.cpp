@@ -1,7 +1,10 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 #include <vector>
 #include <iostream>
+
+#include "text.hpp"
 
 #include "math.hpp"
 
@@ -39,11 +42,14 @@ bool load = init(); // this is the end of textures and windows OK NVM
 
 Player plr (PlayerSpawn, window.loadTexture("assets/textures/player.png"), Vector2(64,64));
 
+Text fps; // simple fps counter (enabling this literally halves the performance wtf. i should really use that guys cached font c library)
+
 bool init() // used to initiate things before using
 {
 	SDL_Init(SDL_INIT_EVERYTHING);
 	SDL_Init(SDL_INIT_VIDEO);
 	IMG_Init(IMG_INIT_PNG);
+	TTF_Init();
 
 	window.create("Moss Engine", SCREEN_WIDTH, SCREEN_HEIGHT); // name and size of application window
 
@@ -95,6 +101,8 @@ void gameLoop() // it runs forever
 	{
 		plr.getCol(wall);
 	}
+
+	fps.setText("fps: " + std::to_string(1000 / Time::deltaTime()));
 }
 
 
@@ -107,6 +115,7 @@ void render() // honestly i feel like putting the stuff that is at the end of th
 	{
 		window.render(wall, true);
 	}
+	window.render(fps, false);
 	window.display();
 }
 

@@ -4,6 +4,10 @@
 		"selected_items":
 		[
 			[
+				"key",
+				"keyboard"
+			],
+			[
 				"bo",
 				"boxNum"
 			],
@@ -384,13 +388,13 @@
 	"menu_visible": true,
 	"output.exec":
 	{
-		"height": 233.0
+		"height": 32.0
 	},
 	"output.find_results":
 	{
 		"height": 0.0
 	},
-	"pinned_build_system": "SDL2 Release",
+	"pinned_build_system": "SDL2 Debug",
 	"replace":
 	{
 		"height": 52.0
