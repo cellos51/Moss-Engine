@@ -52,7 +52,7 @@ void Entity::getCol(Entity& p_ent) // ok the collision is fucky as hell so only 
 {
 	if (p_ent.colUp == true || p_ent.colDown == true || p_ent.colLeft == true || p_ent.colRight == true)
 	{
-		Vector2 boxNum = Vector2(transform.x - p_ent.size.x / 2 + size.x / 2 - p_ent.transform.x, transform.y - p_ent.size.y / 2 + size.y / 2 - p_ent.transform.y);
+		Vector2 boxNum = Vector2((transform.x - p_ent.size.x / 2 + size.x / 2 - p_ent.transform.x) * (((p_ent.size.y / 2) + 32) / 64), (transform.y - p_ent.size.y / 2 + size.y / 2 - p_ent.transform.y) * ((p_ent.size.x / 2) + 32) / 64);
 
 		if (transform.y >= p_ent.transform.y - currentFrame.h && transform.y <= p_ent.transform.y + p_ent.currentFrame.h && transform.x >= p_ent.transform.x - currentFrame.w && transform.x <= p_ent.transform.x + p_ent.currentFrame.w)
 		{	
@@ -60,10 +60,7 @@ void Entity::getCol(Entity& p_ent) // ok the collision is fucky as hell so only 
 			{
 				OnGround = true;
 				transform.y = (p_ent.transform.y - currentFrame.h);
-				if (velocity.y > 0)
-				{
-					velocity.y = (velocity.y * -bounciness) / 16 * Time::deltaTime();
-				}
+				velocity.y = (velocity.y * -bounciness) / 16 * Time::deltaTime();
 
 				if(velocity.x >= -0.5 / 16 * Time::deltaTime() && velocity.x <= 0.5 / 16 * Time::deltaTime())
 				{
@@ -81,10 +78,7 @@ void Entity::getCol(Entity& p_ent) // ok the collision is fucky as hell so only 
 			else if (boxNum.y > 0 && fabs(boxNum.y) > fabs(boxNum.x) && p_ent.colDown == true)
 			{
 				transform.y = (p_ent.transform.y + p_ent.currentFrame.h);
-				if (velocity.y < 0)
-				{
-					velocity.y = -velocity.y * bounciness;
-				}
+				velocity.y = -velocity.y * bounciness / 16 * Time::deltaTime();
 
 				if(velocity.x >= -0.5 / 16 * Time::deltaTime() && velocity.x <= 0.5 / 16 * Time::deltaTime())
 				{
@@ -102,10 +96,7 @@ void Entity::getCol(Entity& p_ent) // ok the collision is fucky as hell so only 
 			else if (boxNum.x > 0 && fabs(boxNum.x) > fabs(boxNum.y) && p_ent.colRight == true)
 			{
 				transform.x = (p_ent.transform.x + p_ent.currentFrame.w);
-				if (velocity.x < 0)
-				{
-					velocity.x = (-velocity.x * bounciness) / 16 * Time::deltaTime();
-				}
+				velocity.x = (-velocity.x * bounciness) / 16 * Time::deltaTime();
 
 				if(velocity.y >= -0.5 / 16 * Time::deltaTime() && velocity.y <= 0.5 / 16 * Time::deltaTime())
 				{
@@ -123,10 +114,7 @@ void Entity::getCol(Entity& p_ent) // ok the collision is fucky as hell so only 
 			else if (boxNum.x < 0 && fabs(boxNum.x) > fabs(boxNum.y) && p_ent.colLeft == true)
 			{
 				transform.x = (p_ent.transform.x - currentFrame.w);
-				if (velocity.x > 0)
-				{
-					velocity.x = (velocity.x * -bounciness) / 16 * Time::deltaTime();
-				}
+				velocity.x = (velocity.x * -bounciness) / 16 * Time::deltaTime();
 				
 				if(velocity.y >= -0.5 / 16 * Time::deltaTime() && velocity.y <= 0.5 / 16 * Time::deltaTime())
 				{
