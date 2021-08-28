@@ -54,9 +54,6 @@ void Entity::getCol(Entity& p_ent) // ok the collision is fucky as hell so only 
 	{
 		Vector2 boxNum = Vector2((transform.x - p_ent.size.x / 2 + size.x / 2 - p_ent.transform.x) / (((size.x + p_ent.size.x) / 2 ) / 64), (transform.y - p_ent.size.y / 2 + size.y / 2 - p_ent.transform.y) / (((size.y + p_ent.size.y) / 2 ) / 64) );
 
-
-		std::cout << boxNum.x << " " << boxNum.y << std::endl;
-
 		if (transform.y >= p_ent.transform.y - currentFrame.h && transform.y <= p_ent.transform.y + p_ent.currentFrame.h && transform.x >= p_ent.transform.x - currentFrame.w && transform.x <= p_ent.transform.x + p_ent.currentFrame.w)
 		{	
 			if (boxNum.y < 0 && fabs(boxNum.y) > fabs(boxNum.x) && p_ent.colUp == true)
