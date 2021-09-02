@@ -4,6 +4,14 @@
 		"selected_items":
 		[
 			[
+				"ve",
+				"velocity"
+			],
+			[
+				"te",
+				"texture"
+			],
+			[
 				"tr",
 				"transform"
 			],
@@ -22,10 +30,6 @@
 			[
 				"ti",
 				"Time"
-			],
-			[
-				"ve",
-				"velocity"
 			],
 			[
 				"Ve",
@@ -233,6 +237,10 @@
 		"selected_items":
 		[
 			[
+				"Package Control: e",
+				"Package Control: Enable Package"
+			],
+			[
 				"package co",
 				"Package Control: Install Package"
 			],
@@ -253,9 +261,10 @@
 	},
 	"console":
 	{
-		"height": 156.0,
+		"height": 307.0,
 		"history":
 		[
+			"hel"
 		]
 	},
 	"distraction_free":
@@ -269,8 +278,10 @@
 	},
 	"file_history":
 	[
-		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/player.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/renderwindow.cpp",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/entity.cpp",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/entity.hpp",
+		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/player.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/renderwindow.hpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/event.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/assets/levels/level1.lvl",
@@ -278,8 +289,6 @@
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/main.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/level.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/config.hpp",
-		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/entity.cpp",
-		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/entity.hpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/.gitignore",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/SDL Game.sublime-workspace",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/include/init.hpp",
@@ -326,6 +335,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"currentframe",
 			"bounciness",
 			"100",
 			"vector",
@@ -392,7 +402,7 @@
 	"menu_visible": true,
 	"output.exec":
 	{
-		"height": 32.0
+		"height": 38.0
 	},
 	"output.find_results":
 	{

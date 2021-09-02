@@ -31,4 +31,5 @@ public:
 	SDL_Texture* tex;
 	Vector2 size;
 	SDL_Rect currentFrame;
+	SDL_Rect texturePos;
 };

@@ -10,6 +10,7 @@ void RenderWindow::create(const char* p_title, int p_w, int p_h)
 {
 	window = SDL_CreateWindow(p_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, p_w, p_h, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+	//SDL_RenderSetLogicalSize(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
 SDL_Texture* RenderWindow::loadTexture(const char* p_filePath) // used load textures :P
@@ -28,24 +29,24 @@ void RenderWindow::clear() // clears the renderer
 void RenderWindow::render(Entity& p_ent, bool cam) // i think this copys the texture to the renderer
 {
 	SDL_Rect src;
-	src.x = p_ent.currentFrame.x;
-	src.y = p_ent.currentFrame.y;
-	src.w = p_ent.currentFrame.w;
-	src.h = p_ent.currentFrame.h;	
+	src.x = p_ent.texturePos.x;
+	src.y = p_ent.texturePos.y;
+	src.w = p_ent.texturePos.w;
+	src.h = p_ent.texturePos.h;	
 
 	SDL_Rect dst;
 	
 	if (cam == true)
 	{
-		dst.x = (p_ent.transform.x - zoom * p_ent.transform.x) + cameraPos.x - zoom * cameraPos.x;
-		dst.y = (p_ent.transform.y - zoom * p_ent.transform.y) + cameraPos.y - zoom * cameraPos.y;
+		dst.x = ((p_ent.currentFrame.x + p_ent.transform.x) - zoom * p_ent.transform.x) + cameraPos.x - zoom * cameraPos.x;
+		dst.y = ((p_ent.currentFrame.y + p_ent.transform.y) - zoom * p_ent.transform.y) + cameraPos.y - zoom * cameraPos.y;
 		dst.w = p_ent.currentFrame.w - p_ent.currentFrame.w * zoom;
 		dst.h = p_ent.currentFrame.h  - p_ent.currentFrame.w * zoom;
 	}
 	else
 	{
-		dst.x = p_ent.transform.x;
-		dst.y = p_ent.transform.y;
+		dst.x = p_ent.transform.x + p_ent.currentFrame.x;
+		dst.y = p_ent.transform.y + p_ent.currentFrame.x;
 		dst.w = p_ent.currentFrame.w;
 		dst.h = p_ent.currentFrame.h;
 	}

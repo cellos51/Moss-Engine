@@ -22,6 +22,10 @@ void Player::init() // this was the biggest pain in the fucking ass ever
 	Entity::gravity = gravity;
 	Entity::bounciness = bounciness;
 
+	texturePos.x = 0;
+	texturePos.y = 0;
+	texturePos.w = size.x;
+	texturePos.h = size.y;
 	currentFrame.x = 0;
 	currentFrame.y = 0;
 	currentFrame.w = size.x;
@@ -44,7 +48,6 @@ void Player::update()
 	if ((Event::KeyPressed(SDLK_UP) && OnGround == true) || (Event::KeyPressed(SDLK_w) && OnGround == true))
 	{
 		velocity.y = -25;
-
 	}
 	else if (!Event::KeyPressed(SDLK_UP) && !Event::KeyPressed(SDLK_w))
 	{
