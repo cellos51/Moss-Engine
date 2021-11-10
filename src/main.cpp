@@ -92,6 +92,8 @@ bool init() // used to initiate things before using
 
 void gameLoop() // it runs forever
 {
+
+
 	if (Event::KeyPressed(SDLK_j) && bruh == 0)
 	{
 		cp_supplier.create();
@@ -111,7 +113,11 @@ void gameLoop() // it runs forever
 			Entity tempPlr (window.loadTexture("assets/textures/player.png"), Vector2(64,64));
 			players.insert({cp_supplier.getId(), tempPlr});
 		}
-		players.at(cp_supplier.getId()).transform = cp_supplier.getPacket();
+
+		Vector2 futurePos = cp_supplier.getPacket();
+
+		players.at(cp_supplier.getId()).transform.x = std::lerp(players.at(cp_supplier.getId()).transform.x, futurePos.x, 0.1);
+		players.at(cp_supplier.getId()).transform.y = std::lerp(players.at(cp_supplier.getId()).transform.y, futurePos.y, 0.1);
 	}
 	else if (bruh == 2)
 	{
@@ -122,7 +128,11 @@ void gameLoop() // it runs forever
 			Entity tempPlr (window.loadTexture("assets/textures/player.png"), Vector2(64,64));
 			players.insert({cp_buyer.getId(), tempPlr});
 		}
-		players.at(cp_buyer.getId()).transform = cp_buyer.getPacket();
+
+		Vector2 futurePos = cp_supplier.getPacket();
+
+		players.at(cp_supplier.getId()).transform.x = std::lerp(players.at(cp_supplier.getId()).transform.x, futurePos.x, 0.1);
+		players.at(cp_supplier.getId()).transform.y = std::lerp(players.at(cp_supplier.getId()).transform.y, futurePos.y, 0.1);
 	}
 
 

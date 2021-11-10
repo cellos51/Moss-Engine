@@ -12,3 +12,8 @@ namespace Time
 	void Tick();
 	double deltaTime();
 };
+
+namespace std
+{
+	float lerp(float a, float b, float f);
+};

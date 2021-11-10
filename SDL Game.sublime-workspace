@@ -4,6 +4,66 @@
 		"selected_items":
 		[
 			[
+				"fu",
+				"futurePos"
+			],
+			[
+				"lerp",
+				"lerp(double x, double y, double z,"
+			],
+			[
+				"std",
+				"std::endl;"
+			],
+			[
+				"de",
+				"delayPerFrame"
+			],
+			[
+				"t",
+				"time.deltaTime();"
+			],
+			[
+				"Clien",
+				"Client"
+			],
+			[
+				"get",
+				"getPacket();"
+			],
+			[
+				"tes",
+				"test.first]);"
+			],
+			[
+				"dumm",
+				"dummies)"
+			],
+			[
+				"g",
+				"getId()] = host;"
+			],
+			[
+				"TES",
+				"TEST_ID"
+			],
+			[
+				"connect",
+				"connectedClients"
+			],
+			[
+				"re",
+				"return"
+			],
+			[
+				"cl",
+				"CLIENT_ID"
+			],
+			[
+				"to",
+				"to_string("
+			],
+			[
 				"connec",
 				"connectedClients"
 			],
@@ -25,10 +85,6 @@
 			],
 			[
 				"CLI",
-				"CLIENT_ID"
-			],
-			[
-				"cl",
 				"CLIENT_ID"
 			],
 			[
@@ -172,10 +228,6 @@
 				"plr"
 			],
 			[
-				"g",
-				"getSize"
-			],
-			[
 				"pla",
 				"playerTex"
 			],
@@ -254,10 +306,6 @@
 			[
 				"S",
 				"SCREEN_HEIGHT"
-			],
-			[
-				"re",
-				"return"
 			],
 			[
 				"v",
@@ -362,6 +410,7 @@
 	},
 	"file_history":
 	[
+		"/C/Users/Creep/Documents/SourceCode/Projects/SDL-Game/include/entity.hpp",
 		"/C/Users/Creep/Documents/SourceCode/Projects/SDL-Game/SDL Game.sublime-project",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/renderwindow.cpp",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/entity.cpp",
@@ -420,6 +469,22 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"entity",
+			"enet_host_serv",
+			"connectedClients",
+			"test",
+			"test_ID",
+			"server_id",
+			"server_ID",
+			"isServer",
+			"TEST_ID",
+			"CLient",
+			"Server",
+			"peer",
+			"host",
+			"cp_supplier",
+			"client",
+			"boi",
 			"broadcastData",
 			"sendData",
 			"senData",
@@ -462,38 +527,16 @@
 	},
 	"incremental_find":
 	{
-		"height": 28.0
+		"height": 29.0
 	},
 	"input":
 	{
 		"height": 41.0
 	},
-	"layout":
-	{
-		"cells":
-		[
-			[
-				0,
-				0,
-				1,
-				1
-			]
-		],
-		"cols":
-		[
-			0.0,
-			1.0
-		],
-		"rows":
-		[
-			0.0,
-			1.0
-		]
-	},
 	"menu_visible": true,
 	"output.exec":
 	{
-		"height": 31.0
+		"height": 91.0
 	},
 	"output.find_results":
 	{
@@ -502,7 +545,7 @@
 	"pinned_build_system": "SDL2 Debug",
 	"replace":
 	{
-		"height": 52.0
+		"height": 54.0
 	},
 	"save_all_on_build": true,
 	"select_file":

@@ -36,3 +36,8 @@ double Time::deltaTime()
 {
 	return delta;
 }
+
+float std::lerp(float a, float b, float f)
+{
+    return a + f * (b - a);
+}
