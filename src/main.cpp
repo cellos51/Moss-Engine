@@ -25,11 +25,6 @@
 bool init();
 bool gameRunning = true;
 
-//networking
-Server cp_supplier;
-Client cp_buyer;
-int bruh = 0;
-
 // main window
 RenderWindow window;
 
@@ -49,8 +44,10 @@ bool load = init(); // this is the end of textures and windows OK NVM
 
 
 Player plr (PlayerSpawn, window.loadTexture("assets/textures/player.png"), Vector2(64,64));
-std::map<int,Entity> players; // for online mode
 
+// for online mode
+std::map<int,Entity> players;
+int netMode = 0;
 
 Text fps; // simple fps counter (enabling this literally halves the performance wtf. i should really use that guys cached font c library)
 
@@ -94,47 +91,101 @@ void gameLoop() // it runs forever
 {
 
 
-	if (Event::KeyPressed(SDLK_j) && bruh == 0)
+	if (Event::KeyPressed(SDLK_j) && netMode == 0)
 	{
-		cp_supplier.create();
-		bruh = 1;
+		Net::serverCreate();
+		netMode = 1;
 	}
-	else if (Event::KeyPressed(SDLK_k) && bruh == 0)
+	else if (Event::KeyPressed(SDLK_k) && netMode == 0)
 	{
-		cp_buyer.connect();
-		bruh = 2;
+		Net::clientConnect();
+		netMode = 2;
 	}
-	else if (bruh == 1)
+	else if (netMode == 1)
 	{
-		cp_supplier.poll();
-		cp_supplier.sendPacket(plr.transform);
-		if (!players.count(cp_supplier.getId()))
+		Net::poll();
+		Net::sendPacket(plr.transform);
+
+
+		for (int ids : Net::allPlayers())
 		{
-			Entity tempPlr (window.loadTexture("assets/textures/player.png"), Vector2(64,64));
-			players.insert({cp_supplier.getId(), tempPlr});
+			if (!players.count(ids))
+			{
+				Entity tempPlr (window.loadTexture("assets/textures/player.png"), Vector2(64,64));
+				players.insert({ids, tempPlr});
+			}	
 		}
 
-		Vector2 futurePos = cp_supplier.getPacket();
-
-		players.at(cp_supplier.getId()).transform.x = std::lerp(players.at(cp_supplier.getId()).transform.x, futurePos.x, 0.1);
-		players.at(cp_supplier.getId()).transform.y = std::lerp(players.at(cp_supplier.getId()).transform.y, futurePos.y, 0.1);
-	}
-	else if (bruh == 2)
-	{
-		cp_buyer.poll();
-		cp_buyer.sendPacket(plr.transform);
-		if (!players.count(cp_buyer.getId()))
+		if (players.count(Net::getId()))
 		{
-			Entity tempPlr (window.loadTexture("assets/textures/player.png"), Vector2(64,64));
-			players.insert({cp_buyer.getId(), tempPlr});
+			Vector2 futurePos = Net::getPacket();
+
+			players.at(Net::getId()).transform.x = std::lerp(players.at(Net::getId()).transform.x, futurePos.x, 0.1);
+			players.at(Net::getId()).transform.y = std::lerp(players.at(Net::getId()).transform.y, futurePos.y, 0.1);
 		}
 
-		Vector2 futurePos = cp_supplier.getPacket();
-
-		players.at(cp_supplier.getId()).transform.x = std::lerp(players.at(cp_supplier.getId()).transform.x, futurePos.x, 0.1);
-		players.at(cp_supplier.getId()).transform.y = std::lerp(players.at(cp_supplier.getId()).transform.y, futurePos.y, 0.1);
+		if (players.size() != Net::allPlayers().size())
+		{
+			std::map<int,Entity> copy = players;
+			for (std::map<int,Entity>::iterator it = copy.begin(); it != copy.end(); ++it)
+			{
+				bool hasID = false;
+				for (int ids : Net::allPlayers())
+				{
+					if (it->first == ids)
+					{
+						hasID = true;
+					}
+				}
+				if (hasID == false)
+				{
+					players.erase(it->first);
+				}
+			}
+		}
 	}
+	else if (netMode == 2)
+	{
+		Net::poll();
+		Net::sendPacket(plr.transform);
 
+		for (int ids : Net::allPlayers())
+		{
+			if (!players.count(ids))
+			{
+				Entity tempPlr (window.loadTexture("assets/textures/player.png"), Vector2(64,64));
+				players.insert({ids, tempPlr});
+			}	
+		}
+
+		if (players.count(Net::getId()))
+		{
+			Vector2 futurePos = Net::getPacket();
+
+			players.at(Net::getId()).transform.x = std::lerp(players.at(Net::getId()).transform.x, futurePos.x, 0.1);
+			players.at(Net::getId()).transform.y = std::lerp(players.at(Net::getId()).transform.y, futurePos.y, 0.1);
+		}
+
+		if (players.size() != Net::allPlayers().size())
+		{
+			std::map<int,Entity> copy = players;
+			for (std::map<int,Entity>::iterator it = copy.begin(); it != copy.end(); ++it)
+			{
+				bool hasID = false;
+				for (int ids : Net::allPlayers())
+				{
+					if (it->first == ids)
+					{
+						hasID = true;
+					}
+				}
+				if (hasID == false)
+				{
+					players.erase(it->first);
+				}
+			}
+		}
+	}
 
 
 
@@ -144,6 +195,7 @@ void gameLoop() // it runs forever
 	if (Event::KeyPressed(SDLK_1))
 	{
 		window.zoom = 0;
+
 	}
 	else if (Event::KeyPressed(SDLK_2))
 	{

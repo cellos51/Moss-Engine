@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <set>
+#include <vector>
 
 
 ENetAddress address;
@@ -15,13 +16,13 @@ bool isServer = false;
 
 int CLIENT_ID = 0;
 
-int TEST_ID;
+int packetID = 0;
 
 std::set<int> connectedClients;
 
 float x, y = 0;
 
-// Global functions
+
 
 void sendData(ENetPeer* peers, int data_type, int id, std::string data)
 {
@@ -49,43 +50,39 @@ void parseData(unsigned char* data)
 
 	switch(data_type)
 	{
-		case 0:
+		case 0: // on connect
 			if (CLIENT_ID == 0)
 			{
 				CLIENT_ID = id;
-				std::cout << "I am client " << CLIENT_ID << "\n";
+				std::cout << "Client ID is " << CLIENT_ID << std::endl;
 			}
 			break;
-		case 1:
-			if (CLIENT_ID != id)
+		case 1: // player pos
+			if (CLIENT_ID != id) 
 			{
-				sscanf(char_pointer, "%*d %d %f %f", &TEST_ID, &x, &y);
+				sscanf(char_pointer, "%*d %d %f %f", &packetID, &x, &y);
 				if (isServer == true)
 				{
-					broadcastData(server, 1, TEST_ID, std::to_string(x) + " " + std::to_string(y));
+					broadcastData(server, 1, packetID, std::to_string(x) + " " + std::to_string(y));
 				}
 			}
 			break;
-		case 2:
-			int cID;
+		case 2: // I FORGOR i think this puts players in a vector or somthing idk why this is useless
+			int cID; 
 			sscanf(char_pointer, "%*d %*d %d", &cID);
 			if (cID != CLIENT_ID)
 			{
 				connectedClients.insert(cID);
-				std::cout << cID << "\n";
 			}
+			break; 
+		case 3:	// disconnecting players
+			sscanf(char_pointer, "%*d %*d %d", &cID);
+			connectedClients.erase(cID);
 			break;
 	}
 }
 
-// Beginning of Server
-
-Server::Server()
-{
-
-}
-
-void Server::create()
+void Net::serverCreate()
 {
 	isServer = true;
 	address.host = ENET_HOST_ANY;
@@ -97,67 +94,13 @@ void Server::create()
 	    std::cout << "An error occurred while trying to create an ENet server host.\n";
 	    exit (EXIT_FAILURE);
 	}
-}
-
-void Server::poll()
-{
-	while (enet_host_service (server, &event, 0) > 0)
+	else
 	{
-		switch(event.type)
-		{
-			case ENET_EVENT_TYPE_CONNECT:
-				std::cout << "Client connected.\n";
-
-				SERVER_ID++;
-				connectedClients.insert(SERVER_ID);
-				sendData(event.peer, 0, SERVER_ID, " ");
-
-				for (auto f : connectedClients)
-				{
-					broadcastData(server, 2, SERVER_ID, std::to_string(f));
-				}
-
-				break;
-			case ENET_EVENT_TYPE_RECEIVE:
-				parseData(event.packet->data);
-				enet_packet_destroy(event.packet);
-				break;
-			case ENET_EVENT_TYPE_DISCONNECT:
-				std::cout << "Disconnected.\n";
-			case ENET_EVENT_TYPE_NONE:
-				break;
-		}
+		std::cout << "Server created on: " << address.host << ":" << address.port << std::endl;
 	}
 }
 
-Vector2 Server::getPacket()
-{
-	return Vector2(x,y);
-}
-
-int Server::getId()
-{
-	return TEST_ID;
-}
-
-void Server::sendPacket(Vector2 fuck)
-{
-	broadcastData(server, 1, 0, std::to_string(fuck.x) + " " + std::to_string(fuck.y));
-}
-
-void Server::destroy()
-{
-	enet_host_destroy(server);
-}
-
-// Beginning of Client
-
-Client::Client()
-{
-
-}
-
-void Client::connect()
+void Net::clientConnect()
 {
 	isServer = false;
 	client = enet_host_create (NULL, 1, 1, 0, 0);
@@ -168,7 +111,7 @@ void Client::connect()
 	    exit (EXIT_FAILURE);
 	}
 
-	enet_address_set_host(&address, "127.0.0.1");
+	enet_address_set_host(&address, "76.109.158.154");
 	address.port = 1234;
 	peer = enet_host_connect (client, &address, 1, 0);
 	if (peer == NULL)
@@ -179,57 +122,110 @@ void Client::connect()
 
 	if (enet_host_service (client, &event, 5000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT)
 	{
-	    std::cout << "Connection to some.server.net:1234 succeeded.\n";
+	    std::cout << "Connection to " << address.host << ":" << address.port << " succeeded.\n";
 	}
 	else
 	{
 	    enet_peer_reset (peer);
-	    std::cout << "Connection to some.server.net:1234 failed.\n";
+	    std::cout << "Connection to " << address.host << ":" << address.port << " failed.\n";
 	}
 }
 
-void Client::disconnect()
+void Net::clientDisconnect()
 {
 	enet_peer_disconnect(peer, 0);
 }
 
-void Client::poll()
+void Net::serverDestroy()
 {
-	while (enet_host_service (client, &event, 0) > 0)
+	enet_host_destroy(server);
+}
+
+void Net::poll()
+{
+	if (isServer == true)
 	{
-		switch (event.type)
+		while (enet_host_service (server, &event, 0) > 0)
 		{
-			case ENET_EVENT_TYPE_CONNECT:
-				std::cout << "Connected.\n";
-				break;
-			case ENET_EVENT_TYPE_RECEIVE:
-		        parseData(event.packet->data);
-		        enet_packet_destroy (event.packet);   
-	        	break;
-	        case ENET_EVENT_TYPE_DISCONNECT:
-	        	std::cout << "Disconnected.\n";
-	        	enet_host_destroy(client);
-	        	break;
-	        case ENET_EVENT_TYPE_NONE:
-				break;
+			switch(event.type)
+			{
+				case ENET_EVENT_TYPE_CONNECT:
+					std::cout << "Client " << event.peer -> incomingPeerID + 1 << " connected.\n";
+
+					connectedClients.insert(event.peer -> incomingPeerID + 1);
+					sendData(event.peer, 0, event.peer -> incomingPeerID + 1, " ");
+
+					broadcastData(server, 2, event.peer -> incomingPeerID + 1, std::to_string(0));
+					for (auto f : connectedClients)
+					{
+						broadcastData(server, 2, event.peer -> incomingPeerID + 1, std::to_string(f));
+					}
+
+					break;
+				case ENET_EVENT_TYPE_RECEIVE:
+					parseData(event.packet->data);
+					enet_packet_destroy(event.packet);
+					break;
+				case ENET_EVENT_TYPE_DISCONNECT:
+					std::cout << "Disconnected client " << event.peer -> incomingPeerID + 1 << std::endl;
+					connectedClients.erase(event.peer -> incomingPeerID + 1);
+					broadcastData(server, 3, 0, std::to_string(event.peer -> incomingPeerID + 1));
+				case ENET_EVENT_TYPE_NONE:
+					break;
+			}
+		}
+	}
+	else if (isServer == false)
+	{
+		while (enet_host_service (client, &event, 0) > 0)
+		{
+			switch (event.type)
+			{
+				case ENET_EVENT_TYPE_CONNECT:
+					std::cout << "Connected.\n";
+					break;
+				case ENET_EVENT_TYPE_RECEIVE:
+			        parseData(event.packet->data);
+			        enet_packet_destroy (event.packet);   
+		        	break;
+		        case ENET_EVENT_TYPE_DISCONNECT:
+		        	std::cout << "Disconnected.\n";
+		        	enet_host_destroy(client);
+		        	break;
+		        case ENET_EVENT_TYPE_NONE:
+					break;
+			}
 		}
 	}
 }
 
-Vector2 Client::getPacket()
+Vector2 Net::getPacket()
 {
 	return Vector2(x,y);
 }
 
-int Client::getId()
+int Net::getId()
 {
-	return TEST_ID;
+	return packetID;
 }
 
-void Client::sendPacket(Vector2 fuck)
+std::vector<int> Net::allPlayers() // this is a test
 {
-	if (CLIENT_ID != 0)
+	std::vector<int> clients(connectedClients.begin(), connectedClients.end());
+	return clients;
+}
+
+void Net::sendPacket(Vector2 fuck)
+{
+	if (isServer == true)
 	{
-		sendData(peer, 1, CLIENT_ID, std::to_string(fuck.x) + " " + std::to_string(fuck.y));
+		broadcastData(server, 1, 0, std::to_string(fuck.x) + " " + std::to_string(fuck.y));
+	}
+	else if (isServer == false)
+	{
+		if (CLIENT_ID != 0)
+		{
+			sendData(peer, 1, CLIENT_ID, std::to_string(fuck.x) + " " + std::to_string(fuck.y));
+		}
 	}
 }

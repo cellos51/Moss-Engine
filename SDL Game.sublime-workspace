@@ -4,6 +4,54 @@
 		"selected_items":
 		[
 			[
+				"for",
+				"for (int i = 0; i < oldID.size"
+			],
+			[
+				"ad",
+				"address.port << std::endl;"
+			],
+			[
+				"h",
+				"host"
+			],
+			[
+				"pu",
+				"push_back"
+			],
+			[
+				"c",
+				"cID);"
+			],
+			[
+				"re",
+				"return"
+			],
+			[
+				"newI",
+				"newID.begin());"
+			],
+			[
+				"clie",
+				"client"
+			],
+			[
+				"ser",
+				"serverCreate"
+			],
+			[
+				"SD",
+				"SDLK_j"
+			],
+			[
+				"er",
+				"erase(it);"
+			],
+			[
+				"si",
+				"size()"
+			],
+			[
 				"fu",
 				"futurePos"
 			],
@@ -50,10 +98,6 @@
 			[
 				"connect",
 				"connectedClients"
-			],
-			[
-				"re",
-				"return"
 			],
 			[
 				"cl",
@@ -144,10 +188,6 @@
 				"Client::Client"
 			],
 			[
-				"ser",
-				"Server"
-			],
-			[
 				"st",
 				"struct"
 			],
@@ -186,10 +226,6 @@
 			[
 				"ios",
 				"iostream\tstandard header"
-			],
-			[
-				"SD",
-				"SDL_Texture"
 			],
 			[
 				"en",
@@ -278,10 +314,6 @@
 			[
 				"gra",
 				"grav_y"
-			],
-			[
-				"c",
-				"createPlayers"
 			],
 			[
 				"cre",
@@ -469,6 +501,16 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"oldID",
+			"newID",
+			"newId",
+			"oldId",
+			"newId",
+			"bruh",
+			"SERVER_ID",
+			"Net:",
+			"test_id",
+			"SERVER_id",
 			"entity",
 			"enet_host_serv",
 			"connectedClients",
@@ -536,7 +578,7 @@
 	"menu_visible": true,
 	"output.exec":
 	{
-		"height": 91.0
+		"height": 31.0
 	},
 	"output.find_results":
 	{

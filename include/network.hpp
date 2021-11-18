@@ -2,30 +2,21 @@
 
 #include <string>
 #include <set>
+#include <vector>
 
 #include "enet/enet.h"
 
 #include "math.hpp"
 
-struct Server
+namespace Net
 {
-	Server();
-	void create();
+	void serverCreate();
+	void clientConnect();
+	void clientDisconnect();
+	void serverDestroy();
 	void poll();
 	Vector2 getPacket();
 	int getId();
+	std::vector<int> allPlayers();
 	void sendPacket(Vector2 fuck);
-	void destroy();
-	int SERVER_ID = 0;
-};
-
-struct Client
-{
-	Client();
-	void connect();
-	void disconnect();
-	void poll();
-	Vector2 getPacket();
-	int getId();
-	void sendPacket(Vector2 fuck);
-};
+}
