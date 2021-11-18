@@ -41,7 +41,6 @@ void broadcastData(ENetHost* servers, int data_type, int id, std::string data)
 void parseData(unsigned char* data)
 {
 	const char *char_pointer = (char*)data;
-	
 
 	int data_type;
 	int id;
@@ -70,14 +69,16 @@ void parseData(unsigned char* data)
 		case 2: // I FORGOR i think this puts players in a vector or somthing idk why this is useless
 			int cID; 
 			sscanf(char_pointer, "%*d %*d %d", &cID);
-			if (cID != CLIENT_ID)
+			if (cID != CLIENT_ID && !connectedClients.count(cID))
 			{
 				connectedClients.insert(cID);
+				std::cout << "Client " << cID << " connected.\n";
 			}
 			break; 
 		case 3:	// disconnecting players
 			sscanf(char_pointer, "%*d %*d %d", &cID);
 			connectedClients.erase(cID);
+			std::cout << "Client " << cID << " disconnected." << std::endl;
 			break;
 	}
 }
@@ -167,7 +168,7 @@ void Net::poll()
 					enet_packet_destroy(event.packet);
 					break;
 				case ENET_EVENT_TYPE_DISCONNECT:
-					std::cout << "Disconnected client " << event.peer -> incomingPeerID + 1 << std::endl;
+					std::cout << "Client " << event.peer -> incomingPeerID + 1 << " disconnected." << std::endl;
 					connectedClients.erase(event.peer -> incomingPeerID + 1);
 					broadcastData(server, 3, 0, std::to_string(event.peer -> incomingPeerID + 1));
 				case ENET_EVENT_TYPE_NONE:

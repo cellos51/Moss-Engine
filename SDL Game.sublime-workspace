@@ -4,6 +4,26 @@
 		"selected_items":
 		[
 			[
+				"all",
+				"allPlayers"
+			],
+			[
+				"pl",
+				"players)"
+			],
+			[
+				"has",
+				"hasID = true;"
+			],
+			[
+				"end",
+				"end());"
+			],
+			[
+				"c",
+				"connectedClients"
+			],
+			[
 				"for",
 				"for (int i = 0; i < oldID.size"
 			],
@@ -18,10 +38,6 @@
 			[
 				"pu",
 				"push_back"
-			],
-			[
-				"c",
-				"cID);"
 			],
 			[
 				"re",
@@ -260,10 +276,6 @@
 				"vector\tstandard header"
 			],
 			[
-				"pl",
-				"plr"
-			],
-			[
 				"pla",
 				"playerTex"
 			],
@@ -442,6 +454,7 @@
 	},
 	"file_history":
 	[
+		"/C/Users/Creep/Documents/SourceCode/Projects/SDL-Game/include/level.hpp",
 		"/C/Users/Creep/Documents/SourceCode/Projects/SDL-Game/include/entity.hpp",
 		"/C/Users/Creep/Documents/SourceCode/Projects/SDL-Game/SDL Game.sublime-project",
 		"/C/Users/Creep/Documents/source code/Projects/SDL-Game/src/renderwindow.cpp",
@@ -501,6 +514,12 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"oldID",
+			"CLIENT_ID",
+			"newID",
+			"connectedClients",
+			"client_id",
+			"connectedClients",
 			"oldID",
 			"newID",
 			"newId",
@@ -578,7 +597,7 @@
 	"menu_visible": true,
 	"output.exec":
 	{
-		"height": 31.0
+		"height": 171.0
 	},
 	"output.find_results":
 	{

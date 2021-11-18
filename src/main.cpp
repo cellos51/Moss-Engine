@@ -106,16 +106,6 @@ void gameLoop() // it runs forever
 		Net::poll();
 		Net::sendPacket(plr.transform);
 
-
-		for (int ids : Net::allPlayers())
-		{
-			if (!players.count(ids))
-			{
-				Entity tempPlr (window.loadTexture("assets/textures/player.png"), Vector2(64,64));
-				players.insert({ids, tempPlr});
-			}	
-		}
-
 		if (players.count(Net::getId()))
 		{
 			Vector2 futurePos = Net::getPacket();
@@ -126,6 +116,15 @@ void gameLoop() // it runs forever
 
 		if (players.size() != Net::allPlayers().size())
 		{
+			for (int ids : Net::allPlayers())
+			{
+				if (!players.count(ids))
+				{
+					Entity tempPlr (window.loadTexture("assets/textures/player.png"), Vector2(64,64));
+					players.insert({ids, tempPlr});
+				}	
+			}
+
 			std::map<int,Entity> copy = players;
 			for (std::map<int,Entity>::iterator it = copy.begin(); it != copy.end(); ++it)
 			{
@@ -149,15 +148,6 @@ void gameLoop() // it runs forever
 		Net::poll();
 		Net::sendPacket(plr.transform);
 
-		for (int ids : Net::allPlayers())
-		{
-			if (!players.count(ids))
-			{
-				Entity tempPlr (window.loadTexture("assets/textures/player.png"), Vector2(64,64));
-				players.insert({ids, tempPlr});
-			}	
-		}
-
 		if (players.count(Net::getId()))
 		{
 			Vector2 futurePos = Net::getPacket();
@@ -168,6 +158,15 @@ void gameLoop() // it runs forever
 
 		if (players.size() != Net::allPlayers().size())
 		{
+			for (int ids : Net::allPlayers())
+			{
+				if (!players.count(ids))
+				{
+					Entity tempPlr (window.loadTexture("assets/textures/player.png"), Vector2(64,64));
+					players.insert({ids, tempPlr});
+				}	
+			}
+
 			std::map<int,Entity> copy = players;
 			for (std::map<int,Entity>::iterator it = copy.begin(); it != copy.end(); ++it)
 			{
