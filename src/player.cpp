@@ -26,10 +26,10 @@ void Player::init() // this was the biggest pain in the fucking ass ever
 	texturePos.y = 0;
 	texturePos.w = size.x;
 	texturePos.h = size.y;
-	currentFrame.x = 0;
-	currentFrame.y = 0;
-	currentFrame.w = size.x;
-	currentFrame.h = size.y;
+	offset.x = 0; //offset is for textures
+	offset.y = 0;
+	offset.w = size.x;
+	offset.h = size.y;
 }
 
 void Player::update()

@@ -30,6 +30,6 @@ public:
 	Vector2 transform;
 	SDL_Texture* tex;
 	Vector2 size;
-	SDL_Rect currentFrame;
+	SDL_Rect offset;
 	SDL_Rect texturePos;
 };

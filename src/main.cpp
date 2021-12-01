@@ -19,6 +19,8 @@
 
 #include "level.hpp"
 
+#include "ui.hpp"
+
 #include "config.hpp" // this just has the screen size so if i change it i dont need to change it in every class
 
 // random shit needed to be here to run
@@ -42,7 +44,6 @@ Vector2 PlayerSpawn = Vector2(0,0);
 
 bool load = init(); // this is the end of textures and windows OK NVM
 
-
 Player plr (PlayerSpawn, window.loadTexture("assets/textures/player.png"), Vector2(64,64));
 
 // for online mode
@@ -50,6 +51,10 @@ std::map<int,Entity> players;
 int netMode = 0;
 
 Text fps; // simple fps counter (enabling this literally halves the performance wtf. i should really use that guys cached font c library)
+
+// user interface test stuff
+ui::Button button;
+bool menuEnabled = false;
 
 bool init() // used to initiate things before using
 {
@@ -89,7 +94,30 @@ bool init() // used to initiate things before using
 
 void gameLoop() // it runs forever
 {
+	// if (Event::KeyDown(SDLK_ESCAPE))
+	// {
+	// 	if (menuEnabled)
+	// 	{
+	// 		menuEnabled = false;
+	// 	}
+	// 	else if (!menuEnabled)
+	// 	{
+	// 		menuEnabled = true;
+	// 	}
+	// }
 
+	// if (menuEnabled == true)
+	// {
+	// 	button.transform.x = 512;
+	// 	button.transform.y = 200;
+	// 	button.size.x = 200;
+	// 	button.size.y = 64;
+
+	// 	if (button.onClick())
+	// 	{
+	// 		std::cout << "working";
+	// 	}
+	// }
 
 	if (Event::KeyPressed(SDLK_j) && netMode == 0)
 	{
@@ -228,7 +256,6 @@ void render() // honestly i feel like putting the stuff that is at the end of th
   	{
   		window.render(it->second, true);
   	}
-   	
 
 	window.render(plr, true);
 
@@ -237,6 +264,12 @@ void render() // honestly i feel like putting the stuff that is at the end of th
 		window.render(wall, true);
 	}
 	window.render(fps, false);
+
+	if (menuEnabled)
+	{
+		window.render(button);
+	}
+	
 	window.display();
 }
 

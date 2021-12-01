@@ -38,17 +38,17 @@ void RenderWindow::render(Entity& p_ent, bool cam) // i think this copys the tex
 	
 	if (cam == true)
 	{
-		dst.x = ((p_ent.currentFrame.x + p_ent.transform.x) - zoom * p_ent.transform.x) + cameraPos.x - zoom * cameraPos.x;
-		dst.y = ((p_ent.currentFrame.y + p_ent.transform.y) - zoom * p_ent.transform.y) + cameraPos.y - zoom * cameraPos.y;
-		dst.w = p_ent.currentFrame.w - p_ent.currentFrame.w * zoom;
-		dst.h = p_ent.currentFrame.h  - p_ent.currentFrame.w * zoom;
+		dst.x = ((p_ent.offset.x + p_ent.transform.x) - zoom * p_ent.transform.x) + cameraPos.x - zoom * cameraPos.x;
+		dst.y = ((p_ent.offset.y + p_ent.transform.y) - zoom * p_ent.transform.y) + cameraPos.y - zoom * cameraPos.y;
+		dst.w = p_ent.offset.w - p_ent.offset.w * zoom;
+		dst.h = p_ent.offset.h  - p_ent.offset.w * zoom;
 	}
 	else
 	{
-		dst.x = p_ent.transform.x + p_ent.currentFrame.x;
-		dst.y = p_ent.transform.y + p_ent.currentFrame.x;
-		dst.w = p_ent.currentFrame.w;
-		dst.h = p_ent.currentFrame.h;
+		dst.x = p_ent.transform.x + p_ent.offset.x;
+		dst.y = p_ent.transform.y + p_ent.offset.x;
+		dst.w = p_ent.offset.w;
+		dst.h = p_ent.offset.h;
 	}
 
 
@@ -65,12 +65,6 @@ void RenderWindow::render(Entity& p_ent, bool cam) // i think this copys the tex
 
 void RenderWindow::render(Text& p_text, bool cam) // i think this copys the texture to the renderer
 {
-	// SDL_Rect src;
-	// src.x = p_ent.currentFrame.x;
-	// src.y = p_ent.currentFrame.y;
-	// src.w = p_ent.currentFrame.w;
-	// src.h = p_ent.currentFrame.h;	
-
 	SDL_Rect dst;
 	
 	if (cam == true)
@@ -90,6 +84,19 @@ void RenderWindow::render(Text& p_text, bool cam) // i think this copys the text
 	SDL_Texture* Message = SDL_CreateTextureFromSurface(renderer, p_text.messageSurface);
 	SDL_RenderCopy(renderer, Message, NULL, &dst);
 	SDL_DestroyTexture(Message);
+}
+
+void RenderWindow::render(ui& p_ui) // i think this copys the texture to the renderer
+{
+	SDL_Rect dst;
+	
+	dst.x = p_ui.transform.x;
+	dst.y = p_ui.transform.y;
+	dst.w = p_ui.size.x;
+	dst.h = p_ui.size.y;
+
+	SDL_SetRenderDrawColor( renderer, 153, 170, 181, 0);        
+    SDL_RenderFillRect( renderer, &dst );
 }
 
 void RenderWindow::display() // used to display information from the renderer to the window

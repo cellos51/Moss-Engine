@@ -36,10 +36,10 @@ void Entity::init()
 	texturePos.y = 0;
 	texturePos.w = size.x;
 	texturePos.h = size.y;
-	currentFrame.x = 0;
-	currentFrame.y = 0;
-	currentFrame.w = size.x;
-	currentFrame.h = size.y;
+	offset.x = 0;
+	offset.y = 0;
+	offset.w = size.x;
+	offset.h = size.y;
 }
 
 SDL_Texture* Entity::getTex()

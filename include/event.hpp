@@ -6,6 +6,8 @@ namespace Event
 {
 	void PollEvent();
 	bool AppQuit();
-	bool KeyPressed(int i);
 	bool MousePressed(int i);
+	bool MouseDown(int i);
+	bool KeyPressed(int i);
+	bool KeyDown(int i);
 }
