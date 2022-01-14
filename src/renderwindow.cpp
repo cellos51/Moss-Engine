@@ -65,25 +65,28 @@ void RenderWindow::render(Entity& p_ent, bool cam) // i think this copys the tex
 
 void RenderWindow::render(Text& p_text, bool cam) // i think this copys the texture to the renderer
 {
-	SDL_Rect dst;
-	
-	if (cam == true)
+	if (p_text.getText().size() > 0)
 	{
-		dst.x = (p_text.transform.x - zoom * p_text.transform.x) + cameraPos.x - zoom * cameraPos.x;
-		dst.y = (p_text.transform.y - zoom * p_text.transform.y) + cameraPos.y - zoom * cameraPos.y;
-		dst.w = p_text.size.x - p_text.size.x * zoom;
-		dst.h = p_text.size.y  - p_text.size.y * zoom;
-	}
-	else
-	{
-		dst.x = p_text.transform.x;
-		dst.y = p_text.transform.y;
-		dst.w = p_text.size.x;
-		dst.h = p_text.size.y;
-	}
-	SDL_Texture* Message = SDL_CreateTextureFromSurface(renderer, p_text.messageSurface);
-	SDL_RenderCopy(renderer, Message, NULL, &dst);
-	SDL_DestroyTexture(Message);
+		SDL_Rect dst;
+		
+		if (cam == true)
+		{
+			dst.x = (p_text.transform.x - zoom * p_text.transform.x) + cameraPos.x - zoom * cameraPos.x;
+			dst.y = (p_text.transform.y - zoom * p_text.transform.y) + cameraPos.y - zoom * cameraPos.y;
+			dst.w = (p_text.size.x) - (p_text.size.x) * zoom;
+			dst.h = (p_text.size.y) - (p_text.size.y) * zoom;
+		}
+		else
+		{
+			dst.x = p_text.transform.x;
+			dst.y = p_text.transform.y;
+			dst.w = p_text.size.x;
+			dst.h = p_text.size.y;
+		}
+		SDL_Texture* Message = SDL_CreateTextureFromSurface(renderer, p_text.messageSurface);
+		SDL_RenderCopy(renderer, Message, NULL, &dst);
+		SDL_DestroyTexture(Message);
+	}	
 }
 
 void RenderWindow::render(ui& p_ui) // i think this copys the texture to the renderer
@@ -95,8 +98,10 @@ void RenderWindow::render(ui& p_ui) // i think this copys the texture to the ren
 	dst.w = p_ui.size.x;
 	dst.h = p_ui.size.y;
 
-	SDL_SetRenderDrawColor( renderer, 153, 170, 181, 0);        
+	SDL_SetRenderDrawColor( renderer, p_ui.red, p_ui.green, p_ui.blue, 0);
     SDL_RenderFillRect( renderer, &dst );
+
+   	render(p_ui.uiText, false);
 }
 
 void RenderWindow::display() // used to display information from the renderer to the window

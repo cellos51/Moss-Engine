@@ -9,8 +9,13 @@ ui::ui()
 {
 	transform.x = 64;
 	transform.y = 64;
+	red = 10;
+	green = 10;
+	blue = 10;
 	size.x = 64;
 	size.y = 64;
+	uiText.transform = transform;
+	uiText.setText("test");
 }
 
 // button
@@ -20,7 +25,7 @@ bool ui::Button::onClick()
 	int x, y;
 	SDL_GetMouseState(&x, &y);
 
-	if (Event::MousePressed(SDL_BUTTON_LEFT))
+	if (Event::MouseDown(SDL_BUTTON_LEFT))
 	{
 		if (x >= transform.x && x <= transform.x + size.x && y >= transform.y && y <= transform.y + size.y)
 		{

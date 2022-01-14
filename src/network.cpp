@@ -112,7 +112,7 @@ void Net::clientConnect()
 	    exit (EXIT_FAILURE);
 	}
 
-	enet_address_set_host(&address, "76.109.158.154");
+	enet_address_set_host(&address, "127.0.0.1");
 	address.port = 1234;
 	peer = enet_host_connect (client, &address, 1, 0);
 	if (peer == NULL)

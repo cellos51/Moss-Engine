@@ -50,8 +50,6 @@ Player plr (PlayerSpawn, window.loadTexture("assets/textures/player.png"), Vecto
 std::map<int,Entity> players;
 int netMode = 0;
 
-Text fps; // simple fps counter (enabling this literally halves the performance wtf. i should really use that guys cached font c library)
-
 // user interface test stuff
 ui::Button button;
 bool menuEnabled = false;
@@ -94,30 +92,29 @@ bool init() // used to initiate things before using
 
 void gameLoop() // it runs forever
 {
-	// if (Event::KeyDown(SDLK_ESCAPE))
-	// {
-	// 	if (menuEnabled)
-	// 	{
-	// 		menuEnabled = false;
-	// 	}
-	// 	else if (!menuEnabled)
-	// 	{
-	// 		menuEnabled = true;
-	// 	}
-	// }
+	if (Event::KeyDown(SDLK_ESCAPE))
+	{
+		if (menuEnabled)
+		{
+			menuEnabled = false;
+		}
+		else if (!menuEnabled)
+		{
+			menuEnabled = true;
+			button.size.x = 200;
+			button.size.y = 64;
 
-	// if (menuEnabled == true)
-	// {
-	// 	button.transform.x = 512;
-	// 	button.transform.y = 200;
-	// 	button.size.x = 200;
-	// 	button.size.y = 64;
+			button.transform.x = (window.getSize().x / 2) - (button.size.x / 2);
+			button.transform.y = (window.getSize().y / 2) - 200;
 
-	// 	if (button.onClick())
-	// 	{
-	// 		std::cout << "working";
-	// 	}
-	// }
+			button.uiText.transform.x = (button.transform.x) + ((button.size.x / 2) - button.uiText.size.x / 2);
+			button.uiText.transform.y = (button.transform.y) + ((button.size.y / 2) - button.uiText.size.y / 2);
+			if (button.onClick())
+			{
+				std::cout << "working";
+			}
+		}
+	}
 
 	if (Event::KeyPressed(SDLK_j) && netMode == 0)
 	{
@@ -243,8 +240,6 @@ void gameLoop() // it runs forever
 	{
 		plr.getCol(wall);
 	}
-
-	fps.setText("fps: " + std::to_string(1000 / Time::deltaTime()));
 }
 
 
@@ -263,7 +258,6 @@ void render() // honestly i feel like putting the stuff that is at the end of th
 	{
 		window.render(wall, true);
 	}
-	window.render(fps, false);
 
 	if (menuEnabled)
 	{

@@ -13,7 +13,6 @@ Vector2::Vector2(float p_x, float p_y) : x(p_x), y(p_y)
 
 }
 
-
 Uint64 NOW = SDL_GetPerformanceCounter();
 Uint64 LAST = 0;
 int minfps = 60;

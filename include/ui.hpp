@@ -1,6 +1,7 @@
 #pragma once
 
 #include "math.hpp"
+#include "text.hpp"
 
 class ui
 {
@@ -9,6 +10,8 @@ protected:
 public:
 	Vector2 transform;
 	Vector2 size;
+	int red, green, blue;
+	Text uiText;
 	class Button;
 	class Panel;
 };

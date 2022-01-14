@@ -19,7 +19,7 @@
 		{
 			"name": "SDL2 Release",
 			"working_dir": "${project_path}",
-			"cmd": "g++ -c src/*.cpp -std=c++14 -O3 -Wall -m64 -I include -I C:/SDL2/include && g++ *.o -o bin/release/main -s -L C:/SDL2/lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -mwindows && start bin/release/main",
+			"cmd": "g++ -c src/*.cpp -std=c++14 -O3 -Wall -m64 -I include -I C:/SDL2/include -I C:/Users/Creep/Documents/SourceCode/Libraries/enet-1.3.17/include -I C:/mingw64/include && g++ *.o -o bin/release/main -L C:/SDL2/lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -L C:/Users/Creep/Documents/SourceCode/Libraries/enet-1.3.17 -lenet64 -lws2_32 -lwinmm -mwindows && start bin/release/main",
 			"selector": "source.c++",
 			"shell": true
 		}
