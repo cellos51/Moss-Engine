@@ -14,7 +14,6 @@ ui::ui()
 	blue = 10;
 	size.x = 64;
 	size.y = 64;
-	uiText.transform = transform;
 	uiText.setText("test");
 }
 

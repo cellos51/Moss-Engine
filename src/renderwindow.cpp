@@ -101,7 +101,20 @@ void RenderWindow::render(ui& p_ui) // i think this copys the texture to the ren
 	SDL_SetRenderDrawColor( renderer, p_ui.red, p_ui.green, p_ui.blue, 0);
     SDL_RenderFillRect( renderer, &dst );
 
-   	render(p_ui.uiText, false);
+   	// render(p_ui.uiText, false);
+   	if (p_ui.uiText.getText().size() > 0)
+	{
+		SDL_Rect dst;
+		
+		dst.x = p_ui.uiText.transform.x = (p_ui.transform.x) + ((p_ui.size.x / 2) - p_ui.uiText.size.x / 2);
+		dst.y = p_ui.uiText.transform.y = (p_ui.transform.y) + ((p_ui.size.y / 2) - p_ui.uiText.size.y / 2);
+		dst.w = p_ui.uiText.size.x;
+		dst.h = p_ui.uiText.size.y;
+
+		SDL_Texture* Message = SDL_CreateTextureFromSurface(renderer, p_ui.uiText.messageSurface);
+		SDL_RenderCopy(renderer, Message, NULL, &dst);
+		SDL_DestroyTexture(Message);
+	}	
 }
 
 void RenderWindow::display() // used to display information from the renderer to the window

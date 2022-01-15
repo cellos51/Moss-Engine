@@ -101,18 +101,20 @@ void gameLoop() // it runs forever
 		else if (!menuEnabled)
 		{
 			menuEnabled = true;
-			button.size.x = 200;
-			button.size.y = 64;
+		}
+	}
 
-			button.transform.x = (window.getSize().x / 2) - (button.size.x / 2);
-			button.transform.y = (window.getSize().y / 2) - 200;
+	if (menuEnabled == true)
+	{
+		button.size.x = 200;
+		button.size.y = 64;
 
-			button.uiText.transform.x = (button.transform.x) + ((button.size.x / 2) - button.uiText.size.x / 2);
-			button.uiText.transform.y = (button.transform.y) + ((button.size.y / 2) - button.uiText.size.y / 2);
-			if (button.onClick())
-			{
-				std::cout << "working";
-			}
+		button.transform.x = (window.getSize().x / 2) - (button.size.x / 2);
+		button.transform.y = (window.getSize().y / 2) - 200;
+
+		if (button.onClick())
+		{
+			std::cout << "working";
 		}
 	}
 
