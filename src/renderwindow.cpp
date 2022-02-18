@@ -106,8 +106,8 @@ void RenderWindow::render(ui& p_ui) // i think this copys the texture to the ren
 	{
 		SDL_Rect dst;
 		
-		dst.x = p_ui.uiText.transform.x = (p_ui.transform.x) + ((p_ui.size.x / 2) - p_ui.uiText.size.x / 2);
-		dst.y = p_ui.uiText.transform.y = (p_ui.transform.y) + ((p_ui.size.y / 2) - p_ui.uiText.size.y / 2);
+		dst.x = p_ui.uiText.transform.x + ((p_ui.transform.x) + ((p_ui.size.x / 2) - p_ui.uiText.size.x / 2));
+		dst.y = p_ui.uiText.transform.y + ((p_ui.transform.y) + ((p_ui.size.y / 2) - p_ui.uiText.size.y / 2));
 		dst.w = p_ui.uiText.size.x;
 		dst.h = p_ui.uiText.size.y;
 

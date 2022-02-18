@@ -11,12 +11,12 @@
 namespace Net
 {
 	void serverCreate();
-	void clientConnect();
+	void clientConnect(std::string ipAdress);
 	void clientDisconnect();
 	void serverDestroy();
 	void poll();
 	Vector2 getPacket();
 	int getId();
 	std::vector<int> allPlayers();
-	void sendPacket(Vector2 fuck);
+	void sendPacket(Vector2 pos);
 }

@@ -101,7 +101,7 @@ void Net::serverCreate()
 	}
 }
 
-void Net::clientConnect()
+void Net::clientConnect(std::string ipAdress)
 {
 	isServer = false;
 	client = enet_host_create (NULL, 1, 1, 0, 0);
@@ -112,7 +112,7 @@ void Net::clientConnect()
 	    exit (EXIT_FAILURE);
 	}
 
-	enet_address_set_host(&address, "127.0.0.1");
+	enet_address_set_host(&address, ipAdress.c_str());
 	address.port = 1234;
 	peer = enet_host_connect (client, &address, 1, 0);
 	if (peer == NULL)
@@ -216,17 +216,17 @@ std::vector<int> Net::allPlayers() // this is a test
 	return clients;
 }
 
-void Net::sendPacket(Vector2 fuck)
+void Net::sendPacket(Vector2 pos)
 {
 	if (isServer == true)
 	{
-		broadcastData(server, 1, 0, std::to_string(fuck.x) + " " + std::to_string(fuck.y));
+		broadcastData(server, 1, 0, std::to_string(pos.x) + " " + std::to_string(pos.y));
 	}
 	else if (isServer == false)
 	{
 		if (CLIENT_ID != 0)
 		{
-			sendData(peer, 1, CLIENT_ID, std::to_string(fuck.x) + " " + std::to_string(fuck.y));
+			sendData(peer, 1, CLIENT_ID, std::to_string(pos.x) + " " + std::to_string(pos.y));
 		}
 	}
 }

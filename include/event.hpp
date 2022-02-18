@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL2/SDL.h>
+#include <string>
 
 namespace Event
 {
@@ -10,4 +11,8 @@ namespace Event
 	bool MouseDown(int i);
 	bool KeyPressed(int i);
 	bool KeyDown(int i);
+	bool TextInputEnabled(bool i);
+	bool TextInputEnabled();
+	std::string GetInputText();
+	void SetInputText(std::string i);
 }

@@ -11,6 +11,7 @@ class Text
 public:
 	Text();
 	void setText(std::string data);
+	void setTextC(char *data);
 	std::string getText();
 	TTF_Font* swansea = TTF_OpenFont("assets/fonts/swansea.ttf", 40);
 	SDL_Surface* messageSurface;

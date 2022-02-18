@@ -51,8 +51,10 @@ std::map<int,Entity> players;
 int netMode = 0;
 
 // user interface test stuff
-ui::Button button;
-bool menuEnabled = false;
+std::vector<ui::Button> buttons;
+ui::Button button; // this stupid thing has to be here because if i put it in the same loop as the vector it crashes
+ui::TextInput ipInput;
+int menuType = 0;
 
 bool init() // used to initiate things before using
 {
@@ -60,6 +62,7 @@ bool init() // used to initiate things before using
 	SDL_Init(SDL_INIT_VIDEO);
 	IMG_Init(IMG_INIT_PNG);
 	TTF_Init();
+	SDL_StopTextInput();
 
 	if (enet_initialize () != 0)
     {
@@ -94,41 +97,163 @@ void gameLoop() // it runs forever
 {
 	if (Event::KeyDown(SDLK_ESCAPE))
 	{
-		if (menuEnabled)
+		if (menuType > 0)
 		{
-			menuEnabled = false;
+			menuType = 0;
 		}
-		else if (!menuEnabled)
+		else if (menuType == 0)
 		{
-			menuEnabled = true;
-		}
-	}
-
-	if (menuEnabled == true)
-	{
-		button.size.x = 200;
-		button.size.y = 64;
-
-		button.transform.x = (window.getSize().x / 2) - (button.size.x / 2);
-		button.transform.y = (window.getSize().y / 2) - 200;
-
-		if (button.onClick())
-		{
-			std::cout << "working";
+			menuType = 1;
 		}
 	}
 
-	if (Event::KeyPressed(SDLK_j) && netMode == 0)
+	if (menuType == 1)
 	{
-		Net::serverCreate();
-		netMode = 1;
+		if (buttons.size() != 3)
+		{
+			buttons.clear();
+			for (int i = 0; i < 3; i++)
+			{
+				buttons.push_back(button);
+			}
+		}
+
+		buttons[0].size.x = 200;
+		buttons[0].size.y = 64;
+
+		buttons[0].transform.x = (window.getSize().x / 2) - (buttons[0].size.x / 2);
+		buttons[0].transform.y = (window.getSize().y / 2) - 200;
+		buttons[0].uiText.setText("Resume");
+
+		buttons[1].size.x = 200;
+		buttons[1].size.y = 64;
+
+		buttons[1].transform.x = (window.getSize().x / 2) - (buttons[0].size.x / 2);
+		buttons[1].transform.y = (window.getSize().y / 2) - 100;
+		buttons[1].uiText.setText("Multiplayer");
+
+		buttons[2].size.x = 200;
+		buttons[2].size.y = 64;
+
+		buttons[2].transform.x = (window.getSize().x / 2) - (buttons[0].size.x / 2);
+		buttons[2].transform.y = (window.getSize().y / 2);
+		buttons[2].uiText.setText("Quit");
+
+
+		//button.uiText.transform.x = (button.transform.x) + ((button.size.x / 2) - button.uiText.size.x / 2);
+		//button.uiText.transform.y = (button.transform.y) + ((button.size.y / 2) - button.uiText.size.x / 2);
+
+		if (buttons[0].onClick())
+		{
+			menuType = 0; 
+		}
+
+		if (buttons[1].onClick())
+		{
+			menuType = 2; 
+		}
+
+		if (buttons[2].onClick())
+		{
+			gameRunning = false; 
+		}
 	}
-	else if (Event::KeyPressed(SDLK_k) && netMode == 0)
+	else if (menuType == 2)
 	{
-		Net::clientConnect();
-		netMode = 2;
+		if (buttons.size() != 3)
+		{
+			buttons.clear();
+			for (int i = 0; i < 3; i++)
+			{
+				buttons.push_back(button);
+			}
+		}
+
+		buttons[0].size.x = 200;
+		buttons[0].size.y = 64;
+
+		buttons[0].transform.x = (window.getSize().x / 2) - (buttons[0].size.x / 2);
+		buttons[0].transform.y = (window.getSize().y / 2) - 200;
+		buttons[0].uiText.setText("Host");
+
+		buttons[1].size.x = 200;
+		buttons[1].size.y = 64;
+
+		buttons[1].transform.x = (window.getSize().x / 2) - (buttons[0].size.x / 2);
+		buttons[1].transform.y = (window.getSize().y / 2) - 100;
+		buttons[1].uiText.setText("Join");
+
+		buttons[2].size.x = 200;
+		buttons[2].size.y = 64;
+
+		buttons[2].transform.x = (window.getSize().x / 2) - (buttons[0].size.x / 2);
+		buttons[2].transform.y = (window.getSize().y / 2);
+		buttons[2].uiText.setText("Back");
+
+
+		if (buttons[0].onClick())
+		{
+			Net::serverCreate();
+			netMode = 1;
+			menuType = 0; 
+		}
+
+		if (buttons[1].onClick())
+		{
+			menuType = 3; 
+		}
+
+		if (buttons[2].onClick())
+		{
+			menuType = 1; 
+		}
 	}
-	else if (netMode == 1)
+	else if (menuType == 3)
+	{
+		if (buttons.size() != 2)
+		{
+			buttons.clear();
+			for (int i = 0; i < 2; i++)
+			{
+				buttons.push_back(button);
+			}
+		}
+
+		ipInput.size.x = 400;
+		ipInput.size.y = 64;
+
+		ipInput.transform.x = (window.getSize().x / 2) - (ipInput.size.x / 2);
+		ipInput.transform.y = (window.getSize().y / 2) - 200;
+		ipInput.startTextInput();
+
+		buttons[0].size.x = 200;
+		buttons[0].size.y = 64;
+
+		buttons[0].transform.x = (window.getSize().x / 2) - (buttons[0].size.x / 2);
+		buttons[0].transform.y = (window.getSize().y / 2) - 100;
+		buttons[0].uiText.setText("Connect");
+
+		buttons[1].size.x = 200;
+		buttons[1].size.y = 64;
+
+		buttons[1].transform.x = (window.getSize().x / 2) - (buttons[0].size.x / 2);
+		buttons[1].transform.y = (window.getSize().y / 2);
+		buttons[1].uiText.setText("Back");
+
+		if (buttons[0].onClick())
+		{
+			Net::clientConnect(ipInput.uiText.getText());
+			netMode = 2; 
+			menuType = 0;
+		}
+
+		if (buttons[1].onClick())
+		{
+			menuType = 1; 
+		}
+	}
+
+	if (netMode == 1)
 	{
 		Net::poll();
 		Net::sendPacket(plr.transform);
@@ -261,11 +386,20 @@ void render() // honestly i feel like putting the stuff that is at the end of th
 		window.render(wall, true);
 	}
 
-	if (menuEnabled)
+	if (menuType > 0)
 	{
-		window.render(button);
+		for (ui::Button button : buttons)
+		{
+			window.render(button);
+		}
+	}
+
+	if (menuType == 3)
+	{
+		window.render(ipInput);
 	}
 	
+
 	window.display();
 }
 

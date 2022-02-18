@@ -20,6 +20,18 @@ void Text::setText(std::string data)
 	size.y = h;
 }
 
+void Text::setTextC(char *data)
+{
+	std::string str(data);
+	message = str;
+	int w, h;
+	SDL_FreeSurface(messageSurface);
+	messageSurface = TTF_RenderText_Solid(swansea, data, color);
+	TTF_SizeText(swansea, data, &w, &h);
+	size.x = w;
+	size.y = h;
+}
+
 std::string Text::getText()
 {
 	return message;

@@ -13,6 +13,7 @@ public:
 	int red, green, blue;
 	Text uiText;
 	class Button;
+	class TextInput;
 	class Panel;
 };
 
@@ -21,6 +22,17 @@ class  ui::Button : public ui
 public:
 	using ui::ui;
 	bool onClick();
+};
+
+class  ui::TextInput : public ui
+{
+public:
+	//using ui::ui;
+	TextInput();
+	bool startTextInput();
+	~TextInput();
+private:
+	bool isActive = false;
 };
 
 class  ui::Panel : public ui
