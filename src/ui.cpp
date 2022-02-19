@@ -55,6 +55,8 @@ bool ui::TextInput::startTextInput()
 	int x, y;
 	SDL_GetMouseState(&x, &y);
 
+
+
 	if (Event::MouseDown(SDL_BUTTON_LEFT))
 	{
 		if (x >= transform.x && x <= transform.x + size.x && y >= transform.y && y <= transform.y + size.y)
@@ -74,9 +76,17 @@ bool ui::TextInput::startTextInput()
 
 	if (Event::TextInputEnabled() == true && isActive == true)
 	{
-		uiText.setText(Event::GetInputText());
+		if (Event::GetInputText().size() <= charLimit)
+		{
+			uiText.setText(Event::GetInputText());
+		}
+		else if (Event::GetInputText().size() > charLimit)
+		{
+			Event::SetInputText(uiText.getText());
+		} 
+		
 	}
-
+	
 	return false;
 }
 
