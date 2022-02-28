@@ -2,11 +2,11 @@
 #include <SDL2/SDL_image.h>
 #include <iostream>
 
-#include "entity.hpp"
+#include "physicsentity.hpp"
 #include "player.hpp"
 #include "event.hpp"
 
-Player::Player(Vector2 p_pos, SDL_Texture* p_tex, Vector2 p_size) : Entity(p_pos,p_tex, p_size)
+Player::Player(Vector2 p_pos, SDL_Texture* p_tex, Vector2 p_size) : PhysicsEntity(p_pos,p_tex, p_size)
 {
 	transform = p_pos;
 	tex = p_tex;
@@ -16,11 +16,11 @@ Player::Player(Vector2 p_pos, SDL_Texture* p_tex, Vector2 p_size) : Entity(p_pos
 
 void Player::init() // this was the biggest pain in the fucking ass ever
 {
-	Entity::friction = friction;
-	Entity::dragX = dragX;
-	Entity::dragY = dragY;
-	Entity::gravity = gravity;
-	Entity::bounciness = bounciness;
+	PhysicsEntity::friction = friction;
+	PhysicsEntity::dragX = dragX;
+	PhysicsEntity::dragY = dragY;
+	PhysicsEntity::gravity = gravity;
+	PhysicsEntity::bounciness = bounciness;
 
 	texturePos.x = 0;
 	texturePos.y = 0;

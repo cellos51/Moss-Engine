@@ -4,9 +4,9 @@
 #include <SDL2/SDL_image.h>
 
 #include "math.hpp"
-#include "entity.hpp"
+#include "physicsentity.hpp"
 
-class Player : public Entity
+class Player : public PhysicsEntity
 {
 public:
 	//using Entity::Entity;

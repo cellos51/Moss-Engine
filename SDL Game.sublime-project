@@ -12,14 +12,14 @@
 		{
 			"name": "SDL2 Debug",
 			"working_dir": "${project_path}",
-			"cmd": "g++ -c src/*.cpp -std=c++14 -g -Wall -m64 -I include -I C:/SDL2/include -I C:/Users/Creep/Documents/SourceCode/Libraries/enet-1.3.17/include -I C:/mingw64/include && g++ *.o -o bin/debug/main -L C:/SDL2/lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -L C:/Users/Creep/Documents/SourceCode/Libraries/enet-1.3.17 -lenet64 -lws2_32 -lwinmm && start bin/debug/main",
+			"cmd": "C:/mingw64/bin/g++ -c src/*.cpp -std=c++14 -g -Wall -m64 -I include -I C:/SDL2/include -I C:/Users/Creep/Documents/SourceCode/Libraries/enet-1.3.17/include -I C:/mingw64/include && C:/mingw64/bin/g++ *.o -o bin/debug/main -L C:/mingw64/lib -lmingw32 -L C:/SDL2/lib -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -L C:/Users/Creep/Documents/SourceCode/Libraries/enet-1.3.17 -lenet64 -lws2_32 -lwinmm && start bin/debug/main",
 			"selector": "source.c++",
 			"shell": true
 		},
 		{
 			"name": "SDL2 Release",
 			"working_dir": "${project_path}",
-			"cmd": "g++ -c src/*.cpp -std=c++14 -O3 -Wall -m64 -I include -I C:/SDL2/include -I C:/Users/Creep/Documents/SourceCode/Libraries/enet-1.3.17/include -I C:/mingw64/include && g++ *.o -o bin/release/main -L C:/SDL2/lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -L C:/Users/Creep/Documents/SourceCode/Libraries/enet-1.3.17 -lenet64 -lws2_32 -lwinmm -mwindows && start bin/release/main",
+			"cmd": "C:/mingw64/bin/g++ -c src/*.cpp -std=c++14 -O3 -Wall -m64 -I include -I C:/SDL2/include -I C:/Users/Creep/Documents/SourceCode/Libraries/enet-1.3.17/include -I C:/mingw64/include && C:/mingw64/bin/g++ *.o -o bin/release/main -L C:/mingw64/lib -lmingw32 -L C:/SDL2/lib -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -L C:/Users/Creep/Documents/SourceCode/Libraries/enet-1.3.17 -lenet64 -lws2_32 -lwinmm -mwindows && start bin/release/main",
 			"selector": "source.c++",
 			"shell": true
 		}

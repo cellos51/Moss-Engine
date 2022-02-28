@@ -24,7 +24,6 @@
 #include "config.hpp" // this just has the screen size so if i change it i dont need to change it in every class
 
 // random shit needed to be here to run
-bool init();
 bool gameRunning = true;
 
 // main window
@@ -35,16 +34,14 @@ Vector2 offsetCam;
 Vector2 offsetMouse;
 
 // textures
-SDL_Texture* playerTex;
+//SDL_Texture* playerTex = window.loadTexture("assets/textures/player.png");
 SDL_Texture* tileSet[14];
 
 std::vector<Entity> walls; // literally just walls (for the level) (also why the fuck don't i make a seperete entity derived class for the level??? ahh fuck it)
 
 Vector2 PlayerSpawn = Vector2(0,0);
 
-bool load = init(); // this is the end of textures and windows OK NVM
-
-Player plr (PlayerSpawn, window.loadTexture("assets/textures/player.png"), Vector2(64,64));
+Player plr (PlayerSpawn, NULL, Vector2(64,64));
 
 // for online mode
 std::map<int,Entity> players;
@@ -59,7 +56,6 @@ int menuType = 0;
 bool init() // used to initiate things before using
 {
 	SDL_Init(SDL_INIT_EVERYTHING);
-	SDL_Init(SDL_INIT_VIDEO);
 	IMG_Init(IMG_INIT_PNG);
 	TTF_Init();
 	SDL_StopTextInput();
@@ -88,7 +84,8 @@ bool init() // used to initiate things before using
 	tileSet[12] = window.loadTexture("assets/textures/dirt12.png");
 	tileSet[13] = window.loadTexture("assets/textures/dirt13.png");
 
-	PlayerSpawn = Level::LoadLevel(Level::LoadFile("assets/levels/level1.lvl"), walls, window, tileSet);
+	plr.setTex(window.loadTexture("assets/textures/player.png"));
+	plr.transform = Level::LoadLevel(Level::LoadFile("assets/levels/level1.lvl"), walls, window, tileSet);
 
 	return true;
 }
@@ -405,13 +402,14 @@ void render() // honestly i feel like putting the stuff that is at the end of th
 
 int main(int argc, char* args[])
 {
+	init();
 	while (gameRunning) // main game loop ran every frame
 	{
 		Time::Tick();
     	Event::PollEvent();
-    	gameRunning = Event::AppQuit();
 		gameLoop();
     	render();
+    	gameRunning = Event::AppQuit();
 	}
 
 	atexit (enet_deinitialize);
