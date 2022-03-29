@@ -56,9 +56,6 @@ std::vector<ui::Button> buttons;
 ui::TextInput ipInput;
 int menuType = 0;
 
-//test occulusion culling
-Entity CameraHit(Vector2(SCREEN_WIDTH,SCREEN_HEIGHT));
-
 bool init() // used to initiate things before using
 {
 	SDL_Init(SDL_INIT_EVERYTHING);
@@ -287,7 +284,7 @@ void gameLoop() // it runs forever
 			{
 				if (!players.count(ids))
 				{
-					Entity tempPlr (window.loadTexture("assets/textures/player.png"), Vector2(64,64));
+					Entity tempPlr (window.loadTexture("assets/textures/player.png"), Vector2(16,16));
 					players.insert({ids, tempPlr});
 				}	
 			}
@@ -329,7 +326,7 @@ void gameLoop() // it runs forever
 			{
 				if (!players.count(ids))
 				{
-					Entity tempPlr (window.loadTexture("assets/textures/player.png"), Vector2(64,64));
+					Entity tempPlr (window.loadTexture("assets/textures/player.png"), Vector2(16,16));
 					players.insert({ids, tempPlr});
 				}	
 			}
@@ -353,48 +350,40 @@ void gameLoop() // it runs forever
 		}
 	}
 
-
-
-
-	window.camera(Vector2(plr.transform.x + plr.size.x / 2, plr.transform.y + plr.size.y / 2));
-
 	if (Event::KeyPressed(SDLK_1))
 	{
 		//window.zoom = 0;
-		window.setRenderScale(4, 4);
+		window.setZoom(1);
 
 	}
 	else if (Event::KeyPressed(SDLK_2))
 	{
 		//window.zoom = 0.25;
+		window.setZoom(2);
 	}
 	else if (Event::KeyPressed(SDLK_3))
 	{
 		//window.zoom = 0.5;
+		window.setZoom(3);
 	}
 	else if (Event::KeyPressed(SDLK_4))
 	{
 		//window.zoom = 0.75;
+		window.setZoom(4);
 	}	
 
 	plr.update();
-	
+	window.camera(Vector2(plr.transform.x + plr.size.x / 2, plr.transform.y + plr.size.y / 2));
+
 	for (Entity wall : walls)
 	{
 		plr.getCol(wall);
 	}
-
-	CameraHit.transform = Vector2(window.cameraPos.x - CameraHit.size.x / 2, window.cameraPos.y - CameraHit.size.y / 2);
-	CameraHit.size = window.getSize();
-	CameraHit.offset.w = window.getSize().x;
-	CameraHit.offset.h = window.getSize().y;
 }
 
 
 void render() // honestly i feel like putting the stuff that is at the end of the gameloop in here
 {
-	window.render(CameraHit, true);
-
   	for (std::map<int,Entity>::iterator it = players.begin(); it != players.end(); ++it)
   	{
   		window.render(it->second, true);
@@ -404,10 +393,7 @@ void render() // honestly i feel like putting the stuff that is at the end of th
 
 	for (Entity wall : walls)
 	{
-		if (wall.intersecting(CameraHit) == true)
-		{
-			window.render(wall, true);
-		}
+		window.render(wall, true);
 	}
 
 	if (menuType > 0)

@@ -37,23 +37,23 @@ void Player::update()
 	// SDL_GetMouseState(&mouseX, &mouseY);
 	if (Event::KeyPressed(SDLK_RIGHT) || Event::KeyPressed(SDLK_d))
 	{
-		velocity.x += 0.0625 * Time::deltaTime();
+		velocity.x += 0.015625 * Time::deltaTime();
 	}
 
 	if (Event::KeyPressed(SDLK_LEFT) || Event::KeyPressed(SDLK_a))
 	{
-		velocity.x += -0.0625 * Time::deltaTime();
+		velocity.x += -0.015625 * Time::deltaTime();
 	}
 
 	if ((Event::KeyPressed(SDLK_UP) && OnGround == true) || (Event::KeyPressed(SDLK_w) && OnGround == true))
 	{
-		velocity.y = -25;
+		velocity.y = -6.25;
 	}
 	else if (!Event::KeyPressed(SDLK_UP) && !Event::KeyPressed(SDLK_w))
 	{
 		if (velocity.y < 0)
 		{
-			velocity.y += 0.1875 * Time::deltaTime();
+			velocity.y += 0.046875 * Time::deltaTime();
 		}
 	}
 

@@ -28,7 +28,7 @@ void PhysicsEntity::getCol(Entity& p_ent) // ok the collision *was* fucky as hel
 				}
 				
 
-				if(velocity.x >= -0.5 / 16 * Time::deltaTime() && velocity.x <= 0.5 / 16 * Time::deltaTime())
+				if(velocity.x >= -0.001 / 16 * Time::deltaTime() && velocity.x <= 0.001 / 16 * Time::deltaTime())
 				{
 					velocity.x = 0;
 				}
@@ -51,7 +51,7 @@ void PhysicsEntity::getCol(Entity& p_ent) // ok the collision *was* fucky as hel
 					velocity.y = (-velocity.y * bounciness);
 				}
 
-				if(velocity.x >= -0.5 / 16 * Time::deltaTime() && velocity.x <= 0.5 / 16 * Time::deltaTime())
+				if(velocity.x >= -0.001 / 16 * Time::deltaTime() && velocity.x <= 0.001 / 16 * Time::deltaTime())
 				{
 					velocity.x = 0;
 				}
@@ -74,7 +74,7 @@ void PhysicsEntity::getCol(Entity& p_ent) // ok the collision *was* fucky as hel
 					velocity.x = (-velocity.x * bounciness);
 				}
 
-				if(velocity.y >= -0.5 / 16 * Time::deltaTime() && velocity.y <= 0.5 / 16 * Time::deltaTime())
+				if(velocity.y >= -0.001 / 16 * Time::deltaTime() && velocity.y <= 0.001 / 16 * Time::deltaTime())
 				{
 					velocity.y = 0;
 				}
@@ -97,7 +97,7 @@ void PhysicsEntity::getCol(Entity& p_ent) // ok the collision *was* fucky as hel
 					velocity.x = (velocity.x * -bounciness);
 				}
 				
-				if(velocity.y >= -0.5 / 16 * Time::deltaTime() && velocity.y <= 0.5 / 16 * Time::deltaTime())
+				if(velocity.y >= -0.001 / 16 * Time::deltaTime() && velocity.y <= 0.001 / 16 * Time::deltaTime())
 				{
 					velocity.y = 0;
 				}
@@ -123,7 +123,7 @@ void PhysicsEntity::physics(bool p_phys)
 		velocity.y += gravity.y / 16 * Time::deltaTime();
 		transform = (Vector2(transform.x + (velocity.x / 16 * Time::deltaTime()), transform.y + (velocity.y / 16 * Time::deltaTime())));
 
-		if(velocity.x >= -0.1 / 16 * Time::deltaTime() && velocity.x <= 0.1 / 16 * Time::deltaTime()) // air drag
+		if(velocity.x >= -0.001 / 16 * Time::deltaTime() && velocity.x <= 0.001 / 16 * Time::deltaTime()) // air drag
 		{
 			velocity.x = 0;
 		}
@@ -136,7 +136,7 @@ void PhysicsEntity::physics(bool p_phys)
 			velocity.x -= (dragX * velocity.x) / 16 * Time::deltaTime();
 		}
 
-		if(velocity.y >= -0.1 / 16 * Time::deltaTime() && velocity.y <= 0.1 / 16 * Time::deltaTime())
+		if(velocity.y >= -0.001 / 16 * Time::deltaTime() && velocity.y <= 0.001 / 16 * Time::deltaTime())
 		{
 			velocity.y = 0;
 		}

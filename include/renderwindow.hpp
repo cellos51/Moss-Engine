@@ -25,8 +25,7 @@ public:
 	void display();
 	void quit();
 	void camera(Vector2 pos);
-	void setRenderScale(float x, float y);
-	float zoom = 0; // i have no clue what numbers work best
+	void setZoom(float x);
 	Vector2 getSize();
 	Vector2 cameraPos = Vector2(0,0);
 private:
