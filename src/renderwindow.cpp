@@ -38,8 +38,8 @@ void RenderWindow::render(Entity& p_ent, bool cam) // i think this copys the tex
 	
 	if (cam == true)
 	{
-		dst.x = ((p_ent.offset.x + p_ent.transform.x) - zoom * p_ent.transform.x) + cameraPos.x - zoom * cameraPos.x;
-		dst.y = ((p_ent.offset.y + p_ent.transform.y) - zoom * p_ent.transform.y) + cameraPos.y - zoom * cameraPos.y;
+		dst.x = ((p_ent.offset.x + p_ent.transform.x) - zoom * p_ent.transform.x) - cameraOffset.x + zoom * cameraPos.x;
+		dst.y = ((p_ent.offset.y + p_ent.transform.y) - zoom * p_ent.transform.y) - cameraOffset.y + zoom * cameraPos.y;
 		dst.w = p_ent.offset.w - p_ent.offset.w * zoom;
 		dst.h = p_ent.offset.h  - p_ent.offset.w * zoom;
 	}
@@ -65,14 +65,14 @@ void RenderWindow::render(Entity& p_ent, bool cam) // i think this copys the tex
 
 void RenderWindow::render(Text& p_text, bool cam) // i think this copys the texture to the renderer
 {
-	if (p_text.getText().size() > 0)
+	if (p_text.getText().size() > 0 && p_text.font != NULL)
 	{
 		SDL_Rect dst;
 		
 		if (cam == true)
 		{
-			dst.x = (p_text.transform.x - zoom * p_text.transform.x) + cameraPos.x - zoom * cameraPos.x;
-			dst.y = (p_text.transform.y - zoom * p_text.transform.y) + cameraPos.y - zoom * cameraPos.y;
+			dst.x = (p_text.transform.x - zoom * p_text.transform.x) - cameraOffset.x + zoom * cameraPos.x;
+			dst.y = (p_text.transform.y - zoom * p_text.transform.y) - cameraOffset.y + zoom * cameraPos.y;
 			dst.w = (p_text.size.x) - (p_text.size.x) * zoom;
 			dst.h = (p_text.size.y) - (p_text.size.y) * zoom;
 		}
@@ -83,8 +83,10 @@ void RenderWindow::render(Text& p_text, bool cam) // i think this copys the text
 			dst.w = p_text.size.x;
 			dst.h = p_text.size.y;
 		}
-		SDL_Texture* Message = SDL_CreateTextureFromSurface(renderer, p_text.messageSurface);
+		SDL_Surface* messageSurface = TTF_RenderText_Blended(p_text.font, p_text.getText().c_str(), p_text.color);
+		SDL_Texture* Message = SDL_CreateTextureFromSurface(renderer, messageSurface);
 		SDL_RenderCopy(renderer, Message, NULL, &dst);
+		SDL_FreeSurface(messageSurface);
 		SDL_DestroyTexture(Message);
 	}	
 }
@@ -97,12 +99,12 @@ void RenderWindow::render(ui& p_ui) // i think this copys the texture to the ren
 	dst.y = p_ui.transform.y;
 	dst.w = p_ui.size.x;
 	dst.h = p_ui.size.y;
-
+	
 	SDL_SetRenderDrawColor( renderer, p_ui.red, p_ui.green, p_ui.blue, 0);
     SDL_RenderFillRect( renderer, &dst );
-
+    
    	// render(p_ui.uiText, false);
-   	if (p_ui.uiText.getText().size() > 0)
+   	if (p_ui.uiText.getText().size() > 0 && p_ui.uiText.font != NULL)
 	{
 		SDL_Rect dst;
 		
@@ -110,11 +112,13 @@ void RenderWindow::render(ui& p_ui) // i think this copys the texture to the ren
 		dst.y = p_ui.uiText.transform.y + ((p_ui.transform.y) + ((p_ui.size.y / 2) - p_ui.uiText.size.y / 2));
 		dst.w = p_ui.uiText.size.x;
 		dst.h = p_ui.uiText.size.y;
-
-		SDL_Texture* Message = SDL_CreateTextureFromSurface(renderer, p_ui.uiText.messageSurface);
+		
+		SDL_Surface* messageSurface = TTF_RenderText_Blended(p_ui.uiText.font, p_ui.uiText.getText().c_str(), p_ui.uiText.color);
+		SDL_Texture* Message = SDL_CreateTextureFromSurface(renderer, messageSurface);
 		SDL_RenderCopy(renderer, Message, NULL, &dst);
+		SDL_FreeSurface(messageSurface);
 		SDL_DestroyTexture(Message);
-	}	
+	}
 }
 
 void RenderWindow::display() // used to display information from the renderer to the window
@@ -128,18 +132,25 @@ void RenderWindow::quit() // used before exiting the program
 	SDL_Quit();
 }
 
-void RenderWindow::camera(Entity& p_ent) // used before exiting the program
+void RenderWindow::camera(Vector2 pos) // used before exiting the program
 {
-	float cameraX = p_ent.transform.x - p_ent.transform.x * 2 + zoom - cameraPos.x + getSize().x / (2 - zoom * 2) - p_ent.size.x / (2 - zoom * 2);
-	cameraPos.x += cameraX * 0.01 * Time::deltaTime();
-	float cameraY = p_ent.transform.y - p_ent.transform.y * 2 + zoom - cameraPos.y + getSize().y / (2 - zoom * 2) - p_ent.size.y / (2 - zoom * 2);
-	cameraPos.y += cameraY * 0.01 * Time::deltaTime();
+	float cameraX = pos.x + pos.x * -2 + cameraPos.x;
+	cameraPos.x -= cameraX * 0.01 * Time::deltaTime();
+	float cameraY = pos.y + pos.y * -2 + cameraPos.y;
+	cameraPos.y -= cameraY * 0.01 * Time::deltaTime();
+
+	cameraOffset = Vector2(cameraPos.x - getSize().x / 2, cameraPos.y - getSize().y / 2);
+}
+
+void RenderWindow::setRenderScale(float x, float y)
+{
+	SDL_RenderSetScale(renderer, x, y);
 }
 
 Vector2 RenderWindow::getSize()
 {
 	int w, h;
 	SDL_GetWindowSize(window, &w, &h);
-
+	
 	return Vector2(w, h);
 }

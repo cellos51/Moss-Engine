@@ -51,3 +51,13 @@ void Entity::setTex(SDL_Texture* p_tex)
 {
 	tex = p_tex;
 }
+
+bool Entity::intersecting(Entity p_ent)
+{
+	if (transform.y >= p_ent.transform.y - size.y && transform.y <= p_ent.transform.y + p_ent.size.y && transform.x >= p_ent.transform.x - size.x && transform.x <= p_ent.transform.x + p_ent.size.x)
+	{
+		return true;
+	}
+
+	return false;
+}

@@ -84,7 +84,6 @@ bool ui::TextInput::startTextInput()
 		{
 			Event::SetInputText(uiText.getText());
 		} 
-		
 	}
 	
 	return false;

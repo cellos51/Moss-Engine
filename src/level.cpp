@@ -89,7 +89,7 @@ Vector2 Level::LoadLevel(std::vector<std::string> data, std::vector<Entity>& p_e
 			{
 				case 1:
 				{
-					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(64,64));
+					Entity ent (Vector2(b * 16, a * 16), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(16,16));
 					checkAdjacent(ent, a, b, data);
 					p_ent.push_back (ent);
 				}
@@ -97,7 +97,7 @@ Vector2 Level::LoadLevel(std::vector<std::string> data, std::vector<Entity>& p_e
 
 				case 2:
 				{
-					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(64,64));
+					Entity ent (Vector2(b * 16, a * 16), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(16,16));
 					checkAdjacent(ent, a, b, data);
 					p_ent.push_back (ent);
 				}
@@ -105,7 +105,7 @@ Vector2 Level::LoadLevel(std::vector<std::string> data, std::vector<Entity>& p_e
 
 				case 3:
 				{
-					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(64,64));
+					Entity ent (Vector2(b * 16, a * 16), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(16,16));
 					checkAdjacent(ent, a, b, data);
 					p_ent.push_back (ent);
 				}
@@ -113,7 +113,7 @@ Vector2 Level::LoadLevel(std::vector<std::string> data, std::vector<Entity>& p_e
 
 				case 4:
 				{
-					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(64,64));
+					Entity ent (Vector2(b * 16, a * 16), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(16,16));
 					checkAdjacent(ent, a, b, data);
 					p_ent.push_back (ent);
 				}
@@ -121,7 +121,7 @@ Vector2 Level::LoadLevel(std::vector<std::string> data, std::vector<Entity>& p_e
 
 				case 5:
 				{
-					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(64,64));
+					Entity ent (Vector2(b * 16, a * 16), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(16,16));
 					checkAdjacent(ent, a, b, data);
 					p_ent.push_back (ent);
 				}
@@ -129,7 +129,7 @@ Vector2 Level::LoadLevel(std::vector<std::string> data, std::vector<Entity>& p_e
 
 				case 6:
 				{
-					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(64,64));
+					Entity ent (Vector2(b * 16, a * 16), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(16,16));
 					checkAdjacent(ent, a, b, data);
 					p_ent.push_back (ent);
 				}
@@ -137,7 +137,7 @@ Vector2 Level::LoadLevel(std::vector<std::string> data, std::vector<Entity>& p_e
 
 				case 7:
 				{
-					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(64,64));
+					Entity ent (Vector2(b * 16, a * 16), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(16,16));
 					checkAdjacent(ent, a, b, data);
 					p_ent.push_back (ent);
 				}
@@ -145,7 +145,7 @@ Vector2 Level::LoadLevel(std::vector<std::string> data, std::vector<Entity>& p_e
 
 				case 8:
 				{
-					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(64,64));
+					Entity ent (Vector2(b * 16, a * 16), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(16,16));
 					checkAdjacent(ent, a, b, data);
 					p_ent.push_back (ent);
 				}
@@ -153,7 +153,7 @@ Vector2 Level::LoadLevel(std::vector<std::string> data, std::vector<Entity>& p_e
 
 				case 9:
 				{
-					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(64,64));
+					Entity ent (Vector2(b * 16, a * 16), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(16,16));
 					checkAdjacent(ent, a, b, data);
 					p_ent.push_back (ent);
 				}
@@ -161,7 +161,7 @@ Vector2 Level::LoadLevel(std::vector<std::string> data, std::vector<Entity>& p_e
 
 				case 10:
 				{
-					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(64,64));
+					Entity ent (Vector2(b * 16, a * 16), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(16,16));
 					checkAdjacent(ent, a, b, data);
 					p_ent.push_back (ent);
 				}
@@ -169,7 +169,7 @@ Vector2 Level::LoadLevel(std::vector<std::string> data, std::vector<Entity>& p_e
 
 				case 11:
 				{
-					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(64,64));
+					Entity ent (Vector2(b * 16, a * 16), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(16,16));
 					checkAdjacent(ent, a, b, data);
 					p_ent.push_back (ent);
 				}
@@ -177,7 +177,7 @@ Vector2 Level::LoadLevel(std::vector<std::string> data, std::vector<Entity>& p_e
 
 				case 12:
 				{
-					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(64,64));
+					Entity ent (Vector2(b * 16, a * 16), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(16,16));
 					checkAdjacent(ent, a, b, data);
 					p_ent.push_back (ent);
 				}
@@ -185,7 +185,7 @@ Vector2 Level::LoadLevel(std::vector<std::string> data, std::vector<Entity>& p_e
 
 				case 13:
 				{
-					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(64,64));
+					Entity ent (Vector2(b * 16, a * 16), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(16,16));
 					checkAdjacent(ent, a, b, data);
 					p_ent.push_back (ent);
 				}
@@ -193,7 +193,7 @@ Vector2 Level::LoadLevel(std::vector<std::string> data, std::vector<Entity>& p_e
 
 				case 14:
 				{
-					Entity ent (Vector2(b * 64, a * 64), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(64,64));
+					Entity ent (Vector2(b * 16, a * 16), p_tex[std::stoi(data[b + a * std::stoi(data[1]) + 2]) - 1], Vector2(16,16));
 					checkAdjacent(ent, a, b, data);
 					p_ent.push_back (ent);
 				}
@@ -201,7 +201,7 @@ Vector2 Level::LoadLevel(std::vector<std::string> data, std::vector<Entity>& p_e
 
 				case 15:
 				{
-					pspawn = Vector2(b * 64, a * 64);
+					pspawn = Vector2(b * 16, a * 16);
 				}
 				break;
 			}

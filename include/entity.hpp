@@ -16,6 +16,7 @@ public:
 	void init();
 	SDL_Texture* getTex();
 	void setTex(SDL_Texture* p_tex);
+	bool intersecting(Entity p_ent);
 	Vector2 transform;
 	SDL_Texture* tex;
 	Vector2 size;

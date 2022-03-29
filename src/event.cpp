@@ -81,7 +81,7 @@ void Event::PollEvent()
 			}
 			break;
 			case SDL_TEXTINPUT: 
-      text += event.text.text; /* Add new text onto the end of our text */
+     		text += event.text.text; /* Add new text onto the end of our text */
 			std::cout << event.text.text;
 			break;
 			case SDL_TEXTEDITING:

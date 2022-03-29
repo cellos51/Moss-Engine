@@ -13,9 +13,7 @@ public:
 	void setText(std::string data);
 	void setTextC(char *data);
 	std::string getText();
-	TTF_Font* swansea = TTF_OpenFont("assets/fonts/swansea.ttf", 40);
-	SDL_Surface* messageSurface;
-	SDL_Texture* messageTex;
+	TTF_Font* font = NULL;
 	Vector2 transform;
 	SDL_Color color = {255, 255, 255};
 	Vector2 size;

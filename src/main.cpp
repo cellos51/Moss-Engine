@@ -37,11 +37,15 @@ Vector2 offsetMouse;
 //SDL_Texture* playerTex = window.loadTexture("assets/textures/player.png");
 SDL_Texture* tileSet[14];
 
-std::vector<Entity> walls; // literally just walls (for the level) (also why the fuck don't i make a seperete entity derived class for the level??? ahh fuck it)
+//fonts
+TTF_Font* swansea;
 
+// literally just walls (for the level) (also why the fuck don't i make a seperete entity derived class for the level??? ahh fuck it)
+std::vector<Entity> walls; 
+
+// player stuff
 Vector2 PlayerSpawn = Vector2(0,0);
-
-Player plr (PlayerSpawn, NULL, Vector2(64,64));
+Player plr (PlayerSpawn, NULL, Vector2(16,16));
 
 // for online mode
 std::map<int,Entity> players;
@@ -49,9 +53,11 @@ int netMode = 0;
 
 // user interface test stuff
 std::vector<ui::Button> buttons;
-ui::Button button; // this stupid thing has to be here because if i put it in the same loop as the vector it crashes
 ui::TextInput ipInput;
 int menuType = 0;
+
+//test occulusion culling
+Entity CameraHit(Vector2(SCREEN_WIDTH,SCREEN_HEIGHT));
 
 bool init() // used to initiate things before using
 {
@@ -84,6 +90,11 @@ bool init() // used to initiate things before using
 	tileSet[12] = window.loadTexture("assets/textures/dirt12.png");
 	tileSet[13] = window.loadTexture("assets/textures/dirt13.png");
 
+	//fonts
+	swansea = TTF_OpenFont("assets/fonts/swansea.ttf", 40);
+
+	ipInput.uiText.font = swansea;
+
 	plr.setTex(window.loadTexture("assets/textures/player.png"));
 	plr.transform = Level::LoadLevel(Level::LoadFile("assets/levels/level1.lvl"), walls, window, tileSet);
 
@@ -97,6 +108,7 @@ void gameLoop() // it runs forever
 		if (menuType > 0)
 		{
 			menuType = 0;
+			buttons.clear();
 		}
 		else if (menuType == 0)
 		{
@@ -109,9 +121,11 @@ void gameLoop() // it runs forever
 		if (buttons.size() != 3)
 		{
 			buttons.clear();
+			ui::Button buttonz;
+			buttonz.uiText.font = swansea;
 			for (int i = 0; i < 3; i++)
 			{
-				buttons.push_back(button);
+				buttons.push_back(buttonz);
 			}
 		}
 
@@ -160,9 +174,11 @@ void gameLoop() // it runs forever
 		if (buttons.size() != 3)
 		{
 			buttons.clear();
+			ui::Button buttonz;
+			buttonz.uiText.font = swansea;
 			for (int i = 0; i < 3; i++)
 			{
-				buttons.push_back(button);
+				buttons.push_back(buttonz);
 			}
 		}
 
@@ -210,9 +226,11 @@ void gameLoop() // it runs forever
 		if (buttons.size() != 2)
 		{
 			buttons.clear();
+			ui::Button buttonz;
+			buttonz.uiText.font = swansea;
 			for (int i = 0; i < 2; i++)
 			{
-				buttons.push_back(button);
+				buttons.push_back(buttonz);
 			}
 		}
 
@@ -246,7 +264,7 @@ void gameLoop() // it runs forever
 
 		if (buttons[1].onClick())
 		{
-			menuType = 1; 
+			menuType = 2; 
 		}
 	}
 
@@ -338,24 +356,25 @@ void gameLoop() // it runs forever
 
 
 
-	window.camera(plr);
+	window.camera(Vector2(plr.transform.x + plr.size.x / 2, plr.transform.y + plr.size.y / 2));
 
 	if (Event::KeyPressed(SDLK_1))
 	{
-		window.zoom = 0;
+		//window.zoom = 0;
+		window.setRenderScale(4, 4);
 
 	}
 	else if (Event::KeyPressed(SDLK_2))
 	{
-		window.zoom = 0.25;
+		//window.zoom = 0.25;
 	}
 	else if (Event::KeyPressed(SDLK_3))
 	{
-		window.zoom = 0.5;
+		//window.zoom = 0.5;
 	}
 	else if (Event::KeyPressed(SDLK_4))
 	{
-		window.zoom = 0.75;
+		//window.zoom = 0.75;
 	}	
 
 	plr.update();
@@ -364,12 +383,17 @@ void gameLoop() // it runs forever
 	{
 		plr.getCol(wall);
 	}
+
+	CameraHit.transform = Vector2(window.cameraPos.x - CameraHit.size.x / 2, window.cameraPos.y - CameraHit.size.y / 2);
+	CameraHit.size = window.getSize();
+	CameraHit.offset.w = window.getSize().x;
+	CameraHit.offset.h = window.getSize().y;
 }
 
 
 void render() // honestly i feel like putting the stuff that is at the end of the gameloop in here
 {
-	window.clear();
+	window.render(CameraHit, true);
 
   	for (std::map<int,Entity>::iterator it = players.begin(); it != players.end(); ++it)
   	{
@@ -380,7 +404,10 @@ void render() // honestly i feel like putting the stuff that is at the end of th
 
 	for (Entity wall : walls)
 	{
-		window.render(wall, true);
+		if (wall.intersecting(CameraHit) == true)
+		{
+			window.render(wall, true);
+		}
 	}
 
 	if (menuType > 0)
@@ -395,9 +422,6 @@ void render() // honestly i feel like putting the stuff that is at the end of th
 	{
 		window.render(ipInput);
 	}
-	
-
-	window.display();
 }
 
 int main(int argc, char* args[])
@@ -407,9 +431,12 @@ int main(int argc, char* args[])
 	{
 		Time::Tick();
     	Event::PollEvent();
-		gameLoop();
-    	render();
     	gameRunning = Event::AppQuit();
+		gameLoop();
+
+		window.clear();
+    	render();
+    	window.display();
 	}
 
 	atexit (enet_deinitialize);
