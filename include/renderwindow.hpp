@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL2/SDL.h>
+#include <glad/glad.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 
@@ -16,7 +17,7 @@ class RenderWindow
 {
 public:
 	void create(const char* p_title, int p_w, int p_h);
-	SDL_Texture* loadTexture(const char* p_filePath);
+	unsigned int loadTexture(const char* p_filePath);
 	TTF_Font* loadFont(const char* p_filePath);
 	void clear();
 	void render(Entity& p_ent, bool cam);
@@ -31,6 +32,8 @@ public:
 private:
 	Vector2 cameraOffset = Vector2(0,0);
 	SDL_Window* window;
+	SDL_GLContext context;
 	SDL_Renderer* renderer;
-
+	unsigned int shaderProgram;
+	unsigned int VBO, VAO, EBO;
 };

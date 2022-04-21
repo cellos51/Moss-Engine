@@ -73,7 +73,7 @@ std::vector<std::string> Level::LoadFile(std::string path)
     return level;
 }
 
-Vector2 Level::LoadLevel(std::vector<std::string> data, std::vector<Entity>& p_ent, RenderWindow& p_win, SDL_Texture* p_tex[])
+Vector2 Level::LoadLevel(std::vector<std::string> data, std::vector<Entity>& p_ent, RenderWindow& p_win, unsigned int p_tex[])
 {	
 	Vector2 pspawn = Vector2(0,0);
 

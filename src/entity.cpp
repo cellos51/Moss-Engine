@@ -10,12 +10,12 @@
 #include "config.hpp"
 
 
-Entity::Entity(Vector2 p_pos, SDL_Texture* p_tex, Vector2 p_size) : transform(p_pos), tex(p_tex), size(p_size)
+Entity::Entity(Vector2 p_pos, unsigned int p_tex, Vector2 p_size) : transform(p_pos), tex(p_tex), size(p_size)
 {
 	Entity::init();
 }
 
-Entity::Entity(SDL_Texture* p_tex, Vector2 p_size) : transform(Vector2(0.0, 0.0)), tex(p_tex), size(p_size)
+Entity::Entity(unsigned int p_tex, Vector2 p_size) : transform(Vector2(0.0, 0.0)), tex(p_tex), size(p_size)
 {
 	Entity::init();
 }
@@ -42,12 +42,12 @@ void Entity::init()
 	offset.h = size.y;
 }
 
-SDL_Texture* Entity::getTex()
+unsigned int Entity::getTex()
 {
 	return tex;
 }
 
-void Entity::setTex(SDL_Texture* p_tex)
+void Entity::setTex(unsigned int p_tex)
 {
 	tex = p_tex;
 }

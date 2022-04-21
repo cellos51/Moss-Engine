@@ -8,17 +8,17 @@
 class Entity // use this if you'd like an static non-moving entity
 {
 public:
-	Entity(Vector2 p_pos, SDL_Texture* p_tex, Vector2 p_size);
-	Entity(SDL_Texture* p_tex, Vector2 p_size);
+	Entity(Vector2 p_pos, unsigned int p_tex, Vector2 p_size);
+	Entity(unsigned int p_tex, Vector2 p_size);
 	Entity(Vector2 p_pos, Vector2 p_size);
 	Entity(Vector2 p_size);
 	bool colUp = true, colDown = true, colLeft = true, colRight = true;
 	void init();
-	SDL_Texture* getTex();
-	void setTex(SDL_Texture* p_tex);
+	unsigned int getTex();
+	void setTex(unsigned int p_tex);
 	bool intersecting(Entity p_ent);
 	Vector2 transform;
-	SDL_Texture* tex;
+	unsigned int tex;
 	Vector2 size;
 	SDL_Rect offset;
 	SDL_Rect texturePos;

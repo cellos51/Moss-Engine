@@ -6,7 +6,7 @@
 #include "player.hpp"
 #include "event.hpp"
 
-Player::Player(Vector2 p_pos, SDL_Texture* p_tex, Vector2 p_size) : PhysicsEntity(p_pos,p_tex, p_size)
+Player::Player(Vector2 p_pos, unsigned int p_tex, Vector2 p_size) : PhysicsEntity(p_pos,p_tex, p_size)
 {
 	transform = p_pos;
 	tex = p_tex;

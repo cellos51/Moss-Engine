@@ -1,4 +1,5 @@
 #include <SDL2/SDL.h>
+#include <glad/glad.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include <vector>
@@ -35,7 +36,7 @@ Vector2 offsetMouse;
 
 // textures
 //SDL_Texture* playerTex = window.loadTexture("assets/textures/player.png");
-SDL_Texture* tileSet[14];
+unsigned int tileSet[14];
 
 //fonts
 TTF_Font* swansea;
@@ -45,7 +46,7 @@ std::vector<Entity> walls;
 
 // player stuff
 Vector2 PlayerSpawn = Vector2(0,0);
-Player plr (PlayerSpawn, NULL, Vector2(16,16));
+Player plr (PlayerSpawn, NULL, Vector2(16, 16));
 
 // for online mode
 std::map<int,Entity> players;
@@ -62,6 +63,13 @@ bool init() // used to initiate things before using
 	IMG_Init(IMG_INIT_PNG);
 	TTF_Init();
 	SDL_StopTextInput();
+
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,24);
 
 	if (enet_initialize () != 0)
     {
@@ -384,10 +392,10 @@ void gameLoop() // it runs forever
 
 void render() // honestly i feel like putting the stuff that is at the end of the gameloop in here
 {
-  	for (std::map<int,Entity>::iterator it = players.begin(); it != players.end(); ++it)
-  	{
-  		window.render(it->second, true);
-  	}
+  	// for (std::map<int,Entity>::iterator it = players.begin(); it != players.end(); ++it)
+  	// {
+  	// 	window.render(it->second, true);
+  	// }
 
 	window.render(plr, true);
 
@@ -396,18 +404,18 @@ void render() // honestly i feel like putting the stuff that is at the end of th
 		window.render(wall, true);
 	}
 
-	if (menuType > 0)
-	{
-		for (ui::Button button : buttons)
-		{
-			window.render(button);
-		}
-	}
+	// if (menuType > 0)
+	// {
+	// 	for (ui::Button button : buttons)
+	// 	{
+	// 		window.render(button);
+	// 	}
+	// }
 
-	if (menuType == 3)
-	{
-		window.render(ipInput);
-	}
+	// if (menuType == 3)
+	// {
+	// 	window.render(ipInput);
+	// }
 }
 
 int main(int argc, char* args[])
