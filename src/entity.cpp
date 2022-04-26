@@ -20,12 +20,12 @@ Entity::Entity(unsigned int p_tex, Vector2 p_size) : transform(Vector2(0.0, 0.0)
 	Entity::init();
 }
 
-Entity::Entity(Vector2 p_pos, Vector2 p_size) : transform(p_pos), tex(NULL), size(p_size)
+Entity::Entity(Vector2 p_pos, Vector2 p_size) : transform(p_pos), tex(-1), size(p_size)
 {
 	Entity::init();
 }
 
-Entity::Entity(Vector2 p_size) : transform(Vector2(0.0, 0.0)), tex(NULL), size(p_size)
+Entity::Entity(Vector2 p_size) : transform(Vector2(0.0, 0.0)), tex(-1), size(p_size)
 {
 	Entity::init();
 }

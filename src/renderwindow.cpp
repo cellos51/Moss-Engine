@@ -2,6 +2,7 @@
 #include <SDL2/SDL_image.h> // removing later
 #include <stb_image.h>
 #include <iostream>
+#include <map>
 #include <cmath>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -19,10 +20,7 @@ Entity OnscreenCamera(Vector2(SCREEN_WIDTH,SCREEN_HEIGHT));
 
 Shader ourShader("assets/shaders/shader.vs", "assets/shaders/shader.fs");
 
-int width, height, nrChannels;
-unsigned char *data;
-unsigned int texture;
-
+std::map<unsigned int,Vector2> TextureSize;
 
 void RenderWindow::create(const char* p_title, int p_w, int p_h)
 {
@@ -47,32 +45,10 @@ void RenderWindow::create(const char* p_title, int p_w, int p_h)
     1, 2, 3    // second triangle
 	};  
 
-
-	stbi_set_flip_vertically_on_load(true); 
-	data = stbi_load("assets/textures/player.png", &width, &height, &nrChannels, 0); 
-
-
-	glGenTextures(1, &texture);  
-	glBindTexture(GL_TEXTURE_2D, texture); 
-
-	if (data)
-	{
-	    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-	    //glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-	    std::cout << "Failed to load texture" << std::endl;
-	}
-	stbi_image_free(data);
-
 	ourShader.compile();
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -105,10 +81,13 @@ void RenderWindow::create(const char* p_title, int p_w, int p_h)
 
 unsigned int RenderWindow::loadTexture(const char* p_filePath) // used load textures :P
 {
+	int width, height, nrChannels;
+	unsigned int texture;
+	unsigned char *data;
+
 	stbi_set_flip_vertically_on_load(true); 
 
-	unsigned char* data1 = stbi_load("assets/textures/player.png", &width, &height, &nrChannels, 0); 
-	unsigned int texture2;
+	data = stbi_load(p_filePath, &width, &height, &nrChannels, 0); 
 
 
 	glGenTextures(1, &texture);  
@@ -121,10 +100,16 @@ unsigned int RenderWindow::loadTexture(const char* p_filePath) // used load text
 	}
 	else
 	{
-	    return NULL;
+	    return -1;
 	}
 	stbi_image_free(data);
 
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	TextureSize.insert(std::pair<unsigned int,Vector2>(texture, Vector2(width, height)));
+
+	std::cout << texture << std::endl;
 	return texture;
 }
 
@@ -132,7 +117,7 @@ void RenderWindow::clear() // clears the renderer
 {
 	//SDL_SetRenderDrawColor(renderer, 44, 47, 51, 0);
 	//SDL_RenderClear(renderer);
-	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	glClearColor(0.439, 0.502, 0.565, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
 
 	OnscreenCamera.transform = Vector2(cameraPos.x - OnscreenCamera.size.x / 2, cameraPos.y - OnscreenCamera.size.y / 2);
@@ -147,22 +132,26 @@ void RenderWindow::render(Entity& p_ent, bool cam) // i think this copys the tex
 
 		glm::mat4 trans = glm::mat4(1.0f);
 		//trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
-		trans = glm::scale(trans, glm::vec3(p_ent.size.x / getSize().x, p_ent.size.y / getSize().y, 0));  
+		trans = glm::scale(trans, glm::vec3((p_ent.offset.w * zoomX) / getSize().x, (p_ent.offset.h * zoomY) / getSize().y, 0));  
 
 		//trans = glm::translate(trans, glm::vec3((((p_ent.offset.x + p_ent.transform.x) - p_ent.size.x / 2) - getSize().x / 2) / 8, -(((p_ent.offset.y + p_ent.transform.y) - p_ent.size.y / 2) - getSize().y / 2) / 8, 0)); 
 
-		trans = glm::translate(trans, glm::vec3(((((p_ent.offset.x + p_ent.transform.x) + p_ent.size.x / 2) - getSize().x / 2) - cameraOffset.x) / (p_ent.size.x / 2), -((((p_ent.offset.y + p_ent.transform.y) + p_ent.size.y / 2) - getSize().y / 2) - cameraOffset.y) / (p_ent.size.y / 2), 0)); 
+		trans = glm::translate(trans, glm::vec3(((((p_ent.offset.x + p_ent.transform.x) + p_ent.offset.w / 2) - getSize().x / 2) - cameraOffset.x) / (p_ent.offset.w / 2), -((((p_ent.offset.y + p_ent.transform.y) + p_ent.offset.h / 2) - getSize().y / 2) - cameraOffset.y) / (p_ent.offset.h / 2), 0)); 
 
 		unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
+
+		unsigned int texOffsetLoc = glGetUniformLocation(ourShader.ID, "texOffset");
+		
 		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 
-		glBindTexture(GL_TEXTURE_2D, texture);
-		glBindVertexArray(VAO);
+		glUniform4fv(texOffsetLoc, 1, glm::value_ptr(glm::vec4(p_ent.texturePos.x / TextureSize[p_ent.tex].x,p_ent.texturePos.y / TextureSize[p_ent.tex].y, p_ent.texturePos.w / TextureSize[p_ent.tex].x,p_ent.texturePos.h / TextureSize[p_ent.tex].y)));
 
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+		glBindTexture(GL_TEXTURE_2D, p_ent.tex);
+		glBindVertexArray(VAO);      
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	}
+
 	// if (p_ent.intersecting(OnscreenCamera) == true)
 	// {
 	// 	SDL_Rect src;
@@ -287,11 +276,13 @@ void RenderWindow::camera(Vector2 pos) // used before exiting the program
 	float cameraY = pos.y + pos.y * -2 + cameraPos.y;
 	cameraPos.y -= cameraY * 0.01 * Time::deltaTime();
 
-	cameraOffset = Vector2(cameraPos.x - ((getSize().x / zoomX) / 2)  , cameraPos.y - ((getSize().y / zoomY) / 2) );
+	cameraOffset = Vector2(cameraPos.x - ((getSize().x) / 2)  , cameraPos.y - ((getSize().y) / 2) );
 }
 
 void RenderWindow::setZoom(float x)
 {
+	zoomX = x;
+	zoomY = x;
 	//SDL_RenderSetScale(renderer, x, x);
 }
 

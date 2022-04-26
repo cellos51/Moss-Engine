@@ -46,7 +46,7 @@ std::vector<Entity> walls;
 
 // player stuff
 Vector2 PlayerSpawn = Vector2(0,0);
-Player plr (PlayerSpawn, NULL, Vector2(16, 16));
+Player plr (PlayerSpawn, -1, Vector2(16, 16));
 
 // for online mode
 std::map<int,Entity> players;
@@ -60,7 +60,7 @@ int menuType = 0;
 bool init() // used to initiate things before using
 {
 	SDL_Init(SDL_INIT_EVERYTHING);
-	IMG_Init(IMG_INIT_PNG);
+	//IMG_Init(IMG_INIT_PNG);
 	TTF_Init();
 	SDL_StopTextInput();
 
@@ -88,7 +88,7 @@ bool init() // used to initiate things before using
 	tileSet[5] = window.loadTexture("assets/textures/dirt5.png");
 	tileSet[6] = window.loadTexture("assets/textures/dirt6.png");
 	tileSet[7] = window.loadTexture("assets/textures/dirt7.png");
-	tileSet[8] = window.loadTexture("assets/textures/dirt8.png"); 
+	tileSet[8] = window.loadTexture("assets/textures/dirt8.png");
 	tileSet[9] = window.loadTexture("assets/textures/dirt9.png");
 	tileSet[10] = window.loadTexture("assets/textures/dirt10.png");
 	tileSet[11] = window.loadTexture("assets/textures/dirt11.png");
@@ -100,7 +100,7 @@ bool init() // used to initiate things before using
 
 	ipInput.uiText.font = swansea;
 
-	plr.setTex(window.loadTexture("assets/textures/player.png"));
+	plr.setTex(window.loadTexture("assets/textures/light_animsheet.png"));
 	plr.transform = Level::LoadLevel(Level::LoadFile("assets/levels/level1.lvl"), walls, window, tileSet);
 
 	return true;
@@ -397,12 +397,13 @@ void render() // honestly i feel like putting the stuff that is at the end of th
   	// 	window.render(it->second, true);
   	// }
 
-	window.render(plr, true);
 
 	for (Entity wall : walls)
 	{
 		window.render(wall, true);
 	}
+
+	window.render(plr, true);
 
 	// if (menuType > 0)
 	// {

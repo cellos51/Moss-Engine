@@ -9,9 +9,11 @@ out vec2 TexCoord;
 
 uniform mat4 transform;
 
+uniform vec4 texOffset;
+
 void main()
 {
     gl_Position = transform * vec4(aPos, 1.0f);
     ourColor = aColor;
-    TexCoord = aTexCoord;
+    TexCoord = vec2((aTexCoord.x / texOffset.z) + texOffset.x, (aTexCoord.y / texOffset.w) + texOffset.y);
 }

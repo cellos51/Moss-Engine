@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <iostream>
+#include <cmath>
 
 #include "physicsentity.hpp"
 #include "player.hpp"
@@ -22,40 +23,103 @@ void Player::init() // this was the biggest pain in the fucking ass ever
 	PhysicsEntity::gravity = gravity;
 	PhysicsEntity::bounciness = bounciness;
 
-	texturePos.x = 0;
+	texturePos.x = 0;// imma explain this better. texturepos is like the part of the texture the sprite uses
 	texturePos.y = 0;
-	texturePos.w = size.x;
-	texturePos.h = size.y;
-	offset.x = 0; //offset is for textures
-	offset.y = 0;
-	offset.w = size.x;
-	offset.h = size.y;
+	texturePos.w = 160 * 4;
+	texturePos.h = 320 * 8;
+	offset.x = -12; //offset moves the texture in world space
+	offset.y = -24;
+	offset.w = 40;
+	offset.h = 40;
 }
+
+float animationFrame = 0;
 
 void Player::update()
 {
+	movementDir = Vector2(0,0);
 	// SDL_GetMouseState(&mouseX, &mouseY);
+
+	if (Event::KeyPressed(SDLK_LCTRL))
+	{
+		movespeed = 1;
+	}
+	else
+	{
+		movespeed = 2;
+	}
+
 	if (Event::KeyPressed(SDLK_RIGHT) || Event::KeyPressed(SDLK_d))
 	{
-		velocity.x += 0.015625 * Time::deltaTime();
+		movementDir.x = 1;
+		texturePos.x = 0;
+		if (movespeed == 2)
+		{
+			texturePos.y = 0;
+		}
+		else
+		{
+			texturePos.y = 160;
+		}
 	}
 
 	if (Event::KeyPressed(SDLK_LEFT) || Event::KeyPressed(SDLK_a))
 	{
-		velocity.x += -0.015625 * Time::deltaTime();
+		movementDir.x = -1;
+		texturePos.x = 0;
+		if (movespeed == 2)
+		{
+			texturePos.y = 80;
+		}
+		else
+		{
+			texturePos.y = 240;
+		}
+		
 	}
 
-	if ((Event::KeyPressed(SDLK_UP) && OnGround == true) || (Event::KeyPressed(SDLK_w) && OnGround == true))
+	if ((Event::KeyPressed(SDLK_UP)) || (Event::KeyPressed(SDLK_w)))
 	{
-		velocity.y = -6.25;
-	}
-	else if (!Event::KeyPressed(SDLK_UP) && !Event::KeyPressed(SDLK_w))
-	{
-		if (velocity.y < 0)
+		movementDir.y = -1;
+		texturePos.x = 0;
+		if (movespeed == 2)
 		{
-			velocity.y += 0.046875 * Time::deltaTime();
+			texturePos.y = 40;
 		}
+		else
+		{
+			texturePos.y = 200;
+		}
+		
 	}
+
+	if ((Event::KeyPressed(SDLK_DOWN)) || (Event::KeyPressed(SDLK_s)))
+	{
+		movementDir.y = 1;
+		texturePos.x = 0;
+		if (movespeed == 2)
+		{
+			texturePos.y = 120;
+		}
+		else
+		{
+			texturePos.y = 280;
+		}
+		
+	}
+
+	animationFrame = animationFrame + (0.005) * Time::deltaTime();
+	texturePos.x = ((int)animationFrame) * (40);
+
+	if (movementDir.x == 0 && movementDir.y == 0)
+	{
+		animationFrame = 0.9;
+	}
+	
+	float movementMag = sqrt((movementDir.x*movementDir.x) + (movementDir.y*movementDir.y)) + 0.00001;
+
+	velocity.x += ((0.015625 * movespeed) * movementDir.x / movementMag) * Time::deltaTime();
+	velocity.y += ((0.015625 * movespeed) * movementDir.y / movementMag) * Time::deltaTime();
 
 	OnGround = false;
 	
