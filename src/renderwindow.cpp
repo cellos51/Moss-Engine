@@ -22,6 +22,16 @@ Shader ourShader("assets/shaders/shader.vs", "assets/shaders/shader.fs");
 
 std::map<unsigned int,Vector2> TextureSize;
 
+const int maxEntities = 1000;
+
+int entityCount = 0;
+
+glm::mat4 positionArray[maxEntities];
+
+glm::vec4 texCoordArray[maxEntities];
+
+int textureArray[maxEntities];
+
 void RenderWindow::create(const char* p_title, int p_w, int p_h)
 {
 	window = SDL_CreateWindow(p_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, p_w, p_h, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
@@ -91,12 +101,14 @@ unsigned int RenderWindow::loadTexture(const char* p_filePath) // used load text
 
 
 	glGenTextures(1, &texture);  
-	glBindTexture(GL_TEXTURE_2D, texture); 
+	glActiveTexture(GL_TEXTURE0 + texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
 
 	if (data)
 	{
 	    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-	    //glGenerateMipmap(GL_TEXTURE_2D);
+		//glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else
 	{
@@ -115,6 +127,7 @@ unsigned int RenderWindow::loadTexture(const char* p_filePath) // used load text
 
 void RenderWindow::clear() // clears the renderer
 {
+	entityCount = 0;
 	//SDL_SetRenderDrawColor(renderer, 44, 47, 51, 0);
 	//SDL_RenderClear(renderer);
 	glClearColor(0.439, 0.502, 0.565, 1.0);
@@ -130,26 +143,25 @@ void RenderWindow::render(Entity& p_ent, bool cam) // i think this copys the tex
 	{
 		ourShader.use();  
 
-		glm::mat4 trans = glm::mat4(1.0f);
-		//trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
-		trans = glm::scale(trans, glm::vec3((p_ent.offset.w * zoomX) / getSize().x, (p_ent.offset.h * zoomY) / getSize().y, 0));  
+		glm::mat4 transform = glm::mat4(1.0f);
 
-		//trans = glm::translate(trans, glm::vec3((((p_ent.offset.x + p_ent.transform.x) - p_ent.size.x / 2) - getSize().x / 2) / 8, -(((p_ent.offset.y + p_ent.transform.y) - p_ent.size.y / 2) - getSize().y / 2) / 8, 0)); 
+		transform = glm::scale(transform, glm::vec3((p_ent.offset.w * zoomX) / getSize().x, (p_ent.offset.h * zoomY) / getSize().y, 0));  
 
-		trans = glm::translate(trans, glm::vec3(((((p_ent.offset.x + p_ent.transform.x) + p_ent.offset.w / 2) - getSize().x / 2) - cameraOffset.x) / (p_ent.offset.w / 2), -((((p_ent.offset.y + p_ent.transform.y) + p_ent.offset.h / 2) - getSize().y / 2) - cameraOffset.y) / (p_ent.offset.h / 2), 0)); 
+		transform = glm::translate(transform, glm::vec3(((((p_ent.offset.x + p_ent.transform.x) + p_ent.offset.w / 2) - getSize().x / 2) - cameraOffset.x) / (p_ent.offset.w / 2), -((((p_ent.offset.y + p_ent.transform.y) + p_ent.offset.h / 2) - getSize().y / 2) - cameraOffset.y) / (p_ent.offset.h / 2), 0)); 
 
-		unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
+		positionArray[entityCount] = transform;
 
-		unsigned int texOffsetLoc = glGetUniformLocation(ourShader.ID, "texOffset");
-		
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+		//sets global transform for the quad
+		//glUniformMatrix4fv(glGetUniformLocation(ourShader.ID, "transform"), 1000, GL_FALSE, glm::value_ptr(positionArray[0]));
 
-		glUniform4fv(texOffsetLoc, 1, glm::value_ptr(glm::vec4(p_ent.texturePos.x / TextureSize[p_ent.tex].x,p_ent.texturePos.y / TextureSize[p_ent.tex].y, p_ent.texturePos.w / TextureSize[p_ent.tex].x,p_ent.texturePos.h / TextureSize[p_ent.tex].y)));
+		//sets the texture offset of the quad
+		//glUniform4fv(glGetUniformLocation(ourShader.ID, "texOffset"), 1, glm::value_ptr(glm::vec4(p_ent.texturePos.x / TextureSize[p_ent.tex].x,p_ent.texturePos.y / TextureSize[p_ent.tex].y, p_ent.texturePos.w / TextureSize[p_ent.tex].x,p_ent.texturePos.h / TextureSize[p_ent.tex].y)));
 
-		glBindTexture(GL_TEXTURE_2D, p_ent.tex);
-		glBindVertexArray(VAO);      
+		texCoordArray[entityCount] = glm::vec4(p_ent.texturePos.x / TextureSize[p_ent.tex].x,p_ent.texturePos.y / TextureSize[p_ent.tex].y, p_ent.texturePos.w / TextureSize[p_ent.tex].x,p_ent.texturePos.h / TextureSize[p_ent.tex].y);
 
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		textureArray[entityCount] = p_ent.tex;
+
+		entityCount++;
 	}
 
 	// if (p_ent.intersecting(OnscreenCamera) == true)
@@ -253,11 +265,27 @@ void RenderWindow::render(ui& p_ui) // i think this copys the texture to the ren
 
 void RenderWindow::display() // used to display information from the renderer to the window
 {
+	ourShader.use();  
 	
+	glUniformMatrix4fv(glGetUniformLocation(ourShader.ID, "transform"), entityCount, GL_FALSE, glm::value_ptr(positionArray[0]));
+
+	glUniform4fv(glGetUniformLocation(ourShader.ID, "texOffset"), entityCount, glm::value_ptr(texCoordArray[0]));
+
+	glUniform1iv(glGetUniformLocation(ourShader.ID, "textureId"), entityCount, textureArray);
+
+	int test[16] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+
+	glUniform1iv(glGetUniformLocation(ourShader.ID, "ourTexture"), 16, test);
+
+	glBindVertexArray(VAO);      
+
+	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
 
 	glViewport(0, 0, getSize().x, getSize().y);
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 	SDL_GL_SwapWindow(window);
+
+	//std::cout << entityCount << std::endl;
 	//SDL_RenderPresent(renderer);
 }
 
