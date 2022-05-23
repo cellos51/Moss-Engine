@@ -1,7 +1,7 @@
 #pragma once
 
 #include <glad/glad.h>
-#include <glm/glm.hpp> // not using this because I already made my own implementation of vectors (but maybe i'll use it again anyways)
+#include <glm/glm.hpp>
 
 #include <string>
 #include <fstream>
@@ -58,6 +58,14 @@ public:
     // ------------------------------------------------------------------------
     void compile()
     {
+        //global variables
+        // int glConsts;
+        // glGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS, &glConsts);
+
+        // vertexCode.insert(0,"const int GL_MAX_VERTEX_UNIFORM_COMPONENTS = " + std::to_string(glConsts) + ";\n");  
+
+        // vertexCode.insert(0,"#version 410 core\n");
+
         const char* vShaderCode = vertexCode.c_str();
         const char * fShaderCode = fragmentCode.c_str();
         // 2. compile shaders
@@ -125,47 +133,47 @@ public:
         glUniform1f(glGetUniformLocation(ID, name.c_str()), value); 
     }
     // ------------------------------------------------------------------------
-    // void setVec2(const std::string &name, const glm::vec2 &value) const
-    // { 
-    //     glUniform2fv(glGetUniformLocation(ID, name.c_str()), 1, &value[0]); 
-    // }
+    void setVec2(const std::string &name, const glm::vec2 &value) const
+    { 
+        glUniform2fv(glGetUniformLocation(ID, name.c_str()), 1, &value[0]); 
+    }
     void setVec2(const std::string &name, float x, float y) const
     { 
         glUniform2f(glGetUniformLocation(ID, name.c_str()), x, y); 
     }
     // ------------------------------------------------------------------------
-    // void setVec3(const std::string &name, const glm::vec3 &value) const
-    // { 
-    //     glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, &value[0]); 
-    // }
+    void setVec3(const std::string &name, const glm::vec3 &value) const
+    { 
+        glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, &value[0]); 
+    }
     void setVec3(const std::string &name, float x, float y, float z) const
     { 
         glUniform3f(glGetUniformLocation(ID, name.c_str()), x, y, z); 
     }
     // ------------------------------------------------------------------------
-    // void setVec4(const std::string &name, const glm::vec4 &value) const
-    // { 
-    //     glUniform4fv(glGetUniformLocation(ID, name.c_str()), 1, &value[0]); 
-    // }
+    void setVec4(const std::string &name, const glm::vec4 &value) const
+    { 
+        glUniform4fv(glGetUniformLocation(ID, name.c_str()), 1, &value[0]); 
+    }
     void setVec4(const std::string &name, float x, float y, float z, float w) 
     { 
         glUniform4f(glGetUniformLocation(ID, name.c_str()), x, y, z, w); 
     }
     // ------------------------------------------------------------------------
-    // void setMat2(const std::string &name, const glm::mat2 &mat) const
-    // {
-    //     glUniformMatrix2fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
-    // }
+    void setMat2(const std::string &name, const glm::mat2 &mat) const
+    {
+        glUniformMatrix2fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+    }
     // ------------------------------------------------------------------------
-    // void setMat3(const std::string &name, const glm::mat3 &mat) const
-    // {
-    //     glUniformMatrix3fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
-    // }
+    void setMat3(const std::string &name, const glm::mat3 &mat) const
+    {
+        glUniformMatrix3fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+    }
     // ------------------------------------------------------------------------
-    // void setMat4(const std::string &name, const glm::mat4 &mat) const
-    // {
-    //     glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
-    // }
+    void setMat4(const std::string &name, const glm::mat4 &mat) const
+    {
+        glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+    }
 
 private:
     // storing the code for compilation

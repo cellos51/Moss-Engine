@@ -1,10 +1,11 @@
+#include "player.hpp"
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <iostream>
 #include <cmath>
 
-#include "physicsentity.hpp"
-#include "player.hpp"
+#include "math.h"
 #include "event.hpp"
 
 Player::Player(Vector2 p_pos, unsigned int p_tex, Vector2 p_size) : PhysicsEntity(p_pos,p_tex, p_size)

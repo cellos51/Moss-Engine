@@ -1,10 +1,8 @@
 #pragma once
 
 #include <string>
-#include <set>
 #include <vector>
-
-#include "enet/enet.h"
+#include <enet/enet.h>
 
 #include "math.hpp"
 

@@ -1,8 +1,10 @@
 #include "ui.hpp"
 
 #include <SDL2/SDL.h>
-#include "event.hpp"
 #include <iostream>
+
+#include "event.hpp"
+
 // uibase
 
 ui::ui()

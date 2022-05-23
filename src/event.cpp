@@ -8,6 +8,8 @@
 
 bool quit = false;
 
+bool isTextInput = false;
+
 std::map<int, bool> mouseMap;
 
 std::map<int, bool> mouseDownMap;
@@ -15,8 +17,6 @@ std::map<int, bool> mouseDownMap;
 std::map<int, bool> keyMap;
 
 std::map<int, bool> keyDownMap;
-
-bool isTextInput = false;
 
 std::string text;
 

@@ -1,28 +1,26 @@
+#include "renderwindow.hpp"
+
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h> // removing later
 #include <stb_image.h>
 #include <iostream>
 #include <map>
-#include <cmath>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "renderwindow.hpp"
 #include "shader.hpp"
 #include "math.hpp"
 #include "entity.hpp"
-#include "config.hpp"
 #include "text.hpp"
 
 float zoomX = 1, zoomY = 1;
-Entity OnscreenCamera(Vector2(SCREEN_WIDTH,SCREEN_HEIGHT));
+Entity OnscreenCamera(Vector2(0,0));
 
-Shader ourShader("assets/shaders/shader.vs", "assets/shaders/shader.fs");
+Shader defaultShader("assets/shaders/shader.vs", "assets/shaders/shader.fs");
 
 std::map<unsigned int,Vector2> TextureSize;
 
-const int maxEntities = 1000;
+const int maxEntities = 10000;
 
 int entityCount = 0;
 
@@ -38,24 +36,39 @@ void RenderWindow::create(const char* p_title, int p_w, int p_h)
 	context = SDL_GL_CreateContext(window);
 	gladLoadGLLoader(SDL_GL_GetProcAddress);
 	glViewport(0, 0, getSize().x, getSize().y);
-	//window = SDL_CreateWindow(p_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, p_w, p_h, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
-	//renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-	//SDL_RenderSetLogicalSize(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	float vertices[] = {
-    // positions          // colors           // texture coords
+    // positions    // colors  // texture coords
      1,  1, 0.0f,   1, 1, 1,   1.0f, 1.0f,   // top right
      1, -1, 0.0f,   1, 1, 1,   1.0f, 0.0f,   // bottom right
     -1, -1, 0.0f,   1, 1, 1,   0.0f, 0.0f,   // bottom left
     -1,  1, 0.0f,   1, 1, 1,   0.0f, 1.0f    // top left 
 	};
 
-	unsigned int indices[] = {  // note that we start from 0!
+	unsigned int indices[] = { 
     0, 1, 3,   // first triangle
     1, 2, 3    // second triangle
 	};  
 
-	ourShader.compile();
+	defaultShader.compile();
+
+	int glConsts;
+	
+	glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &glConsts);
+	std::cout << "Max Uniform Block Size:" << glConsts << std::endl;
+	
+	glGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS, &glConsts);
+	std::cout << "Max Vertex Unifrom Components:" << glConsts << std::endl;
+
+	glGetIntegerv(GL_MAX_VERTEX_OUTPUT_COMPONENTS, &glConsts);
+	std::cout << "Max Vertex Output Components:" << glConsts << std::endl;
+	
+
+	glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, &glConsts);
+	std::cout << "Max Fragment Unifrom Components:" << glConsts << std::endl;
+
+	glGetIntegerv(GL_MAX_UNIFORM_LOCATIONS, &glConsts);
+	std::cout << "Max Unifrom Components:" << glConsts << std::endl;
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -63,7 +76,10 @@ void RenderWindow::create(const char* p_title, int p_w, int p_h)
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
-    // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+    glGenBuffers(1, &IVBO[0]); // position
+    glGenBuffers(1, &IVBO[1]); // texture position
+    glGenBuffers(1, &IVBO[2]); // texture 
+    
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -75,18 +91,18 @@ void RenderWindow::create(const char* p_title, int p_w, int p_h)
     // position attribute
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+
     // color attribute
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+
 	// texture attribute
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);  
 
+
 	glBindBuffer(GL_ARRAY_BUFFER, 0); 
-    // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
-    // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
     glBindVertexArray(0);
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
 unsigned int RenderWindow::loadTexture(const char* p_filePath) // used load textures :P
@@ -121,15 +137,14 @@ unsigned int RenderWindow::loadTexture(const char* p_filePath) // used load text
 
 	TextureSize.insert(std::pair<unsigned int,Vector2>(texture, Vector2(width, height)));
 
-	std::cout << texture << std::endl;
+	//std::cout << texture << std::endl;
 	return texture;
 }
 
 void RenderWindow::clear() // clears the renderer
 {
 	entityCount = 0;
-	//SDL_SetRenderDrawColor(renderer, 44, 47, 51, 0);
-	//SDL_RenderClear(renderer);
+
 	glClearColor(0.439, 0.502, 0.565, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -139,30 +154,40 @@ void RenderWindow::clear() // clears the renderer
 
 void RenderWindow::render(Entity& p_ent, bool cam) // i think this copys the texture to the renderer
 {
-	if (p_ent.intersecting(OnscreenCamera) == true)
+	if (p_ent.intersecting(OnscreenCamera) == true && entityCount < maxEntities)
 	{
-		ourShader.use();  
-
 		glm::mat4 transform = glm::mat4(1.0f);
 
 		transform = glm::scale(transform, glm::vec3((p_ent.offset.w * zoomX) / getSize().x, (p_ent.offset.h * zoomY) / getSize().y, 0));  
-
 		transform = glm::translate(transform, glm::vec3(((((p_ent.offset.x + p_ent.transform.x) + p_ent.offset.w / 2) - getSize().x / 2) - cameraOffset.x) / (p_ent.offset.w / 2), -((((p_ent.offset.y + p_ent.transform.y) + p_ent.offset.h / 2) - getSize().y / 2) - cameraOffset.y) / (p_ent.offset.h / 2), 0)); 
 
 		positionArray[entityCount] = transform;
-
-		//sets global transform for the quad
-		//glUniformMatrix4fv(glGetUniformLocation(ourShader.ID, "transform"), 1000, GL_FALSE, glm::value_ptr(positionArray[0]));
-
-		//sets the texture offset of the quad
-		//glUniform4fv(glGetUniformLocation(ourShader.ID, "texOffset"), 1, glm::value_ptr(glm::vec4(p_ent.texturePos.x / TextureSize[p_ent.tex].x,p_ent.texturePos.y / TextureSize[p_ent.tex].y, p_ent.texturePos.w / TextureSize[p_ent.tex].x,p_ent.texturePos.h / TextureSize[p_ent.tex].y)));
-
 		texCoordArray[entityCount] = glm::vec4(p_ent.texturePos.x / TextureSize[p_ent.tex].x,p_ent.texturePos.y / TextureSize[p_ent.tex].y, p_ent.texturePos.w / TextureSize[p_ent.tex].x,p_ent.texturePos.h / TextureSize[p_ent.tex].y);
-
 		textureArray[entityCount] = p_ent.tex;
 
 		entityCount++;
 	}
+
+	// if (entityCount >= maxEntities)
+	// {
+	// 	defaultShader.use();  
+	
+	// 	glUniformMatrix4fv(glGetUniformLocation(defaultShader.ID, "transform"), entityCount, GL_FALSE, glm::value_ptr(positionArray[0]));
+
+	// 	//glUniform4fv(glGetUniformLocation(defaultShader.ID, "texOffset"), entityCount, glm::value_ptr(texCoordArray[0]));
+
+	// 	//glUniform1iv(glGetUniformLocation(defaultShader.ID, "textureId"), entityCount, textureArray);
+
+	// 	int test[16] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+
+	// 	glUniform1iv(glGetUniformLocation(defaultShader.ID, "ourTexture"), 16, test);
+
+	// 	glBindVertexArray(VAO);      
+
+	// 	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
+
+	// 	entityCount = 0;
+	// }
 
 	// if (p_ent.intersecting(OnscreenCamera) == true)
 	// {
@@ -265,28 +290,60 @@ void RenderWindow::render(ui& p_ui) // i think this copys the texture to the ren
 
 void RenderWindow::display() // used to display information from the renderer to the window
 {
-	ourShader.use();  
-	
-	glUniformMatrix4fv(glGetUniformLocation(ourShader.ID, "transform"), entityCount, GL_FALSE, glm::value_ptr(positionArray[0]));
+	defaultShader.use(); 
+ 	
+ 	// position buffer
+	glBindBuffer(GL_ARRAY_BUFFER, IVBO[0]);
+	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(glm::mat4), &positionArray[0], GL_STATIC_DRAW);
 
-	glUniform4fv(glGetUniformLocation(ourShader.ID, "texOffset"), entityCount, glm::value_ptr(texCoordArray[0]));
+	glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+    glEnableVertexAttribArray(4);
+   	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+    glEnableVertexAttribArray(5);
+    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+    glEnableVertexAttribArray(6);
+    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
 
-	glUniform1iv(glGetUniformLocation(ourShader.ID, "textureId"), entityCount, textureArray);
+    glVertexAttribDivisor(3, 1);
+    glVertexAttribDivisor(4, 1);
+    glVertexAttribDivisor(5, 1);
+    glVertexAttribDivisor(6, 1);
 
-	int test[16] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+    // texture position buffer
+    glBindBuffer(GL_ARRAY_BUFFER, IVBO[1]);
+	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(glm::vec4), &texCoordArray[0], GL_STATIC_DRAW);
 
-	glUniform1iv(glGetUniformLocation(ourShader.ID, "ourTexture"), 16, test);
+	glEnableVertexAttribArray(7);
+    glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)0);
+
+    glVertexAttribDivisor(7, 1);
+
+    // texure buffer
+    glBindBuffer(GL_ARRAY_BUFFER, IVBO[2]);
+	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(int), &textureArray[0], GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(8);
+    glVertexAttribPointer(8, 1, GL_FLOAT, GL_FALSE, sizeof(int), (void*)0);
+
+    glVertexAttribDivisor(8, 1);
+
+    // unbind buffers
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+
+
+	int test[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+
+	glUniform1iv(glGetUniformLocation(defaultShader.ID, "ourTexture"), 16, test);
 
 	glBindVertexArray(VAO);      
 
 	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
 
 	glViewport(0, 0, getSize().x, getSize().y);
-	//glDrawArrays(GL_TRIANGLES, 0, 3);
-	SDL_GL_SwapWindow(window);
 
-	//std::cout << entityCount << std::endl;
-	//SDL_RenderPresent(renderer);
+	SDL_GL_SwapWindow(window);
 }
 
 void RenderWindow::quit() // used before exiting the program

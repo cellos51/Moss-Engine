@@ -1,14 +1,9 @@
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <math.h>
-#include <iostream>
-
 #include "entity.hpp"
 
+#include <SDL2/SDL.h>
+#include <math.h>
+
 #include "math.hpp"
-
-#include "config.hpp"
-
 
 Entity::Entity(Vector2 p_pos, unsigned int p_tex, Vector2 p_size) : transform(p_pos), tex(p_tex), size(p_size)
 {

@@ -1,28 +1,18 @@
 #include <SDL2/SDL.h>
 #include <glad/glad.h>
-#include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include <vector>
 #include <iostream>
 #include <map>
 
 #include "network.hpp"
-
 #include "text.hpp"
-
 #include "math.hpp"
-
 #include "renderwindow.hpp"
-
 #include "player.hpp"
-
 #include "event.hpp"
-
 #include "level.hpp"
-
 #include "ui.hpp"
-
-#include "config.hpp" // this just has the screen size so if i change it i dont need to change it in every class
 
 // random shit needed to be here to run
 bool gameRunning = true;
@@ -77,7 +67,7 @@ bool init() // used to initiate things before using
         return EXIT_FAILURE;
     }
 
-	window.create("Moss Engine", SCREEN_WIDTH, SCREEN_HEIGHT); // name and size of application window
+	window.create("Moss Engine", 1280, 720); // name and size of application window
 
 	// textures
 	tileSet[0] = window.loadTexture("assets/textures/grass.png");

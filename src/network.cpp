@@ -1,10 +1,12 @@
 #include "network.hpp"
 
+#include <enet/enet.h>
 #include <iostream>
 #include <string>
 #include <set>
 #include <vector>
 
+//this is probably a shit show and optimizing it right now is not worth it
 
 ENetAddress address;
 ENetHost* server;

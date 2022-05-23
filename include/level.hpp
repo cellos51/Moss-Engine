@@ -4,9 +4,7 @@
 #include <vector>
 
 #include "entity.hpp"
-
 #include "renderwindow.hpp"
-
 #include "math.hpp"
 
 namespace Level

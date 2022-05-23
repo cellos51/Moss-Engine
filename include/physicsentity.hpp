@@ -1,10 +1,10 @@
 #pragma once
+#include "entity.hpp"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
 #include "math.hpp"
-#include "entity.hpp"
 
 class PhysicsEntity : public Entity // use this if you'd like an entity with premade physics
 {

@@ -1,7 +1,8 @@
-#include <cstdint>
+#include "math.hpp"
+
 #include <SDL2/SDL.h>
 
-#include "math.hpp"
+
 
 Vector2::Vector2() : x(0.0), y(0.0)
 {

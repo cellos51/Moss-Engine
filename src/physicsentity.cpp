@@ -1,13 +1,11 @@
+#include "physicsentity.hpp"
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <math.h>
 #include <iostream>
 
-#include "physicsentity.hpp"
-
 #include "math.hpp"
-
-#include "config.hpp"
 
 void PhysicsEntity::getCol(Entity& p_ent) // ok the collision *was* fucky as hell so you dont only have to use squares with this
 {

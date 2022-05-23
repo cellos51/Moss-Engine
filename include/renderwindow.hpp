@@ -2,15 +2,10 @@
 
 #include <SDL2/SDL.h>
 #include <glad/glad.h>
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_ttf.h>
 
 #include "entity.hpp"
-
 #include "ui.hpp"
-
 #include "math.hpp"
-
 #include "text.hpp"
 
 class RenderWindow
@@ -35,5 +30,5 @@ private:
 	SDL_GLContext context;
 	SDL_Renderer* renderer;
 	unsigned int shaderProgram;
-	unsigned int VBO, VAO, EBO;
+	unsigned int VBO, VAO, EBO, IVBO[3];
 };
