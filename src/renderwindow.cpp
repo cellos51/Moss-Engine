@@ -3,6 +3,8 @@
 #include <SDL2/SDL.h>
 #include <stb_image.h>
 #include <iostream>
+#include <vector>
+#include <algorithm>
 #include <map>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -29,6 +31,8 @@ glm::mat4 positionArray[maxEntities];
 glm::vec4 texCoordArray[maxEntities];
 
 int textureArray[maxEntities];
+
+std::vector<int> TexturesToRender;
 
 void RenderWindow::create(const char* p_title, int p_w, int p_h)
 {
@@ -165,6 +169,11 @@ void RenderWindow::render(Entity& p_ent, bool cam) // i think this copys the tex
 		texCoordArray[entityCount] = glm::vec4(p_ent.texturePos.x / TextureSize[p_ent.tex].x,p_ent.texturePos.y / TextureSize[p_ent.tex].y, p_ent.texturePos.w / TextureSize[p_ent.tex].x,p_ent.texturePos.h / TextureSize[p_ent.tex].y);
 		textureArray[entityCount] = p_ent.tex;
 
+		if (std::find(TexturesToRender.begin(),TexturesToRender.end(),p_ent.tex) == TexturesToRender.end())
+		{
+			TexturesToRender.push_back(p_ent.tex);
+		}
+
 		entityCount++;
 	}
 
@@ -290,6 +299,8 @@ void RenderWindow::render(ui& p_ui) // i think this copys the texture to the ren
 
 void RenderWindow::display() // used to display information from the renderer to the window
 {
+	glViewport(0, 0, getSize().x, getSize().y);
+
 	defaultShader.use(); 
  	
  	// position buffer
@@ -332,16 +343,18 @@ void RenderWindow::display() // used to display information from the renderer to
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 
+    while (TexturesToRender.size() > 0)
+    {
+    	defaultShader.setInt("ourTexture", TexturesToRender[0]);
 
-	int test[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+    	defaultShader.setInt("currentTexture", TexturesToRender[0]);
 
-	glUniform1iv(glGetUniformLocation(defaultShader.ID, "ourTexture"), 16, test);
+		glBindVertexArray(VAO);      
 
-	glBindVertexArray(VAO);      
+		glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
 
-	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
-
-	glViewport(0, 0, getSize().x, getSize().y);
+		TexturesToRender.erase(TexturesToRender.begin());
+    }
 
 	SDL_GL_SwapWindow(window);
 }
