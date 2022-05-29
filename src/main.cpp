@@ -387,7 +387,6 @@ void render() // honestly i feel like putting the stuff that is at the end of th
   	// 	window.render(it->second, true);
   	// }
 
-
 	for (Entity wall : walls)
 	{
 		window.render(wall, true);
@@ -395,14 +394,15 @@ void render() // honestly i feel like putting the stuff that is at the end of th
 
 	window.render(plr, true);
 
-	// if (menuType > 0)
-	// {
-	// 	for (ui::Button button : buttons)
-	// 	{
-	// 		window.render(button);
-	// 	}
-	// }
-
+	
+	if (menuType > 0)
+	{
+		for (ui::Button button : buttons)
+		{
+			window.render(button);
+		}
+	}
+	
 	// if (menuType == 3)
 	// {
 	// 	window.render(ipInput);

@@ -266,17 +266,29 @@ void RenderWindow::render(Text& p_text, bool cam) // i think this copys the text
 
 void RenderWindow::render(ui& p_ui) // i think this copys the texture to the renderer
 {
-	// SDL_Rect dst;
+	SDL_Rect dst;
 	
-	// dst.x = p_ui.transform.x;
-	// dst.y = p_ui.transform.y;
-	// dst.w = p_ui.size.x;
-	// dst.h = p_ui.size.y;
+	dst.x = p_ui.transform.x;
+	dst.y = p_ui.transform.y;
+	dst.w = p_ui.size.x;
+	dst.h = p_ui.size.y;
 	
-	// SDL_SetRenderDrawColor( renderer, p_ui.red, p_ui.green, p_ui.blue, 0);
- //    SDL_RenderFillRect( renderer, &dst );
+
+	glm::mat4 transform = glm::mat4(1.0f);
+
+	transform = glm::scale(transform, glm::vec3((p_ui.size.x) / getSize().x, (p_ui.size.y) / getSize().y, 0));  
+	transform = glm::translate(transform, glm::vec3(((((p_ui.transform.x) + p_ui.size.x / 2) - getSize().x / 2)) / (p_ui.size.x / 2), -((((p_ui.transform.y) + p_ui.size.y / 2) - getSize().y / 2)) / (p_ui.size.y / 2), 0)); 
+
+	positionArray[entityCount] = transform;
+	texCoordArray[entityCount] = glm::vec4(1,1,1,1);
+	textureArray[entityCount] = 1;
+
+	entityCount++;
+
+	//SDL_SetRenderDrawColor( renderer, p_ui.red, p_ui.green, p_ui.blue, 0);
+    //SDL_RenderFillRect( renderer, &dst );
     
- //   	// render(p_ui.uiText, false);
+   	// render(p_ui.uiText, false);
  //   	if (p_ui.uiText.getText().size() > 0 && p_ui.uiText.font != NULL)
 	// {
 	// 	SDL_Rect dst;
@@ -345,9 +357,9 @@ void RenderWindow::display() // used to display information from the renderer to
 
     while (TexturesToRender.size() > 0)
     {
-    	defaultShader.setInt("ourTexture", TexturesToRender[0]);
+		defaultShader.setInt("ourTexture", TexturesToRender[0]);
 
-    	defaultShader.setInt("currentTexture", TexturesToRender[0]);
+		defaultShader.setInt("currentTexture", TexturesToRender[0]);
 
 		glBindVertexArray(VAO);      
 
