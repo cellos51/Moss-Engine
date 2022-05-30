@@ -17,6 +17,8 @@ ui::ui()
 	size.x = 64;
 	size.y = 64;
 	uiText.setText("");
+	layer = 1;
+	tex = 1;
 }
 
 // button

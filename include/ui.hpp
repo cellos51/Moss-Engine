@@ -10,6 +10,8 @@ protected:
 public:
 	Vector2 transform;
 	Vector2 size;
+	unsigned int layer;
+	unsigned int tex;
 	int red, green, blue;
 	Text uiText;
 	class Button;

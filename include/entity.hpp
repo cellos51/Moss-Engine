@@ -18,6 +18,7 @@ public:
 	bool intersecting(Entity p_ent);
 	Vector2 transform;
 	unsigned int tex;
+	unsigned int layer;
 	Vector2 size;
 	SDL_Rect offset;
 	SDL_Rect texturePos;
