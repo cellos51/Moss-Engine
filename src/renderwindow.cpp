@@ -32,7 +32,9 @@ glm::vec4 texCoordArray[maxEntities];
 
 int textureArray[maxEntities];
 
-std::vector<int> TexturesToRender;
+unsigned int layerArray[maxEntities];
+
+std::map<unsigned int,std::vector<int>> TexturesToRender;
 
 void RenderWindow::create(const char* p_title, int p_w, int p_h)
 {
@@ -83,6 +85,7 @@ void RenderWindow::create(const char* p_title, int p_w, int p_h)
     glGenBuffers(1, &IVBO[0]); // position
     glGenBuffers(1, &IVBO[1]); // texture position
     glGenBuffers(1, &IVBO[2]); // texture 
+    glGenBuffers(1, &IVBO[3]); // layer
     
     glBindVertexArray(VAO);
 
@@ -168,11 +171,19 @@ void RenderWindow::render(Entity& p_ent, bool cam) // i think this copys the tex
 		positionArray[entityCount] = transform;
 		texCoordArray[entityCount] = glm::vec4(p_ent.texturePos.x / TextureSize[p_ent.tex].x,p_ent.texturePos.y / TextureSize[p_ent.tex].y, p_ent.texturePos.w / TextureSize[p_ent.tex].x,p_ent.texturePos.h / TextureSize[p_ent.tex].y);
 		textureArray[entityCount] = p_ent.tex;
+		layerArray[entityCount] = p_ent.layer;
 
-		if (std::find(TexturesToRender.begin(),TexturesToRender.end(),p_ent.tex) == TexturesToRender.end())
+		if (TexturesToRender.find(p_ent.layer) == TexturesToRender.end())
 		{
-			TexturesToRender.push_back(p_ent.tex);
+			std::vector<int> newVector;
+			TexturesToRender.insert(std::pair<unsigned int,std::vector<int>>(p_ent.layer, newVector));
 		}
+
+		if (std::find(TexturesToRender[p_ent.layer].begin(), TexturesToRender[p_ent.layer].end(), p_ent.tex) == TexturesToRender[p_ent.layer].end())
+		{
+			TexturesToRender[p_ent.layer].push_back(p_ent.tex);
+		}
+
 
 		entityCount++;
 	}
@@ -266,14 +277,6 @@ void RenderWindow::render(Text& p_text, bool cam) // i think this copys the text
 
 void RenderWindow::render(ui& p_ui) // i think this copys the texture to the renderer
 {
-	SDL_Rect dst;
-	
-	dst.x = p_ui.transform.x;
-	dst.y = p_ui.transform.y;
-	dst.w = p_ui.size.x;
-	dst.h = p_ui.size.y;
-	
-
 	glm::mat4 transform = glm::mat4(1.0f);
 
 	transform = glm::scale(transform, glm::vec3((p_ui.size.x) / getSize().x, (p_ui.size.y) / getSize().y, 0));  
@@ -281,15 +284,35 @@ void RenderWindow::render(ui& p_ui) // i think this copys the texture to the ren
 
 	positionArray[entityCount] = transform;
 	texCoordArray[entityCount] = glm::vec4(1,1,1,1);
-	textureArray[entityCount] = 1;
+	textureArray[entityCount] = p_ui.layer;
+	layerArray[entityCount] = p_ui.tex;
+
+	if (TexturesToRender.find(p_ui.layer) == TexturesToRender.end())
+	{
+		//TexturesToRender.push_back(p_ent.tex);
+		std::vector<int> newVector;
+		TexturesToRender.insert(std::pair<unsigned int,std::vector<int>>(p_ui.layer, newVector));
+	}
+
+	if (std::find(TexturesToRender[p_ui.layer].begin(), TexturesToRender[p_ui.layer].end(), p_ui.tex) == TexturesToRender[p_ui.layer].end())
+	{
+		TexturesToRender[p_ui.layer].push_back(p_ui.tex);
+	}
 
 	entityCount++;
 
+	// SDL_Rect dst;
+	
+	// dst.x = p_ui.transform.x;
+	// dst.y = p_ui.transform.y;
+	// dst.w = p_ui.size.x;
+	// dst.h = p_ui.size.y;
+	
 	//SDL_SetRenderDrawColor( renderer, p_ui.red, p_ui.green, p_ui.blue, 0);
     //SDL_RenderFillRect( renderer, &dst );
     
    	// render(p_ui.uiText, false);
- //   	if (p_ui.uiText.getText().size() > 0 && p_ui.uiText.font != NULL)
+ 	// if (p_ui.uiText.getText().size() > 0 && p_ui.uiText.font != NULL)
 	// {
 	// 	SDL_Rect dst;
 		
@@ -351,22 +374,38 @@ void RenderWindow::display() // used to display information from the renderer to
 
     glVertexAttribDivisor(8, 1);
 
+    // layer buffer
+    glBindBuffer(GL_ARRAY_BUFFER, IVBO[3]);
+    glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(int), &layerArray[0], GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(9);
+    glVertexAttribPointer(9, 1, GL_FLOAT, GL_FALSE, sizeof(int), (void*)0);
+
+    glVertexAttribDivisor(9, 1);
+
+
     // unbind buffers
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-
-    while (TexturesToRender.size() > 0)
+    for (std::map<unsigned int,std::vector<int>>::iterator it = TexturesToRender.begin(); it != TexturesToRender.end(); ++it)
     {
-		defaultShader.setInt("ourTexture", TexturesToRender[0]);
+	    while (it->second.size() > 0)
+	    {
+			defaultShader.setInt("ourTexture", it->second[0]);
 
-		defaultShader.setInt("currentTexture", TexturesToRender[0]);
+			defaultShader.setInt("currentTexture", it->second[0]);
 
-		glBindVertexArray(VAO);      
+			defaultShader.setInt("currentLayer", it->first);
 
-		glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
+			glBindVertexArray(VAO);      
 
-		TexturesToRender.erase(TexturesToRender.begin());
-    }
+			glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
+
+			it->second.erase(it->second.begin());
+	    }
+	}
+
+	TexturesToRender.clear();
 
 	SDL_GL_SwapWindow(window);
 }

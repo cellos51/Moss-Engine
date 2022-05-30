@@ -35,6 +35,7 @@ void Entity::init()
 	offset.y = 0;
 	offset.w = size.x;
 	offset.h = size.y;
+	layer = 0;
 }
 
 unsigned int Entity::getTex()
