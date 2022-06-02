@@ -161,7 +161,7 @@ void RenderWindow::clear() // clears the renderer
 
 void RenderWindow::render(Entity& p_ent, bool cam) // i think this copys the texture to the renderer
 {
-	if (p_ent.intersecting(OnscreenCamera) == true && entityCount < maxEntities)
+	if (p_ent.intersecting(OnscreenCamera) == true && cam == true && entityCount < maxEntities)
 	{
 		glm::mat4 transform = glm::mat4(1.0f);
 
@@ -169,7 +169,34 @@ void RenderWindow::render(Entity& p_ent, bool cam) // i think this copys the tex
 		transform = glm::translate(transform, glm::vec3(((((p_ent.offset.x + p_ent.transform.x) + p_ent.offset.w / 2) - getSize().x / 2) - cameraOffset.x) / (p_ent.offset.w / 2), -((((p_ent.offset.y + p_ent.transform.y) + p_ent.offset.h / 2) - getSize().y / 2) - cameraOffset.y) / (p_ent.offset.h / 2), 0)); 
 
 		positionArray[entityCount] = transform;
-		texCoordArray[entityCount] = glm::vec4(p_ent.texturePos.x / TextureSize[p_ent.tex].x,p_ent.texturePos.y / TextureSize[p_ent.tex].y, p_ent.texturePos.w / TextureSize[p_ent.tex].x,p_ent.texturePos.h / TextureSize[p_ent.tex].y);
+		texCoordArray[entityCount] = glm::vec4(p_ent.texturePos.x / TextureSize[p_ent.tex].x,p_ent.texturePos.y / TextureSize[p_ent.tex].y, TextureSize[p_ent.tex].x / p_ent.texturePos.w, TextureSize[p_ent.tex].y / p_ent.texturePos.h);
+		textureArray[entityCount] = p_ent.tex;
+		layerArray[entityCount] = p_ent.layer;
+
+		if (TexturesToRender.find(p_ent.layer) == TexturesToRender.end())
+		{
+			std::vector<int> newVector;
+			TexturesToRender.insert(std::pair<unsigned int,std::vector<int>>(p_ent.layer, newVector));
+		}
+
+		if (std::find(TexturesToRender[p_ent.layer].begin(), TexturesToRender[p_ent.layer].end(), p_ent.tex) == TexturesToRender[p_ent.layer].end())
+		{
+			TexturesToRender[p_ent.layer].push_back(p_ent.tex);
+		}
+
+
+		entityCount++;
+	}
+	else if (cam == false && entityCount < maxEntities)
+	{
+		glm::mat4 transform = glm::mat4(1.0f);
+
+		transform = glm::scale(transform, glm::vec3((p_ent.offset.w) / getSize().x, (p_ent.offset.h) / getSize().y, 0));  
+		transform = glm::translate(transform, glm::vec3(((((p_ent.offset.x + p_ent.transform.x) + p_ent.offset.w / 2) - getSize().x / 2)) / (p_ent.offset.w / 2), -((((p_ent.offset.y + p_ent.transform.y) + p_ent.offset.h / 2) - getSize().y / 2)) / (p_ent.offset.h / 2), 0)); 
+
+
+		positionArray[entityCount] = transform;
+		texCoordArray[entityCount] = glm::vec4(p_ent.texturePos.x / TextureSize[p_ent.tex].x,p_ent.texturePos.y / TextureSize[p_ent.tex].y, TextureSize[p_ent.tex].x / p_ent.texturePos.w, TextureSize[p_ent.tex].y / p_ent.texturePos.h);
 		textureArray[entityCount] = p_ent.tex;
 		layerArray[entityCount] = p_ent.layer;
 

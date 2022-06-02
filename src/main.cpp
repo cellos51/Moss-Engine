@@ -20,14 +20,6 @@ bool gameRunning = true;
 // main window
 RenderWindow window;
 
-// camra offset used for panning
-Vector2 offsetCam;
-Vector2 offsetMouse;
-
-// textures
-//SDL_Texture* playerTex = window.loadTexture("assets/textures/player.png");
-unsigned int tileSet[14];
-
 //fonts
 TTF_Font* swansea;
 
@@ -69,29 +61,13 @@ bool init() // used to initiate things before using
 
 	window.create("Moss Engine", 1280, 720); // name and size of application window
 
-	// textures
-	tileSet[0] = window.loadTexture("assets/textures/grass.png");
-	tileSet[1] = window.loadTexture("assets/textures/dirt1.png");
-	tileSet[2] = window.loadTexture("assets/textures/dirt2.png");
-	tileSet[3] = window.loadTexture("assets/textures/dirt3.png");
-	tileSet[4] = window.loadTexture("assets/textures/dirt4.png");
-	tileSet[5] = window.loadTexture("assets/textures/dirt5.png");
-	tileSet[6] = window.loadTexture("assets/textures/dirt6.png");
-	tileSet[7] = window.loadTexture("assets/textures/dirt7.png");
-	tileSet[8] = window.loadTexture("assets/textures/dirt8.png");
-	tileSet[9] = window.loadTexture("assets/textures/dirt9.png");
-	tileSet[10] = window.loadTexture("assets/textures/dirt10.png");
-	tileSet[11] = window.loadTexture("assets/textures/dirt11.png");
-	tileSet[12] = window.loadTexture("assets/textures/dirt12.png");
-	tileSet[13] = window.loadTexture("assets/textures/dirt13.png");
-
 	//fonts
 	swansea = TTF_OpenFont("assets/fonts/swansea.ttf", 40);
 
 	ipInput.uiText.font = swansea;
 
 	plr.setTex(window.loadTexture("assets/textures/light_animsheet.png"));
-	plr.transform = Level::LoadLevel(Level::LoadFile("assets/levels/level1.lvl"), walls, window, tileSet);
+	plr.transform = Level::LoadLevel(Level::LoadFile("assets/levels/earlyprototype.lvl"), walls, window);
 
 	return true;
 }

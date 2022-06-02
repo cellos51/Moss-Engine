@@ -26,12 +26,13 @@ void Player::init() // this was the biggest pain in the fucking ass ever
 
 	texturePos.x = 0;// imma explain this better. texturepos is like the part of the texture the sprite uses
 	texturePos.y = 0;
-	texturePos.w = 160 * 4;
-	texturePos.h = 320 * 8;
+	texturePos.w = 40;
+	texturePos.h = 40;
 	offset.x = -12; //offset moves the texture in world space
 	offset.y = -24;
 	offset.w = 40;
 	offset.h = 40;
+	layer = 2;
 }
 
 float animationFrame = 0;
