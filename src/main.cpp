@@ -39,6 +39,8 @@ std::vector<ui::Button> buttons;
 ui::TextInput ipInput;
 int menuType = 0;
 
+//Vector2 cameraPos;
+
 bool init() // used to initiate things before using
 {
 	SDL_Init(SDL_INIT_EVERYTHING);
@@ -69,6 +71,8 @@ bool init() // used to initiate things before using
 	plr.setTex(window.loadTexture("assets/textures/light_animsheet.png"));
 	//plr.transform = Level::LoadLevel(Level::LoadFile("assets/levels/level.lvl"), walls, window);
 	plr.transform = Level::LoadLevel(Level::LoadFile("assets/levels/level.lvl"), walls, window);
+
+	//window.loadTexture("assets/textures/light_animsheet.png");
 
 	return true;
 }
@@ -347,8 +351,31 @@ void gameLoop() // it runs forever
 		window.setZoom(4);
 	}	
 
+	// if (Event::KeyDown(SDLK_LEFT))
+	// {
+	// 	cameraPos.x = cameraPos.x - 0.5;
+	// 	std::cout << cameraPos.x << " " << cameraPos.y << std::endl;
+	// }
+	// else if (Event::KeyDown(SDLK_RIGHT))
+	// {
+	// 	cameraPos.x = cameraPos.x + 0.5;
+	// 	std::cout << cameraPos.x << " " << cameraPos.y << std::endl;
+	// }
+	// else if (Event::KeyDown(SDLK_UP))
+	// {
+	// 	cameraPos.y = cameraPos.y - 0.5;
+	// 	std::cout << cameraPos.x << " " << cameraPos.y << std::endl;
+	// }
+	// else if (Event::KeyDown(SDLK_DOWN))
+	// {
+	// 	cameraPos.y = cameraPos.y + 0.5;
+	// 	std::cout << cameraPos.x << " " << cameraPos.y << std::endl;
+	// }
+
+
 	plr.update();
 	window.camera(Vector2(plr.transform.x + plr.size.x / 2, plr.transform.y + plr.size.y / 2));
+	//window.camera(cameraPos);
 
 	for (Entity wall : walls)
 	{

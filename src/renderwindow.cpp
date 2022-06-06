@@ -448,11 +448,11 @@ void RenderWindow::camera(Vector2 pos) // used before exiting the program
 	// SDL_RenderGetScale(renderer, &zoomX, &zoomY);
 
 	float cameraX = pos.x + pos.x * -2 + cameraPos.x;
-	cameraPos.x -= cameraX * 0.01 * Time::deltaTime();
+	cameraPos.x -= cameraX * 1 * Time::deltaTime();
 	float cameraY = pos.y + pos.y * -2 + cameraPos.y;
-	cameraPos.y -= cameraY * 0.01 * Time::deltaTime();
+	cameraPos.y -= cameraY * 1 * Time::deltaTime();
 
-	cameraOffset = Vector2(cameraPos.x - ((getSize().x) / 2)  , cameraPos.y - ((getSize().y) / 2) );
+	cameraOffset = Vector2(int(cameraPos.x - ((getSize().x) / 2))  ,int(cameraPos.y - ((getSize().y) / 2)) );
 }
 
 void RenderWindow::setZoom(float x)
@@ -466,7 +466,10 @@ Vector2 RenderWindow::getSize()
 {
 	int w, h;
 	SDL_GetWindowSize(window, &w, &h);
+
+	w = (w & ~1);
+	h = (h & ~1);
 	
 	return Vector2(w, h);
-	return(Vector2(1024, 640));
+	//return(Vector2(1024, 640));
 }
