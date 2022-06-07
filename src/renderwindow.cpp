@@ -165,8 +165,11 @@ void RenderWindow::render(Entity& p_ent, bool cam) // i think this copys the tex
 	{
 		glm::mat4 transform = glm::mat4(1.0f);
 
+		int bruh1 = p_ent.transform.x;
+		int bruh2 = p_ent.transform.y;
+
 		transform = glm::scale(transform, glm::vec3((p_ent.offset.w * zoomX) / getSize().x, (p_ent.offset.h * zoomY) / getSize().y, 0));  
-		transform = glm::translate(transform, glm::vec3(((((p_ent.offset.x + p_ent.transform.x) + p_ent.offset.w / 2) - getSize().x / 2) - cameraOffset.x) / (p_ent.offset.w / 2), -((((p_ent.offset.y + p_ent.transform.y) + p_ent.offset.h / 2) - getSize().y / 2) - cameraOffset.y) / (p_ent.offset.h / 2), 0)); 
+		transform = glm::translate(transform, glm::vec3(((((p_ent.offset.x + bruh1) + p_ent.offset.w / 2) - getSize().x / 2) - cameraOffset.x) / (p_ent.offset.w / 2), -((((p_ent.offset.y + bruh2) + p_ent.offset.h / 2) - getSize().y / 2) - cameraOffset.y) / (p_ent.offset.h / 2), 0)); 
 
 		positionArray[entityCount] = transform;
 		texCoordArray[entityCount] = glm::vec4(p_ent.texturePos.x / TextureSize[p_ent.tex].x,p_ent.texturePos.y / TextureSize[p_ent.tex].y, TextureSize[p_ent.tex].x / p_ent.texturePos.w, TextureSize[p_ent.tex].y / p_ent.texturePos.h);
@@ -192,7 +195,7 @@ void RenderWindow::render(Entity& p_ent, bool cam) // i think this copys the tex
 		glm::mat4 transform = glm::mat4(1.0f);
 
 		transform = glm::scale(transform, glm::vec3((p_ent.offset.w) / getSize().x, (p_ent.offset.h) / getSize().y, 0));  
-		transform = glm::translate(transform, glm::vec3(((((p_ent.offset.x + p_ent.transform.x) + p_ent.offset.w / 2) - getSize().x / 2)) / (p_ent.offset.w / 2), -((((p_ent.offset.y + p_ent.transform.y) + p_ent.offset.h / 2) - getSize().y / 2)) / (p_ent.offset.h / 2), 0)); 
+		transform = glm::translate(transform, glm::vec3(((((p_ent.offset.x + int(p_ent.transform.x)) + p_ent.offset.w / 2) - getSize().x / 2)) / (p_ent.offset.w / 2), -((((p_ent.offset.y + int(p_ent.transform.y)) + p_ent.offset.h / 2) - getSize().y / 2)) / (p_ent.offset.h / 2), 0)); 
 
 
 		positionArray[entityCount] = transform;
@@ -443,16 +446,39 @@ void RenderWindow::quit() // used before exiting the program
 	SDL_Quit();
 }
 
+int clampAmount = 5;
+float lerpAmount = 0.01;
+
 void RenderWindow::camera(Vector2 pos) // used before exiting the program
 {
 	// SDL_RenderGetScale(renderer, &zoomX, &zoomY);
 
 	float cameraX = pos.x + pos.x * -2 + cameraPos.x;
-	cameraPos.x -= cameraX * 1 * Time::deltaTime();
+	cameraPos.x -= cameraX * lerpAmount * Time::deltaTime();
 	float cameraY = pos.y + pos.y * -2 + cameraPos.y;
-	cameraPos.y -= cameraY * 1 * Time::deltaTime();
+	cameraPos.y -= cameraY * lerpAmount * Time::deltaTime();
 
-	cameraOffset = Vector2(int(cameraPos.x - ((getSize().x) / 2))  ,int(cameraPos.y - ((getSize().y) / 2)) );
+	if (cameraPos.y - pos.y > clampAmount)
+	{
+		cameraPos.y = pos.y + clampAmount;
+	}
+
+	if (cameraPos.y - pos.y < -clampAmount)
+	{
+		cameraPos.y = pos.y - clampAmount;
+	}
+
+	if (cameraPos.x - pos.x > clampAmount)
+	{
+		cameraPos.x = pos.x + clampAmount;
+	}
+
+	if (cameraPos.x - pos.x < -clampAmount)
+	{
+		cameraPos.x = pos.x - clampAmount;
+	}
+
+	cameraOffset = Vector2(int(cameraPos.x) - ((getSize().x) / 2)  ,int(cameraPos.y) - ((getSize().y) / 2) );
 }
 
 void RenderWindow::setZoom(float x)
