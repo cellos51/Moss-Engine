@@ -165,11 +165,8 @@ void RenderWindow::render(Entity& p_ent, bool cam) // i think this copys the tex
 	{
 		glm::mat4 transform = glm::mat4(1.0f);
 
-		int bruh1 = p_ent.transform.x;
-		int bruh2 = p_ent.transform.y;
-
 		transform = glm::scale(transform, glm::vec3((p_ent.offset.w * zoomX) / getSize().x, (p_ent.offset.h * zoomY) / getSize().y, 0));  
-		transform = glm::translate(transform, glm::vec3(((((p_ent.offset.x + bruh1) + p_ent.offset.w / 2) - getSize().x / 2) - cameraOffset.x) / (p_ent.offset.w / 2), -((((p_ent.offset.y + bruh2) + p_ent.offset.h / 2) - getSize().y / 2) - cameraOffset.y) / (p_ent.offset.h / 2), 0)); 
+		transform = glm::translate(transform, glm::vec3(((((p_ent.offset.x + int(p_ent.transform.x)) + p_ent.offset.w / 2) - getSize().x / 2) - cameraOffset.x) / (p_ent.offset.w / 2), -((((p_ent.offset.y + int(p_ent.transform.y)) + p_ent.offset.h / 2) - getSize().y / 2) - cameraOffset.y) / (p_ent.offset.h / 2), 0)); 
 
 		positionArray[entityCount] = transform;
 		texCoordArray[entityCount] = glm::vec4(p_ent.texturePos.x / TextureSize[p_ent.tex].x,p_ent.texturePos.y / TextureSize[p_ent.tex].y, TextureSize[p_ent.tex].x / p_ent.texturePos.w, TextureSize[p_ent.tex].y / p_ent.texturePos.h);
