@@ -20,6 +20,8 @@ Entity OnscreenCamera(Vector2(0,0));
 
 Shader defaultShader("assets/shaders/shader.vs", "assets/shaders/shader.fs");
 
+Shader shadowShader("assets/shaders/shadowshader.vs", "assets/shaders/shader.fs");
+
 std::map<unsigned int,Vector2> TextureSize;
 
 const int maxEntities = 10000;
@@ -57,6 +59,7 @@ void RenderWindow::create(const char* p_title, int p_w, int p_h)
 	};  
 
 	defaultShader.compile();
+	shadowShader.compile();
 
 	int glConsts;
 	
@@ -153,6 +156,7 @@ void RenderWindow::clear() // clears the renderer
 	entityCount = 0;
 
 	glClearColor(0.439, 0.502, 0.565, 1.0);
+	//glClearColor(0, 0, 0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
 
 	OnscreenCamera.transform = Vector2(cameraPos.x - OnscreenCamera.size.x / 2, cameraPos.y - OnscreenCamera.size.y / 2);
@@ -356,14 +360,11 @@ void RenderWindow::render(ui& p_ui) // i think this copys the texture to the ren
 	// }
 }
 
-
-
-
 void RenderWindow::display() // used to display information from the renderer to the window
 {
 	glViewport(0, 0, getSize().x, getSize().y);
 
-	defaultShader.use(); 
+	//glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
  	
  	// position buffer
 	glBindBuffer(GL_ARRAY_BUFFER, IVBO[0]);
@@ -410,25 +411,44 @@ void RenderWindow::display() // used to display information from the renderer to
 
     glVertexAttribDivisor(9, 1);
 
-
     // unbind buffers
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+    //shadowShader.use(); 
+
+    int x, y;
+    SDL_GetMouseState(&x, &y);
+
+    glBindVertexArray(VAO);
+
     for (std::map<unsigned int,std::vector<int>>::iterator it = TexturesToRender.begin(); it != TexturesToRender.end(); ++it)
     {
-	    while (it->second.size() > 0)
+	    for (int i : it->second)
 	    {
-			defaultShader.setInt("ourTexture", it->second[0]);
+	    	if (it->first != 0)
+	    	{
+		    	shadowShader.use();
 
-			defaultShader.setInt("currentTexture", it->second[0]);
+		    	shadowShader.setVec2("lightPos", ((x / getSize().x) * 2) - 1, -((y / getSize().y) * 2) + 1 );
 
-			defaultShader.setInt("currentLayer", it->first);
+		    	shadowShader.setInt("ourTexture", i);
 
-			glBindVertexArray(VAO);      
+				shadowShader.setInt("currentTexture", i);
+
+				shadowShader.setInt("currentLayer", it->first);
+
+				glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
+			}
+
+			defaultShader.use(); 
+
+			defaultShader.setInt("ourTexture", i);
+
+			defaultShader.setInt("currentTexture", i);
+
+			defaultShader.setInt("currentLayer", it->first);;      
 
 			glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
-
-			it->second.erase(it->second.begin());
 	    }
 	}
 

@@ -40,6 +40,7 @@ ui::TextInput ipInput;
 int menuType = 0;
 
 //Vector2 cameraPos;
+Entity testLight(Vector2(144,144));
 
 bool init() // used to initiate things before using
 {
@@ -71,6 +72,9 @@ bool init() // used to initiate things before using
 	plr.setTex(window.loadTexture("assets/textures/light_animsheet.png"));
 	//plr.transform = Level::LoadLevel(Level::LoadFile("assets/levels/level.lvl"), walls, window);
 	plr.transform = Level::LoadLevel(Level::LoadFile("assets/levels/level.lvl"), walls, window);
+
+	testLight.setTex(window.loadTexture("assets/textures/spotlight.png"));
+	testLight.layer = 0;
 
 	//window.loadTexture("assets/textures/light_animsheet.png");
 
@@ -359,6 +363,25 @@ void gameLoop() // it runs forever
 	{
 		plr.getCol(wall);
 	}
+
+	int x, y;
+	SDL_GetMouseState(&x, &y);
+
+
+	// if (((x + (window.cameraPos.x)) - window.getSize().x / 2) <= 0)
+	// {
+	// 	x = x - 24;
+	// }
+
+	// if (((y + (window.cameraPos.y)) - window.getSize().y / 2) <= 0)
+	// {
+	// 	y = y - 24;
+	// }
+
+	x = ((x + (window.cameraPos.x)) - window.getSize().x / 2);
+	y = ((y + (window.cameraPos.y)) - window.getSize().y / 2);
+
+	testLight.transform = Vector2(x - 64,y - 64);
 }
 
 
@@ -368,6 +391,8 @@ void render() // honestly i feel like putting the stuff that is at the end of th
   	// {
   	// 	window.render(it->second, true);
   	// }
+
+	window.render(testLight, true);
 
 	for (Entity wall : walls)
 	{

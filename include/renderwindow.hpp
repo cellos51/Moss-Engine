@@ -30,5 +30,5 @@ private:
 	SDL_GLContext context;
 	SDL_Renderer* renderer;
 	unsigned int shaderProgram;
-	unsigned int VBO, VAO, EBO, IVBO[4];
+	unsigned int VAO, VBO, EBO, IVBO[4];
 };

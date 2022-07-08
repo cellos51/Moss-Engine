@@ -53,7 +53,7 @@ void Player::update()
 
 	if (Event::KeyPressed(SDLK_RIGHT) || Event::KeyPressed(SDLK_d))
 	{
-		movementDir.x = 1;
+		movementDir.x += 1;
 		texturePos.x = 0;
 		if (movespeed == 2)
 		{
@@ -67,7 +67,7 @@ void Player::update()
 
 	if (Event::KeyPressed(SDLK_LEFT) || Event::KeyPressed(SDLK_a))
 	{
-		movementDir.x = -1;
+		movementDir.x += -1;
 		texturePos.x = 0;
 		if (movespeed == 2)
 		{
@@ -82,7 +82,7 @@ void Player::update()
 
 	if ((Event::KeyPressed(SDLK_UP)) || (Event::KeyPressed(SDLK_w)))
 	{
-		movementDir.y = -1;
+		movementDir.y += -1;
 		texturePos.x = 0;
 		if (movespeed == 2)
 		{
@@ -97,7 +97,7 @@ void Player::update()
 
 	if ((Event::KeyPressed(SDLK_DOWN)) || (Event::KeyPressed(SDLK_s)))
 	{
-		movementDir.y = 1;
+		movementDir.y += 1;
 		texturePos.x = 0;
 		if (movespeed == 2)
 		{

@@ -9,7 +9,7 @@ layout (location = 7) in vec4 iTexOffset;
 layout (location = 8) in int iTexID;
 layout (location = 9) in int iLayerID;
 
-out vec3 ourColor;
+out vec4 ourColor;
 out vec2 TexCoord;
 flat out uint texId;
 flat out uint layerId;
@@ -19,6 +19,6 @@ void main()
     texId = iTexID;
     layerId = iLayerID;
     gl_Position = iPosOffset * vec4(aPos, 1.0f);
-    ourColor = aColor;
+    ourColor = vec4(aColor, 1.0f);
     TexCoord = vec2((aTexCoord.x / iTexOffset.z) + iTexOffset.x, (aTexCoord.y / iTexOffset.w) + iTexOffset.y);
 }
