@@ -13,6 +13,7 @@
 #include "event.hpp"
 #include "level.hpp"
 #include "ui.hpp"
+#include "light.hpp"
 
 // random shit needed to be here to run
 bool gameRunning = true;
@@ -40,7 +41,8 @@ ui::TextInput ipInput;
 int menuType = 0;
 
 //Vector2 cameraPos;
-Entity testLight(Vector2(144,144));
+Light realLight(Vector2(144,144));
+Light realLight2(Vector2(144,144));
 
 bool init() // used to initiate things before using
 {
@@ -73,10 +75,11 @@ bool init() // used to initiate things before using
 	//plr.transform = Level::LoadLevel(Level::LoadFile("assets/levels/level.lvl"), walls, window);
 	plr.transform = Level::LoadLevel(Level::LoadFile("assets/levels/level.lvl"), walls, window);
 
-	testLight.setTex(window.loadTexture("assets/textures/spotlight.png"));
-	testLight.layer = 0;
-
 	//window.loadTexture("assets/textures/light_animsheet.png");
+
+	realLight.layer = 2;
+
+	realLight2.layer = 2;
 
 	return true;
 }
@@ -381,7 +384,14 @@ void gameLoop() // it runs forever
 	x = ((x + (window.cameraPos.x)) - window.getSize().x / 2);
 	y = ((y + (window.cameraPos.y)) - window.getSize().y / 2);
 
-	testLight.transform = Vector2(x - 64,y - 64);
+	if (Event::MousePressed(SDL_BUTTON_LEFT))
+	{
+		realLight.transform = Vector2(x,y);
+	}
+	else if (Event::MousePressed(SDL_BUTTON_RIGHT))
+	{
+		realLight2.transform = Vector2(x,y);
+	}
 }
 
 
@@ -392,7 +402,9 @@ void render() // honestly i feel like putting the stuff that is at the end of th
   	// 	window.render(it->second, true);
   	// }
 
-	window.render(testLight, true);
+
+	window.render(realLight, true);
+	window.render(realLight2, true);
 
 	for (Entity wall : walls)
 	{

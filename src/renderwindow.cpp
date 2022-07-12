@@ -14,17 +14,21 @@
 #include "math.hpp"
 #include "entity.hpp"
 #include "text.hpp"
+#include "light.hpp"
 
 float zoomX = 1, zoomY = 1;
 Entity OnscreenCamera(Vector2(0,0));
 
 Shader defaultShader("assets/shaders/shader.vs", "assets/shaders/shader.fs");
 
-Shader shadowShader("assets/shaders/shadowshader.vs", "assets/shaders/shader.fs");
+Shader shadowShader("assets/shaders/shadowshader.vs", "assets/shaders/shadowshader.fs");
+Shader lightShader("assets/shaders/lightshader.vs", "assets/shaders/lightshader.fs");
 
 std::map<unsigned int,Vector2> TextureSize;
 
 const int maxEntities = 10000;
+
+const int maxLights = 20;
 
 int entityCount = 0;
 
@@ -35,6 +39,14 @@ glm::vec4 texCoordArray[maxEntities];
 int textureArray[maxEntities];
 
 unsigned int layerArray[maxEntities];
+
+int lightCount = 0;
+
+glm::mat4 lightPositionArray[maxLights];
+
+glm::mat4 shadowPositionArray[maxLights];
+
+unsigned int lightLayerArray[maxLights];
 
 std::map<unsigned int,std::vector<int>> TexturesToRender;
 
@@ -60,6 +72,7 @@ void RenderWindow::create(const char* p_title, int p_w, int p_h)
 
 	defaultShader.compile();
 	shadowShader.compile();
+	lightShader.compile();
 
 	int glConsts;
 	
@@ -78,6 +91,10 @@ void RenderWindow::create(const char* p_title, int p_w, int p_h)
 
 	glGetIntegerv(GL_MAX_UNIFORM_LOCATIONS, &glConsts);
 	std::cout << "Max Unifrom Components:" << glConsts << std::endl;
+
+	glEnable(GL_STENCIL_TEST);
+    //glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    //glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -154,10 +171,11 @@ unsigned int RenderWindow::loadTexture(const char* p_filePath) // used load text
 void RenderWindow::clear() // clears the renderer
 {
 	entityCount = 0;
+	lightCount = 0;
 
 	glClearColor(0.439, 0.502, 0.565, 1.0);
 	//glClearColor(0, 0, 0, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 	OnscreenCamera.transform = Vector2(cameraPos.x - OnscreenCamera.size.x / 2, cameraPos.y - OnscreenCamera.size.y / 2);
 	OnscreenCamera.size = Vector2(getSize().x / zoomX, getSize().y / zoomY);
@@ -360,6 +378,27 @@ void RenderWindow::render(ui& p_ui) // i think this copys the texture to the ren
 	// }
 }
 
+void RenderWindow::render(Light& p_light, bool cam) // i think this copys the texture to the renderer
+{
+	glm::mat4 transform = glm::mat4(1.0f);
+
+	transform = glm::scale(transform, glm::vec3((p_light.radius * zoomX) / getSize().x, (p_light.radius * zoomY) / getSize().y, 0));  
+	transform = glm::translate(transform, glm::vec3(((int(p_light.transform.x) - getSize().x / 2) - cameraOffset.x) / (p_light.radius / 2), -((int(p_light.transform.y) - getSize().y / 2) - cameraOffset.y) / (p_light.radius / 2), 0)); 
+
+	lightPositionArray[lightCount] = transform;
+	lightLayerArray[lightCount] = p_light.layer;
+
+	transform = glm::mat4(1.0f);
+
+	transform = glm::scale(transform, glm::vec3((p_light.radius * zoomX) / getSize().x, (p_light.radius * zoomY) / getSize().y, 0));  
+	transform = glm::translate(transform, glm::vec3(((int(p_light.transform.x - p_light.radius / 2) - getSize().x / 2) - cameraOffset.x) / (p_light.radius / 2), -((int(p_light.transform.y  + p_light.radius / 2) - getSize().y / 2) - cameraOffset.y) / (p_light.radius / 2), 0)); 
+
+
+	shadowPositionArray[lightCount] = transform;
+
+	lightCount++;
+}
+
 void RenderWindow::display() // used to display information from the renderer to the window
 {
 	glViewport(0, 0, getSize().x, getSize().y);
@@ -416,37 +455,63 @@ void RenderWindow::display() // used to display information from the renderer to
 
     //shadowShader.use(); 
 
-    int x, y;
-    SDL_GetMouseState(&x, &y);
+    // int x, y;
+    // SDL_GetMouseState(&x, &y);
 
     glBindVertexArray(VAO);
 
     for (std::map<unsigned int,std::vector<int>>::iterator it = TexturesToRender.begin(); it != TexturesToRender.end(); ++it)
     {
-	    for (int i : it->second)
-	    {
-	    	if (it->first != 0)
-	    	{
+		for (int j = 0; j < lightCount; j++)
+    	{
+    		if (it->first == lightLayerArray[j])
+    		{
+    			glClear(GL_STENCIL_BUFFER_BIT);
+    			
+				glStencilOp( GL_KEEP, GL_KEEP, GL_REPLACE );
+				glStencilFunc( GL_ALWAYS, 1, 0xFF );
+
 		    	shadowShader.use();
 
-		    	shadowShader.setVec2("lightPos", ((x / getSize().x) * 2) - 1, -((y / getSize().y) * 2) + 1 );
+		    	//shadowShader.setVec2("lightPos", ((x / getSize().x) * 2) - 1, -((y / getSize().y) * 2) + 1 );
 
-		    	shadowShader.setInt("ourTexture", i);
-
-				shadowShader.setInt("currentTexture", i);
+		    	shadowShader.setMat4("lightMatrix", shadowPositionArray[j]); 
 
 				shadowShader.setInt("currentLayer", it->first);
 
 				glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
-			}
 
+				glStencilOp( GL_KEEP, GL_KEEP, GL_KEEP );
+				glStencilFunc( GL_NOTEQUAL, 1, 0xFF );
+
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
+				lightShader.use();
+
+				lightShader.setMat4("lightPos", lightPositionArray[j]);
+
+				lightShader.setVec3("lightColor", 1, 1, 1);
+
+				glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+				glStencilOp( GL_KEEP, GL_KEEP, GL_REPLACE );
+				glStencilFunc( GL_ALWAYS, 1, 0xFF );
+
+				
+
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			}
+		}
+
+	    for (int i : it->second)
+	    {
 			defaultShader.use(); 
 
 			defaultShader.setInt("ourTexture", i);
 
 			defaultShader.setInt("currentTexture", i);
 
-			defaultShader.setInt("currentLayer", it->first);;      
+			defaultShader.setInt("currentLayer", it->first);     
 
 			glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
 	    }

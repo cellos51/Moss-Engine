@@ -9,22 +9,17 @@ layout (location = 7) in vec4 iTexOffset;
 layout (location = 8) in int iTexID;
 layout (location = 9) in int iLayerID;
 
-out vec4 ourColor;
-out vec2 TexCoord;
-flat out uint texId;
-flat out uint layerId;
+uniform mat4 lightMatrix;
+uniform int currentLayer;
 
-uniform vec2 lightPos;
+vec2 lightPos = vec2(0,0);
 
 vec2 posR = vec2(0,0);
 vec2 posL = vec2(0,0);
 
 void main()
 {
-    texId = iTexID;
-    layerId = iLayerID;
-    ourColor = vec4(0,0,0,1);
-    TexCoord = vec2((aTexCoord.x / iTexOffset.z) + iTexOffset.x, (aTexCoord.y / iTexOffset.w) + iTexOffset.y);
+    lightPos = (lightMatrix * vec4(1.0f, 1.0f, 1.0f, 1.0f)).xy;
 
     if (gl_VertexID == 1 || gl_VertexID == 0)
     {
@@ -67,20 +62,23 @@ void main()
         }
     }
 
-    if (gl_VertexID == 0)
+    if(iLayerID == currentLayer)
     {
-        gl_Position = vec4((iPosOffset * vec4(posR.x, posR.y, aPos.z,  1.0f)).xy - lightPos, 0, 0);
-    }
-    else if (gl_VertexID == 3)
-    {
-        gl_Position = vec4((iPosOffset * vec4(posL.x, posL.y, aPos.z,  1.0f)).xy - lightPos, 0, 0);
-    }
-    else if (gl_VertexID == 1)
-    {
-        gl_Position = iPosOffset * vec4(posR.x, posR.y, aPos.z,  1.0f);
-    }
-    else if (gl_VertexID == 2)
-    {
-        gl_Position = iPosOffset * vec4(posL.x, posL.y, aPos.z,  1.0f);
+        if (gl_VertexID == 0)
+        {
+            gl_Position = vec4((iPosOffset * vec4(posR.x, posR.y, aPos.z,  1.0f)).xy - lightPos, 0, 0);
+        }
+        else if (gl_VertexID == 3)
+        {
+            gl_Position = vec4((iPosOffset * vec4(posL.x, posL.y, aPos.z,  1.0f)).xy - lightPos, 0, 0);
+        }
+        else if (gl_VertexID == 1)
+        {
+            gl_Position = iPosOffset * vec4(posR.x, posR.y, aPos.z,  1.0f);
+        }
+        else if (gl_VertexID == 2)
+        {
+            gl_Position = iPosOffset * vec4(posL.x, posL.y, aPos.z,  1.0f);
+        }
     }
 }

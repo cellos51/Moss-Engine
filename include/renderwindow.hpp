@@ -7,6 +7,7 @@
 #include "ui.hpp"
 #include "math.hpp"
 #include "text.hpp"
+#include "light.hpp"
 
 class RenderWindow
 {
@@ -18,6 +19,7 @@ public:
 	void render(Entity& p_ent, bool cam);
 	void render(Text& p_text, bool cam);
 	void render(ui& p_ui);
+	void render(Light& p_light, bool cam);
 	void display();
 	void quit();
 	void camera(Vector2 pos);
