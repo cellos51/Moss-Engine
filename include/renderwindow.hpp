@@ -19,7 +19,7 @@ public:
 	void render(Entity& p_ent, bool cam);
 	void render(Text& p_text, bool cam);
 	void render(ui& p_ui);
-	void render(Light& p_light, bool cam);
+	void render(Light& p_light);
 	void display();
 	void quit();
 	void camera(Vector2 pos);

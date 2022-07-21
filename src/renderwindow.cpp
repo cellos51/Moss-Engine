@@ -28,9 +28,9 @@ std::map<unsigned int,Vector2> TextureSize;
 
 const int maxEntities = 10000;
 
-const int maxLights = 20;
+const int maxLights = 1000;
 
-int entityCount = 0;
+int entityCount = 0; // begin stuff for entities
 
 glm::mat4 positionArray[maxEntities];
 
@@ -40,7 +40,9 @@ int textureArray[maxEntities];
 
 unsigned int layerArray[maxEntities];
 
-int lightCount = 0;
+int lightCount = 0; // begin stuff for lights
+
+glm::vec4 lightColorArray[maxLights];
 
 glm::mat4 lightPositionArray[maxLights];
 
@@ -48,7 +50,7 @@ glm::mat4 shadowPositionArray[maxLights];
 
 unsigned int lightLayerArray[maxLights];
 
-std::map<unsigned int,std::vector<int>> TexturesToRender;
+std::map<unsigned int,std::vector<int>> TexturesToRender; // this does stuff
 
 void RenderWindow::create(const char* p_title, int p_w, int p_h)
 {
@@ -378,25 +380,29 @@ void RenderWindow::render(ui& p_ui) // i think this copys the texture to the ren
 	// }
 }
 
-void RenderWindow::render(Light& p_light, bool cam) // i think this copys the texture to the renderer
+void RenderWindow::render(Light& p_light) // i think this copys the texture to the renderer
 {
-	glm::mat4 transform = glm::mat4(1.0f);
+	if (lightCount < maxLights)
+	{
+		glm::mat4 transform = glm::mat4(1.0f);
 
-	transform = glm::scale(transform, glm::vec3((p_light.radius * zoomX) / getSize().x, (p_light.radius * zoomY) / getSize().y, 0));  
-	transform = glm::translate(transform, glm::vec3(((int(p_light.transform.x) - getSize().x / 2) - cameraOffset.x) / (p_light.radius / 2), -((int(p_light.transform.y) - getSize().y / 2) - cameraOffset.y) / (p_light.radius / 2), 0)); 
+		transform = glm::scale(transform, glm::vec3((p_light.radius * zoomX) / getSize().x, (p_light.radius * zoomY) / getSize().y, 0));  
+		transform = glm::translate(transform, glm::vec3(((int(p_light.transform.x) - getSize().x / 2) - cameraOffset.x) / (p_light.radius / 2), -((int(p_light.transform.y) - getSize().y / 2) - cameraOffset.y) / (p_light.radius / 2), 0)); 
 
-	lightPositionArray[lightCount] = transform;
-	lightLayerArray[lightCount] = p_light.layer;
+		lightColorArray[lightCount] = glm::vec4(p_light.r, p_light.g, p_light.b, p_light.intensity);
+		lightPositionArray[lightCount] = transform;
+		lightLayerArray[lightCount] = p_light.layer;
 
-	transform = glm::mat4(1.0f);
+		transform = glm::mat4(1.0f);
 
-	transform = glm::scale(transform, glm::vec3((p_light.radius * zoomX) / getSize().x, (p_light.radius * zoomY) / getSize().y, 0));  
-	transform = glm::translate(transform, glm::vec3(((int(p_light.transform.x - p_light.radius / 2) - getSize().x / 2) - cameraOffset.x) / (p_light.radius / 2), -((int(p_light.transform.y  + p_light.radius / 2) - getSize().y / 2) - cameraOffset.y) / (p_light.radius / 2), 0)); 
+		transform = glm::scale(transform, glm::vec3((p_light.radius * zoomX) / getSize().x, (p_light.radius * zoomY) / getSize().y, 0));  
+		transform = glm::translate(transform, glm::vec3(((int(p_light.transform.x - p_light.radius / 2) - getSize().x / 2) - cameraOffset.x) / (p_light.radius / 2), -((int(p_light.transform.y  + p_light.radius / 2) - getSize().y / 2) - cameraOffset.y) / (p_light.radius / 2), 0)); 
 
 
-	shadowPositionArray[lightCount] = transform;
+		shadowPositionArray[lightCount] = transform;
 
-	lightCount++;
+		lightCount++;
+	}
 }
 
 void RenderWindow::display() // used to display information from the renderer to the window
@@ -467,7 +473,7 @@ void RenderWindow::display() // used to display information from the renderer to
     		if (it->first == lightLayerArray[j])
     		{
     			glClear(GL_STENCIL_BUFFER_BIT);
-    			
+
 				glStencilOp( GL_KEEP, GL_KEEP, GL_REPLACE );
 				glStencilFunc( GL_ALWAYS, 1, 0xFF );
 
@@ -490,14 +496,12 @@ void RenderWindow::display() // used to display information from the renderer to
 
 				lightShader.setMat4("lightPos", lightPositionArray[j]);
 
-				lightShader.setVec3("lightColor", 1, 1, 1);
+				lightShader.setVec4("lightColor", lightColorArray[j]);
 
 				glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 				glStencilOp( GL_KEEP, GL_KEEP, GL_REPLACE );
 				glStencilFunc( GL_ALWAYS, 1, 0xFF );
-
-				
 
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			}
@@ -520,6 +524,7 @@ void RenderWindow::display() // used to display information from the renderer to
 	TexturesToRender.clear();
 
 	SDL_GL_SwapWindow(window);
+
 }
 
 void RenderWindow::quit() // used before exiting the program
@@ -540,25 +545,25 @@ void RenderWindow::camera(Vector2 pos) // used before exiting the program
 	float cameraY = pos.y + pos.y * -2 + cameraPos.y;
 	cameraPos.y -= cameraY * lerpAmount * Time::deltaTime();
 
-	if (cameraPos.y - pos.y > clampAmount)
-	{
-		cameraPos.y = pos.y + clampAmount;
-	}
+	// if (cameraPos.y - pos.y > clampAmount)
+	// {
+	// 	cameraPos.y = pos.y + clampAmount;
+	// }
 
-	if (cameraPos.y - pos.y < -clampAmount)
-	{
-		cameraPos.y = pos.y - clampAmount;
-	}
+	// if (cameraPos.y - pos.y < -clampAmount)
+	// {
+	// 	cameraPos.y = pos.y - clampAmount;
+	// }
 
-	if (cameraPos.x - pos.x > clampAmount)
-	{
-		cameraPos.x = pos.x + clampAmount;
-	}
+	// if (cameraPos.x - pos.x > clampAmount)
+	// {
+	// 	cameraPos.x = pos.x + clampAmount;
+	// }
 
-	if (cameraPos.x - pos.x < -clampAmount)
-	{
-		cameraPos.x = pos.x - clampAmount;
-	}
+	// if (cameraPos.x - pos.x < -clampAmount)
+	// {
+	// 	cameraPos.x = pos.x - clampAmount;
+	// }
 
 	cameraOffset = Vector2(int(cameraPos.x) - ((getSize().x) / 2)  ,int(cameraPos.y) - ((getSize().y) / 2) );
 }

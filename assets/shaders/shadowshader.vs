@@ -19,51 +19,51 @@ vec2 posL = vec2(0,0);
 
 void main()
 {
-    lightPos = (lightMatrix * vec4(1.0f, 1.0f, 1.0f, 1.0f)).xy;
-
-    if (gl_VertexID == 1 || gl_VertexID == 0)
-    {
-        if ((iPosOffset * vec4(aPos.x, aPos.y, aPos.z,  1.0f)).x >= lightPos.x && (iPosOffset * vec4(aPos.x, 1.0f, aPos.z,  1.0f)).y >= lightPos.y || (iPosOffset * vec4(-aPos.x, aPos.y, aPos.z,  1.0f)).x > lightPos.x)
-        {
-            posR.y = -1.0f;
-        }
-        else
-        {
-            posR.y = 1.0f;
-        }
-
-        if ((iPosOffset * vec4(aPos.x, posR.y, aPos.z,  1.0f)).y >= lightPos.y)
-        {
-            posR.x = 1.0f;
-        }
-        else
-        {
-            posR.x = -1.0f;
-        }
-    }
-    else if (gl_VertexID == 2 || gl_VertexID == 3)
-    {
-        if ((iPosOffset * vec4(aPos.x, aPos.y, aPos.z,  1.0f)).x <= lightPos.x  && (iPosOffset * vec4(aPos.x, 1.0f, aPos.z,  1.0f)).y >= lightPos.y || (iPosOffset * vec4(-aPos.x, aPos.y, aPos.z,  1.0f)).x < lightPos.x)
-        {
-            posL.y = -1.0f;
-        }
-        else
-        {
-            posL.y = 1.0f;
-        }
-
-        if ((iPosOffset * vec4(aPos.x, posL.y, aPos.z,  1.0f)).y <= lightPos.y)
-        {
-            posL.x = 1.0f;
-        }
-        else
-        {
-            posL.x = -1.0f;
-        }
-    }
-
     if(iLayerID == currentLayer)
     {
+        lightPos = (lightMatrix * vec4(1.0f, 1.0f, 1.0f, 1.0f)).xy;
+
+        if (gl_VertexID == 1 || gl_VertexID == 0)
+        {
+            if ((iPosOffset * vec4(aPos.x, aPos.y, aPos.z,  1.0f)).x >= lightPos.x && (iPosOffset * vec4(aPos.x, 1.0f, aPos.z,  1.0f)).y >= lightPos.y || (iPosOffset * vec4(-aPos.x, aPos.y, aPos.z,  1.0f)).x > lightPos.x)
+            {
+                posR.y = -1.0f;
+            }
+            else
+            {
+                posR.y = 1.0f;
+            }
+
+            if ((iPosOffset * vec4(aPos.x, posR.y, aPos.z,  1.0f)).y >= lightPos.y)
+            {
+                posR.x = 1.0f;
+            }
+            else
+            {
+                posR.x = -1.0f;
+            }
+        }
+        else if (gl_VertexID == 2 || gl_VertexID == 3)
+        {
+            if ((iPosOffset * vec4(aPos.x, aPos.y, aPos.z,  1.0f)).x <= lightPos.x  && (iPosOffset * vec4(aPos.x, 1.0f, aPos.z,  1.0f)).y >= lightPos.y || (iPosOffset * vec4(-aPos.x, aPos.y, aPos.z,  1.0f)).x < lightPos.x)
+            {
+                posL.y = -1.0f;
+            }
+            else
+            {
+                posL.y = 1.0f;
+            }
+
+            if ((iPosOffset * vec4(aPos.x, posL.y, aPos.z,  1.0f)).y <= lightPos.y)
+            {
+                posL.x = 1.0f;
+            }
+            else
+            {
+                posL.x = -1.0f;
+            }
+        }
+
         if (gl_VertexID == 0)
         {
             gl_Position = vec4((iPosOffset * vec4(posR.x, posR.y, aPos.z,  1.0f)).xy - lightPos, 0, 0);

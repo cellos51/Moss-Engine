@@ -42,7 +42,7 @@ int menuType = 0;
 
 //Vector2 cameraPos;
 Light realLight(Vector2(144,144));
-Light realLight2(Vector2(144,144));
+std::vector<Light> lights;
 
 bool init() // used to initiate things before using
 {
@@ -72,14 +72,12 @@ bool init() // used to initiate things before using
 	ipInput.uiText.font = swansea;
 
 	plr.setTex(window.loadTexture("assets/textures/light_animsheet.png"));
-	//plr.transform = Level::LoadLevel(Level::LoadFile("assets/levels/level.lvl"), walls, window);
-	plr.transform = Level::LoadLevel(Level::LoadFile("assets/levels/level.lvl"), walls, window);
+	plr.transform = Level::LoadLevel(Level::LoadFile("assets/levels/bb.lvl"), walls, window);
 
 	//window.loadTexture("assets/textures/light_animsheet.png");
 
 	realLight.layer = 2;
-
-	realLight2.layer = 2;
+	realLight.intensity = 1;
 
 	return true;
 }
@@ -370,27 +368,28 @@ void gameLoop() // it runs forever
 	int x, y;
 	SDL_GetMouseState(&x, &y);
 
-
-	// if (((x + (window.cameraPos.x)) - window.getSize().x / 2) <= 0)
-	// {
-	// 	x = x - 24;
-	// }
-
-	// if (((y + (window.cameraPos.y)) - window.getSize().y / 2) <= 0)
-	// {
-	// 	y = y - 24;
-	// }
-
 	x = ((x + (window.cameraPos.x)) - window.getSize().x / 2);
 	y = ((y + (window.cameraPos.y)) - window.getSize().y / 2);
 
-	if (Event::MousePressed(SDL_BUTTON_LEFT))
+	realLight.transform = Vector2(x,y);
+
+	if (Event::MouseDown(SDL_BUTTON_RIGHT))
 	{
-		realLight.transform = Vector2(x,y);
+		lights.push_back(realLight);
+		std::cout << "Lights: " << lights.size() + 1 << std::endl;
+
+		realLight.r = (rand() % 10 + 5) / 10;
+		realLight.g = (rand() % 10 + 5) / 10;
+		realLight.b = (rand() % 10 + 5) / 10;
 	}
-	else if (Event::MousePressed(SDL_BUTTON_RIGHT))
+
+	if (Event::KeyDown(SDLK_q))
 	{
-		realLight2.transform = Vector2(x,y);
+		realLight.radius += 10;
+	}
+	else if (Event::KeyDown(SDLK_e))
+	{
+		realLight.radius -= 10;
 	}
 }
 
@@ -402,9 +401,12 @@ void render() // honestly i feel like putting the stuff that is at the end of th
   	// 	window.render(it->second, true);
   	// }
 
+	window.render(realLight);
 
-	window.render(realLight, true);
-	window.render(realLight2, true);
+	for (Light light : lights)
+	{
+		window.render(light);
+	}
 
 	for (Entity wall : walls)
 	{
