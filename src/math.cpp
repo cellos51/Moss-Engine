@@ -14,6 +14,34 @@ Vector2::Vector2(float p_x, float p_y) : x(p_x), y(p_y)
 
 }
 
+Vector2 Vector2::lerp(Vector2 a, Vector2 b, float time)
+{
+   a.x = a.x + time * (b.x - a.x);
+
+   a.y = a.y + time * (b.y - a.y);
+
+   x = a.x;
+
+   y = a.y;
+
+   return a;
+}
+
+float std::clamp(float value, float min, float max)
+{
+   if (value > max)
+   {
+      value = max;
+   }
+
+   if (value < min)
+   {
+     value = min;
+   }
+
+   return value;
+}
+
 Uint64 NOW = SDL_GetPerformanceCounter();
 Uint64 LAST = 0;
 int minfps = 60;

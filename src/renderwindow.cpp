@@ -190,7 +190,7 @@ void RenderWindow::render(Entity& p_ent, bool cam) // i think this copys the tex
 		glm::mat4 transform = glm::mat4(1.0f);
 
 		transform = glm::scale(transform, glm::vec3((p_ent.offset.w * zoomX) / getSize().x, (p_ent.offset.h * zoomY) / getSize().y, 0));  
-		transform = glm::translate(transform, glm::vec3(((((p_ent.offset.x + int(p_ent.transform.x)) + p_ent.offset.w / 2) - getSize().x / 2) - cameraOffset.x) / (p_ent.offset.w / 2), -((((p_ent.offset.y + int(p_ent.transform.y)) + p_ent.offset.h / 2) - getSize().y / 2) - cameraOffset.y) / (p_ent.offset.h / 2), 0)); 
+		transform = glm::translate(transform, glm::vec3(((((p_ent.offset.x + round(p_ent.transform.x)) + p_ent.offset.w / 2) - getSize().x / 2) - cameraOffset.x) / (p_ent.offset.w / 2), -((((p_ent.offset.y + round(p_ent.transform.y)) + p_ent.offset.h / 2) - getSize().y / 2) - cameraOffset.y) / (p_ent.offset.h / 2), 0)); 
 
 		positionArray[entityCount] = transform;
 		texCoordArray[entityCount] = glm::vec4(p_ent.texturePos.x / TextureSize[p_ent.tex].x,p_ent.texturePos.y / TextureSize[p_ent.tex].y, TextureSize[p_ent.tex].x / p_ent.texturePos.w, TextureSize[p_ent.tex].y / p_ent.texturePos.h);
@@ -216,7 +216,7 @@ void RenderWindow::render(Entity& p_ent, bool cam) // i think this copys the tex
 		glm::mat4 transform = glm::mat4(1.0f);
 
 		transform = glm::scale(transform, glm::vec3((p_ent.offset.w) / getSize().x, (p_ent.offset.h) / getSize().y, 0));  
-		transform = glm::translate(transform, glm::vec3(((((p_ent.offset.x + int(p_ent.transform.x)) + p_ent.offset.w / 2) - getSize().x / 2)) / (p_ent.offset.w / 2), -((((p_ent.offset.y + int(p_ent.transform.y)) + p_ent.offset.h / 2) - getSize().y / 2)) / (p_ent.offset.h / 2), 0)); 
+		transform = glm::translate(transform, glm::vec3(((((p_ent.offset.x + round(p_ent.transform.x)) + p_ent.offset.w / 2) - getSize().x / 2)) / (p_ent.offset.w / 2), -((((p_ent.offset.y + round(p_ent.transform.y)) + p_ent.offset.h / 2) - getSize().y / 2)) / (p_ent.offset.h / 2), 0)); 
 
 
 		positionArray[entityCount] = transform;
@@ -387,7 +387,7 @@ void RenderWindow::render(Light& p_light) // i think this copys the texture to t
 		glm::mat4 transform = glm::mat4(1.0f);
 
 		transform = glm::scale(transform, glm::vec3((p_light.radius * zoomX) / getSize().x, (p_light.radius * zoomY) / getSize().y, 0));  
-		transform = glm::translate(transform, glm::vec3(((int(p_light.transform.x) - getSize().x / 2) - cameraOffset.x) / (p_light.radius / 2), -((int(p_light.transform.y) - getSize().y / 2) - cameraOffset.y) / (p_light.radius / 2), 0)); 
+		transform = glm::translate(transform, glm::vec3(((round(p_light.transform.x) - getSize().x / 2) - cameraOffset.x) / (p_light.radius / 2), -((round(p_light.transform.y) - getSize().y / 2) - cameraOffset.y) / (p_light.radius / 2), 0)); 
 
 		lightColorArray[lightCount] = glm::vec4(p_light.r, p_light.g, p_light.b, p_light.intensity);
 		lightPositionArray[lightCount] = transform;
@@ -396,7 +396,7 @@ void RenderWindow::render(Light& p_light) // i think this copys the texture to t
 		transform = glm::mat4(1.0f);
 
 		transform = glm::scale(transform, glm::vec3((p_light.radius * zoomX) / getSize().x, (p_light.radius * zoomY) / getSize().y, 0));  
-		transform = glm::translate(transform, glm::vec3(((int(p_light.transform.x - p_light.radius / 2) - getSize().x / 2) - cameraOffset.x) / (p_light.radius / 2), -((int(p_light.transform.y  + p_light.radius / 2) - getSize().y / 2) - cameraOffset.y) / (p_light.radius / 2), 0)); 
+		transform = glm::translate(transform, glm::vec3(((round(p_light.transform.x - p_light.radius / 2) - getSize().x / 2) - cameraOffset.x) / (p_light.radius / 2), -((round(p_light.transform.y  + p_light.radius / 2) - getSize().y / 2) - cameraOffset.y) / (p_light.radius / 2), 0)); 
 
 
 		shadowPositionArray[lightCount] = transform;
@@ -472,16 +472,16 @@ void RenderWindow::display() // used to display information from the renderer to
     	{
     		if (it->first == lightLayerArray[j])
     		{
-    			glClear(GL_STENCIL_BUFFER_BIT);
+				glClear(GL_STENCIL_BUFFER_BIT);
 
 				glStencilOp( GL_KEEP, GL_KEEP, GL_REPLACE );
 				glStencilFunc( GL_ALWAYS, 1, 0xFF );
 
-		    	shadowShader.use();
+				shadowShader.use();
 
-		    	//shadowShader.setVec2("lightPos", ((x / getSize().x) * 2) - 1, -((y / getSize().y) * 2) + 1 );
+				//shadowShader.setVec2("lightPos", ((x / getSize().x) * 2) - 1, -((y / getSize().y) * 2) + 1 );
 
-		    	shadowShader.setMat4("lightMatrix", shadowPositionArray[j]); 
+				shadowShader.setMat4("lightMatrix", shadowPositionArray[j]); 
 
 				shadowShader.setInt("currentLayer", it->first);
 
@@ -534,38 +534,16 @@ void RenderWindow::quit() // used before exiting the program
 }
 
 int clampAmount = 5;
-float lerpAmount = 0.01;
+float lerpAmount = 0.005;
 
 void RenderWindow::camera(Vector2 pos) // used before exiting the program
 {
-	// SDL_RenderGetScale(renderer, &zoomX, &zoomY);
+	cameraPos.lerp(cameraPos, pos, lerpAmount * Time::deltaTime());
 
-	float cameraX = pos.x + pos.x * -2 + cameraPos.x;
-	cameraPos.x -= cameraX * lerpAmount * Time::deltaTime();
-	float cameraY = pos.y + pos.y * -2 + cameraPos.y;
-	cameraPos.y -= cameraY * lerpAmount * Time::deltaTime();
+	cameraPos.x = std::clamp(cameraPos.x, pos.x - clampAmount, pos.x + clampAmount);
+	cameraPos.y = std::clamp(cameraPos.y, pos.y - clampAmount, pos.y + clampAmount);
 
-	// if (cameraPos.y - pos.y > clampAmount)
-	// {
-	// 	cameraPos.y = pos.y + clampAmount;
-	// }
-
-	// if (cameraPos.y - pos.y < -clampAmount)
-	// {
-	// 	cameraPos.y = pos.y - clampAmount;
-	// }
-
-	// if (cameraPos.x - pos.x > clampAmount)
-	// {
-	// 	cameraPos.x = pos.x + clampAmount;
-	// }
-
-	// if (cameraPos.x - pos.x < -clampAmount)
-	// {
-	// 	cameraPos.x = pos.x - clampAmount;
-	// }
-
-	cameraOffset = Vector2(int(cameraPos.x) - ((getSize().x) / 2)  ,int(cameraPos.y) - ((getSize().y) / 2) );
+	cameraOffset = Vector2(round(cameraPos.x) - ((getSize().x) / 2)  ,round(cameraPos.y) - ((getSize().y) / 2) );
 }
 
 void RenderWindow::setZoom(float x)

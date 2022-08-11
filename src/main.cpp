@@ -72,7 +72,7 @@ bool init() // used to initiate things before using
 	ipInput.uiText.font = swansea;
 
 	plr.setTex(window.loadTexture("assets/textures/light_animsheet.png"));
-	plr.transform = Level::LoadLevel(Level::LoadFile("assets/levels/bb.lvl"), walls, window);
+	plr.transform = Level::LoadLevel(Level::LoadFile("assets/levels/level.lvl"), walls, window);
 
 	//window.loadTexture("assets/textures/light_animsheet.png");
 
@@ -375,12 +375,11 @@ void gameLoop() // it runs forever
 
 	if (Event::MouseDown(SDL_BUTTON_RIGHT))
 	{
+		//for (int i = 0; i < 100; i++)
+		//{
 		lights.push_back(realLight);
 		std::cout << "Lights: " << lights.size() + 1 << std::endl;
-
-		realLight.r = (rand() % 10 + 5) / 10;
-		realLight.g = (rand() % 10 + 5) / 10;
-		realLight.b = (rand() % 10 + 5) / 10;
+		//}
 	}
 
 	if (Event::KeyDown(SDLK_q))

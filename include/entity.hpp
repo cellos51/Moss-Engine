@@ -22,4 +22,5 @@ public:
 	Vector2 size;
 	SDL_Rect offset;
 	SDL_Rect texturePos;
+	bool shadow = true;
 };
