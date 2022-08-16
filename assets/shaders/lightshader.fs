@@ -1,10 +1,14 @@
 #version 410 core
 
+uniform vec2 screenSize;
+
 uniform vec4 lightColor;
 
 out vec4 FragColor;
 
-varying vec2 v_texcoord;
+in vec2 v_texcoord;
+
+uniform sampler2D NewTexture;
 
 void main()
 {
@@ -14,5 +18,6 @@ void main()
 
     canvas = canvas * circle;
 
-    FragColor = vec4(-canvas + 1, -canvas + 1) * lightColor;
+    FragColor = (vec4(-canvas + 1, -canvas + 1) - texture(NewTexture, gl_FragCoord.xy/screenSize).x) * lightColor;
+    //FragColor = vec4(0,0,0,1 - texture(NewTexture, v_texcoord).x);
 }

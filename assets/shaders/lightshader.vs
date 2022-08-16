@@ -10,7 +10,7 @@ layout (location = 8) in int iTexID;
 layout (location = 9) in int iLayerID;
 
 uniform mat4 lightPos;
-varying vec2 v_texcoord;
+out vec2 v_texcoord;
 
 void main()
 {

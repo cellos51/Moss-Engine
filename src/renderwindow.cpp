@@ -109,6 +109,27 @@ void RenderWindow::create(const char* p_title, int p_w, int p_h)
     glGenBuffers(1, &IVBO[2]); // texture 
     glGenBuffers(1, &IVBO[3]); // layer
     
+    glGenFramebuffers(1, &FBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, FBO);  
+
+    // generate texture
+	glGenTextures(1, &textureColorbuffer);
+	glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, getSize().x, getSize().y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// attach it to currently bound framebuffer object
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0); 
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE)
+    {
+    	std::cout << "working";
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -472,10 +493,14 @@ void RenderWindow::display() // used to display information from the renderer to
     	{
     		if (it->first == lightLayerArray[j])
     		{
-				glClear(GL_STENCIL_BUFFER_BIT);
+    			glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+				glClearColor(0, 0, 0, 1.0f);
+				glClear(GL_COLOR_BUFFER_BIT); // we're not using the stencil buffer now
 
-				glStencilOp( GL_KEEP, GL_KEEP, GL_REPLACE );
-				glStencilFunc( GL_ALWAYS, 1, 0xFF );
+				//glClear(GL_STENCIL_BUFFER_BIT);
+
+				//glStencilOp( GL_KEEP, GL_KEEP, GL_REPLACE );
+				//glStencilFunc( GL_ALWAYS, 1, 0xFF );
 
 				shadowShader.use();
 
@@ -487,10 +512,13 @@ void RenderWindow::display() // used to display information from the renderer to
 
 				glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
 
-				glStencilOp( GL_KEEP, GL_KEEP, GL_KEEP );
-				glStencilFunc( GL_NOTEQUAL, 1, 0xFF );
+				//glStencilOp( GL_KEEP, GL_KEEP, GL_KEEP );
+				//glStencilFunc( GL_NOTEQUAL, 1, 0xFF );
 
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+				glBindFramebuffer(GL_FRAMEBUFFER, 0);
+				glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+
+				//glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 				lightShader.use();
 
@@ -498,12 +526,18 @@ void RenderWindow::display() // used to display information from the renderer to
 
 				lightShader.setVec4("lightColor", lightColorArray[j]);
 
+				lightShader.setVec2("screenSize", getSize().x, getSize().y);
+
+				lightShader.setInt("NewTexture", 4);
+
+				
+
 				glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-				glStencilOp( GL_KEEP, GL_KEEP, GL_REPLACE );
-				glStencilFunc( GL_ALWAYS, 1, 0xFF );
+				//glStencilOp( GL_KEEP, GL_KEEP, GL_REPLACE );
+				//glStencilFunc( GL_ALWAYS, 1, 0xFF );
 
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			}
 		}
 
