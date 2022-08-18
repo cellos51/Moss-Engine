@@ -59,7 +59,7 @@ void RenderWindow::create(const char* p_title, int p_w, int p_h)
 	gladLoadGLLoader(SDL_GL_GetProcAddress);
 	glViewport(0, 0, getSize().x, getSize().y);
 
-	float vertices[] = {
+	float vertices[] = { // quad
     // positions    // colors  // texture coords
      1,  1, 0.0f,   1, 1, 1,   1.0f, 1.0f,   // top right
      1, -1, 0.0f,   1, 1, 1,   1.0f, 0.0f,   // bottom right
@@ -67,10 +67,38 @@ void RenderWindow::create(const char* p_title, int p_w, int p_h)
     -1,  1, 0.0f,   1, 1, 1,   0.0f, 1.0f    // top left 
 	};
 
-	unsigned int indices[] = { 
+	unsigned int indices[] = { // quad
     0, 1, 3,   // first triangle
     1, 2, 3    // second triangle
 	};  
+
+	// float shadowVertices[] = { // X shape
+ //        0.0f, 1.0f, 0.0f,
+ //        1.0f, 0.0f, 1.0f,
+ //        0.0f, 0.0f, 0.0f, 
+    
+ //        0.0f, 1.0f, 0.0f,
+ //        1.0f, 1.0f, 1.0f,
+ //        1.0f, 0.0f, 1.0f
+	// };
+
+	float shadowVertices[] = { // X shape
+       -1, 1, 1,
+       -1, 1, 0,
+        1,-1, 0,
+    
+       -1, 1, 1,
+        1,-1, 0,
+        1,-1, 1,
+
+        1, 1, 1,
+        1, 1, 0,
+       -1,-1, 0,
+
+        1, 1, 1,
+       -1,-1, 0,
+       -1,-1, 1
+	};
 
 	defaultShader.compile();
 	shadowShader.compile();
@@ -101,17 +129,19 @@ void RenderWindow::create(const char* p_title, int p_w, int p_h)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
+    glGenVertexArrays(1, &VAO[0]);
+    glGenVertexArrays(1, &VAO[1]);
+    glGenBuffers(1, &VBO[0]);
+    glGenBuffers(1, &VBO[1]);
     glGenBuffers(1, &EBO);
     glGenBuffers(1, &IVBO[0]); // position
     glGenBuffers(1, &IVBO[1]); // texture position
     glGenBuffers(1, &IVBO[2]); // texture 
     glGenBuffers(1, &IVBO[3]); // layer
     
-    glBindVertexArray(VAO);
+    glBindVertexArray(VAO[0]);
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
@@ -129,6 +159,19 @@ void RenderWindow::create(const char* p_title, int p_w, int p_h)
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);  
 
+	glBindBuffer(GL_ARRAY_BUFFER, 0); 
+    glBindVertexArray(0);
+
+
+
+    glBindVertexArray(VAO[1]);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(shadowVertices), shadowVertices, GL_STATIC_DRAW);
+
+    // position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0); 
     glBindVertexArray(0);
@@ -411,60 +454,66 @@ void RenderWindow::display() // used to display information from the renderer to
 
 	//glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
  	
- 	// position buffer
-	glBindBuffer(GL_ARRAY_BUFFER, IVBO[0]);
-	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(glm::mat4), &positionArray[0], GL_STATIC_DRAW);
+ 	
 
-	glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
-    glEnableVertexAttribArray(4);
-   	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
-    glEnableVertexAttribArray(5);
-    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
-    glEnableVertexAttribArray(6);
-    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+ 	//for (int i = 0; i < 2; i++)
+ 	//{
+ 		//glBindVertexArray(VAO[i]);
 
-    glVertexAttribDivisor(3, 1);
-    glVertexAttribDivisor(4, 1);
-    glVertexAttribDivisor(5, 1);
-    glVertexAttribDivisor(6, 1);
 
-    // texture position buffer
-    glBindBuffer(GL_ARRAY_BUFFER, IVBO[1]);
-	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(glm::vec4), &texCoordArray[0], GL_STATIC_DRAW);
+	 	// position buffer
+		glBindBuffer(GL_ARRAY_BUFFER, IVBO[0]);
+		glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(glm::mat4), &positionArray[0], GL_STATIC_DRAW);
 
-	glEnableVertexAttribArray(7);
-    glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)0);
+		glEnableVertexAttribArray(3);
+	    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+	    glEnableVertexAttribArray(4);
+	   	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+	    glEnableVertexAttribArray(5);
+	    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+	    glEnableVertexAttribArray(6);
+	    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
 
-    glVertexAttribDivisor(7, 1);
+	    glVertexAttribDivisor(3, 1);
+	    glVertexAttribDivisor(4, 1);
+	    glVertexAttribDivisor(5, 1);
+	    glVertexAttribDivisor(6, 1);
 
-    // texure buffer
-    glBindBuffer(GL_ARRAY_BUFFER, IVBO[2]);
-	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(int), &textureArray[0], GL_STATIC_DRAW);
+	    // texture position buffer
+	    glBindBuffer(GL_ARRAY_BUFFER, IVBO[1]);
+		glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(glm::vec4), &texCoordArray[0], GL_STATIC_DRAW);
 
-	glEnableVertexAttribArray(8);
-    glVertexAttribPointer(8, 1, GL_FLOAT, GL_FALSE, sizeof(int), (void*)0);
+		glEnableVertexAttribArray(7);
+	    glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)0);
 
-    glVertexAttribDivisor(8, 1);
+	    glVertexAttribDivisor(7, 1);
 
-    // layer buffer
-    glBindBuffer(GL_ARRAY_BUFFER, IVBO[3]);
-    glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(int), &layerArray[0], GL_STATIC_DRAW);
+	    // texure buffer
+	    glBindBuffer(GL_ARRAY_BUFFER, IVBO[2]);
+		glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(int), &textureArray[0], GL_STATIC_DRAW);
 
-	glEnableVertexAttribArray(9);
-    glVertexAttribPointer(9, 1, GL_FLOAT, GL_FALSE, sizeof(int), (void*)0);
+		glEnableVertexAttribArray(8);
+	    glVertexAttribPointer(8, 1, GL_FLOAT, GL_FALSE, sizeof(int), (void*)0);
 
-    glVertexAttribDivisor(9, 1);
+	    glVertexAttribDivisor(8, 1);
 
-    // unbind buffers
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+	    // layer buffer
+	    glBindBuffer(GL_ARRAY_BUFFER, IVBO[3]);
+	    glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(int), &layerArray[0], GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(9);
+	    glVertexAttribPointer(9, 1, GL_FLOAT, GL_FALSE, sizeof(int), (void*)0);
+
+	    glVertexAttribDivisor(9, 1);
+
+	    // unbind buffers
+	    glBindBuffer(GL_ARRAY_BUFFER, 0);
+	//}
 
     //shadowShader.use(); 
 
     // int x, y;
     // SDL_GetMouseState(&x, &y);
-
-    glBindVertexArray(VAO);
 
     for (std::map<unsigned int,std::vector<int>>::iterator it = TexturesToRender.begin(); it != TexturesToRender.end(); ++it)
     {
@@ -472,6 +521,7 @@ void RenderWindow::display() // used to display information from the renderer to
     	{
     		if (it->first == lightLayerArray[j])
     		{
+    			
     			glClear(GL_STENCIL_BUFFER_BIT);
 
 				glStencilOp( GL_KEEP, GL_KEEP, GL_REPLACE );
@@ -485,7 +535,10 @@ void RenderWindow::display() // used to display information from the renderer to
 
 				shadowShader.setInt("currentLayer", it->first);
 
-				glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
+				glBindVertexArray(VAO[1]);
+				glDrawArraysInstanced(GL_TRIANGLES, 0, 12, entityCount);
+
+				
 
 				glStencilOp( GL_KEEP, GL_KEEP, GL_KEEP );
 				glStencilFunc( GL_NOTEQUAL, 1, 0xFF );
@@ -498,6 +551,7 @@ void RenderWindow::display() // used to display information from the renderer to
 
 				lightShader.setVec4("lightColor", lightColorArray[j]);
 
+				glBindVertexArray(VAO[0]);
 				glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 				glStencilOp( GL_KEEP, GL_KEEP, GL_REPLACE );
@@ -517,6 +571,8 @@ void RenderWindow::display() // used to display information from the renderer to
 
 			defaultShader.setInt("currentLayer", it->first);     
 
+
+			glBindVertexArray(VAO[0]);
 			glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
 	    }
 	}
