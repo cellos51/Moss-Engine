@@ -7,7 +7,7 @@
 
 #include "math.hpp"
 
-void PhysicsEntity::getCol(Entity& p_ent) // ok the collision *was* fucky as hell so you dont only have to use squares with this
+void PhysicsEntity::getCol(Entity& p_ent) // ok the collision *was* fucky as hell so you dont only have to use squares with this (but it only work with rects or squares :P)
 {
 	if (p_ent.colUp == true || p_ent.colDown == true || p_ent.colLeft == true || p_ent.colRight == true)
 	{
@@ -26,17 +26,25 @@ void PhysicsEntity::getCol(Entity& p_ent) // ok the collision *was* fucky as hel
 				}
 				
 
-				if(velocity.x >= -0.001 / 16 * Time::deltaTime() && velocity.x <= 0.001 / 16 * Time::deltaTime())
-				{
-					velocity.x = 0;
-				}
-				else if (velocity.x > 0)
+				// if(velocity.x >= -0.001 / 16 * Time::deltaTime() && velocity.x <= 0.001 / 16 * Time::deltaTime())
+				// {
+				// 	velocity.x = 0;
+				// }
+				if (velocity.x > 0)
 				{
 					velocity.x -= (gravity.y * friction) / 16 * Time::deltaTime();
+					if (velocity.x < 0)
+					{
+						velocity.x = 0;
+					}
 				}
 				else if (velocity.x < 0)
 				{
 					velocity.x += (gravity.y * friction) / 16 * Time::deltaTime();
+					if (velocity.x > 0)
+					{
+						velocity.x = 0;
+					}
 				}
 			}
 			else if (boxNum.y > 0 && fabs(boxNum.y) > fabs(boxNum.x) && p_ent.colDown == true)
@@ -49,17 +57,25 @@ void PhysicsEntity::getCol(Entity& p_ent) // ok the collision *was* fucky as hel
 					velocity.y = (-velocity.y * bounciness);
 				}
 
-				if(velocity.x >= -0.001 / 16 * Time::deltaTime() && velocity.x <= 0.001 / 16 * Time::deltaTime())
-				{
-					velocity.x = 0;
-				}
-				else if (velocity.x > 0)
+				// if(velocity.x >= -0.001 / 16 * Time::deltaTime() && velocity.x <= 0.001 / 16 * Time::deltaTime())
+				// {
+				// 	velocity.x = 0;
+				// }
+				if (velocity.x > 0)
 				{
 					velocity.x -= (gravity.y * friction) / 16 * Time::deltaTime();
+					if (velocity.x < 0)
+					{
+						velocity.x = 0;
+					}
 				}
 				else if (velocity.x < 0)
 				{
 					velocity.x += (gravity.y * friction) / 16 * Time::deltaTime();
+					if (velocity.x > 0)
+					{
+						velocity.x = 0;
+					}
 				}
 			}
 			else if (boxNum.x > 0 && fabs(boxNum.x) > fabs(boxNum.y) && p_ent.colRight == true)
@@ -72,17 +88,25 @@ void PhysicsEntity::getCol(Entity& p_ent) // ok the collision *was* fucky as hel
 					velocity.x = (-velocity.x * bounciness);
 				}
 
-				if(velocity.y >= -0.001 / 16 * Time::deltaTime() && velocity.y <= 0.001 / 16 * Time::deltaTime())
-				{
-					velocity.y = 0;
-				}
-				else if (velocity.y > 0)
+				// if(velocity.y >= -0.001 / 16 * Time::deltaTime() && velocity.y <= 0.001 / 16 * Time::deltaTime())
+				// {
+				// 	velocity.y = 0;
+				// }
+				if (velocity.y > 0)
 				{
 					velocity.y -= (gravity.x * friction) / 16 * Time::deltaTime();
+					if (velocity.y < 0)
+					{
+						velocity.y = 0;
+					}
 				}
 				else if (velocity.y < 0)
 				{
 					velocity.y += (gravity.x * friction) / 16 * Time::deltaTime();
+					if (velocity.y > 0)
+					{
+						velocity.y = 0;
+					}
 				}
 			}
 			else if (boxNum.x < 0 && fabs(boxNum.x) > fabs(boxNum.y) && p_ent.colLeft == true)
@@ -95,17 +119,25 @@ void PhysicsEntity::getCol(Entity& p_ent) // ok the collision *was* fucky as hel
 					velocity.x = (velocity.x * -bounciness);
 				}
 				
-				if(velocity.y >= -0.001 / 16 * Time::deltaTime() && velocity.y <= 0.001 / 16 * Time::deltaTime())
-				{
-					velocity.y = 0;
-				}
-				else if (velocity.y > 0)
+				// if(velocity.y >= -0.001 / 16 * Time::deltaTime() && velocity.y <= 0.001 / 16 * Time::deltaTime())
+				// {
+				// 	velocity.y = 0;
+				// }
+				if (velocity.y > 0)
 				{
 					velocity.y -= (gravity.x * friction) / 16 * Time::deltaTime();
+					if (velocity.y < 0)
+					{
+						velocity.y = 0;
+					}
 				}
 				else if (velocity.y < 0)
 				{
 					velocity.y += (gravity.x * friction) / 16 * Time::deltaTime();
+					if (velocity.y > 0)
+					{
+						velocity.y = 0;
+					}
 				}
 			}
 		}
@@ -121,30 +153,46 @@ void PhysicsEntity::physics(bool p_phys)
 		velocity.y += gravity.y / 16 * Time::deltaTime();
 		transform = (Vector2(transform.x + (velocity.x / 16 * Time::deltaTime()), transform.y + (velocity.y / 16 * Time::deltaTime())));
 
-		if(velocity.x >= -0.001 / 16 * Time::deltaTime() && velocity.x <= 0.001 / 16 * Time::deltaTime()) // air drag
-		{
-			velocity.x = 0;
-		}
-		else if (velocity.x > 0)
+		// if(velocity.x >= -0.001 / 16 * Time::deltaTime() && velocity.x <= 0.001 / 16 * Time::deltaTime()) // air drag
+		// {
+		// 	velocity.x = 0;
+		// }
+		if (velocity.x > 0)
 		{
 			velocity.x -= (dragX * velocity.x) / 16 * Time::deltaTime();
+			if (velocity.x < 0)
+			{
+				velocity.x = 0;
+			}
 		}
 		else if (velocity.x < 0)
 		{
 			velocity.x -= (dragX * velocity.x) / 16 * Time::deltaTime();
+			if (velocity.x > 0)
+			{
+				velocity.x = 0;
+			}
 		}
 
-		if(velocity.y >= -0.001 / 16 * Time::deltaTime() && velocity.y <= 0.001 / 16 * Time::deltaTime())
-		{
-			velocity.y = 0;
-		}
-		else if (velocity.y > 0)
+		// if(velocity.y >= -0.001 / 16 * Time::deltaTime() && velocity.y <= 0.001 / 16 * Time::deltaTime())
+		// {
+		// 	velocity.y = 0;
+		// }
+		if (velocity.y > 0)
 		{
 			velocity.y -= (dragY * velocity.y) / 16 * Time::deltaTime();
+			if (velocity.y < 0)
+			{
+				velocity.y = 0;
+			}
 		}
 		else if (velocity.y < 0)
 		{
 			velocity.y -= (dragY * velocity.y) / 16 * Time::deltaTime();
+			if (velocity.y > 0)
+			{
+				velocity.y = 0;
+			}
 		}
 		
 		// only enable this if you want collisions to happen on the edges of the screen (made for 60fps only)
