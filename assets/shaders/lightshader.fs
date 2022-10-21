@@ -23,7 +23,7 @@ void main(){
 
   color += vec3(1 - innerCircle);
 
-  gl_FragColor = vec4(color * lightColor.xyz, 0.5f);
+  FragColor = vec4(color * lightColor.xyz, 0.5f);
 }
 
 // void main()

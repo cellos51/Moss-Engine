@@ -12,13 +12,13 @@ layout (location = 9) in int iLayerID;
 out vec4 ourColor;
 out vec2 TexCoord;
 flat out uint texId;
-flat out uint layerId;
+flat out float layerId;
 
 void main()
 {
     texId = iTexID;
     layerId = iLayerID;
-    gl_Position = iPosOffset * vec4(aPos, 1.0f);
+    gl_Position = iPosOffset * vec4(aPos.xy, 1 - iLayerID, 1.0f);
     ourColor = vec4(aColor, 1.0f);
     TexCoord = vec2((aTexCoord.x / iTexOffset.z) + iTexOffset.x, (aTexCoord.y / iTexOffset.w) + iTexOffset.y);
 }

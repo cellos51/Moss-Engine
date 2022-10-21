@@ -127,6 +127,10 @@ public:
     { 
         glUniform1i(glGetUniformLocation(ID, name.c_str()), value); 
     }
+    void setIntArray(const std::string &name, int amount, int *value) const
+    { 
+        glUniform1iv(glGetUniformLocation(ID, name.c_str()), amount, &value[0]); 
+    }
     // ------------------------------------------------------------------------
     void setFloat(const std::string &name, float value) const
     { 
