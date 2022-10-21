@@ -73,6 +73,7 @@ bool init() // used to initiate things before using
 
 	plr.setTex(window.loadTexture("assets/textures/light_animsheet.png"));
 	plr.transform = Level::LoadLevel(Level::LoadFile("assets/levels/level.lvl"), walls, window);
+	plr.layer = 2;
 
 	window.loadTexture("assets/textures/light_animsheet.png");
 

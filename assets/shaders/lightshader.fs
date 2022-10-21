@@ -2,6 +2,8 @@
 
 uniform vec4 lightColor;
 
+uniform int layerId;
+
 out vec4 FragColor;
 
 varying vec2 v_texcoord;
@@ -11,6 +13,8 @@ float circleshape(vec2 position, float radius){
 }
 
 void main(){
+  gl_FragDepth = (1.0f - (layerId / 100.0f));
+
   vec2 position = v_texcoord;
 
   vec3 color = vec3(0);
@@ -22,6 +26,11 @@ void main(){
   color += vec3(1 - outerCircle) / 2;
 
   color += vec3(1 - innerCircle);
+
+  if (color.xyz == vec3(0,0,0))
+  {
+    discard;
+  }
 
   FragColor = vec4(color * lightColor.xyz, 0.5f);
 }

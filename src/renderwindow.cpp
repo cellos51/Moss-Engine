@@ -98,15 +98,15 @@ void RenderWindow::create(const char* p_title, int p_w, int p_h)
 	std::cout << "Max Array Texture Layers:" << glConsts << std::endl;
 
 	glEnable(GL_STENCIL_TEST);
-    //glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-    //glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    glStencilFunc( GL_ALWAYS, 1, 0xFF );
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
     
     glEnable(GL_DEPTH_TEST);
    	glDepthFunc(GL_LESS);
-   	glDepthMask(true);
+   	glDepthMask(GL_TRUE);
 
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -540,14 +540,15 @@ void RenderWindow::display() // used to display information from the renderer to
 	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
 
 
-
-
 	for (int i = 0; i < lightCount; i++)
 	{
-		//glClear(GL_STENCIL_BUFFER_BIT);
+		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		glDepthMask(GL_FALSE);
 
-		//glStencilOp( GL_KEEP, GL_KEEP, GL_REPLACE );
-		//glStencilFunc( GL_ALWAYS, 1, 0xFF );
+		glClear(GL_STENCIL_BUFFER_BIT);
+
+		glStencilOp( GL_KEEP, GL_KEEP, GL_REPLACE );
+		glStencilFunc( GL_ALWAYS, 1, 0xFF );
 
 		shadowShader.use();
 
@@ -557,12 +558,17 @@ void RenderWindow::display() // used to display information from the renderer to
 
 		glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
 
-		//glStencilOp( GL_KEEP, GL_KEEP, GL_KEEP );
-		//glStencilFunc( GL_NOTEQUAL, 1, 0xFF );
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		glDepthMask(GL_TRUE);
 
-		//glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		glStencilOp( GL_KEEP, GL_KEEP, GL_KEEP );
+		glStencilFunc( GL_NOTEQUAL, 1, 0xFF );
+
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 		lightShader.use();
+
+		lightShader.setInt("layerId", lightLayerArray[i]);
 
 		lightShader.setMat4("lightPos", lightPositionArray[i]);
 
@@ -571,10 +577,10 @@ void RenderWindow::display() // used to display information from the renderer to
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 
-		//glStencilOp( GL_KEEP, GL_KEEP, GL_REPLACE );
-		//glStencilFunc( GL_ALWAYS, 1, 0xFF );
+		glStencilOp( GL_KEEP, GL_KEEP, GL_REPLACE );
+		glStencilFunc( GL_ALWAYS, 1, 0xFF );
 
-		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
 	SDL_GL_SwapWindow(window);

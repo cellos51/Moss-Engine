@@ -16,7 +16,7 @@ void main()
 {
     vec4 texColor;
 
-    gl_FragDepth = 1 - (layerId / 100);
+    gl_FragDepth = 1.0f - (layerId / 100.0f);
 
     switch(texId)
     {
