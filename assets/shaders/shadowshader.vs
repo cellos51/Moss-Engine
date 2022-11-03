@@ -8,6 +8,7 @@ layout (location = 3) in mat4 iPosOffset;
 layout (location = 7) in vec4 iTexOffset;
 layout (location = 8) in int iTexID;
 layout (location = 9) in int iLayerID;
+layout (location = 10) in int iShadow;
 
 uniform mat4 lightMatrix;
 uniform int currentLayer;
@@ -19,7 +20,7 @@ vec2 posL = vec2(0,0);
 
 void main()
 {
-    if(iLayerID == currentLayer)
+    if(iLayerID == currentLayer && iShadow == 1)
     {
         lightPos = (lightMatrix * vec4(1.0f, 1.0f, 1.0f, 1.0f)).xy;
 

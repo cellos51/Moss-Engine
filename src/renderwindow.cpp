@@ -40,6 +40,8 @@ int textureArray[maxEntities];
 
 unsigned int layerArray[maxEntities];
 
+bool shadowArray[maxEntities];
+
 int lightCount = 0; // begin stuff for lights
 
 glm::vec4 lightColorArray[maxLights];
@@ -115,6 +117,7 @@ void RenderWindow::create(const char* p_title, int p_w, int p_h)
     glGenBuffers(1, &IVBO[1]); // texture position
     glGenBuffers(1, &IVBO[2]); // texture 
     glGenBuffers(1, &IVBO[3]); // layer
+    glGenBuffers(1, &IVBO[4]); // shadow
     
     glBindVertexArray(VAO);
 
@@ -136,6 +139,9 @@ void RenderWindow::create(const char* p_title, int p_w, int p_h)
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);  
 
+	// shadow attribute
+	glVertexAttribIPointer(3, 1, GL_UNSIGNED_BYTE, GL_FALSE, (void*)(8 * sizeof(bool)));
+	glEnableVertexAttribArray(3);  
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0); 
     glBindVertexArray(0);
@@ -203,6 +209,7 @@ void RenderWindow::render(Entity& p_ent, bool cam) // i think this copys the tex
 		texCoordArray[entityCount] = glm::vec4(p_ent.texturePos.x / TextureSize[p_ent.tex].x,p_ent.texturePos.y / TextureSize[p_ent.tex].y, TextureSize[p_ent.tex].x / p_ent.texturePos.w, TextureSize[p_ent.tex].y / p_ent.texturePos.h);
 		textureArray[entityCount] = p_ent.tex;
 		layerArray[entityCount] = p_ent.layer;
+		shadowArray[entityCount] = p_ent.shadow;
 
 		if (TexturesToRender.find(p_ent.layer) == TexturesToRender.end())
 		{
@@ -230,6 +237,7 @@ void RenderWindow::render(Entity& p_ent, bool cam) // i think this copys the tex
 		texCoordArray[entityCount] = glm::vec4(p_ent.texturePos.x / TextureSize[p_ent.tex].x,p_ent.texturePos.y / TextureSize[p_ent.tex].y, TextureSize[p_ent.tex].x / p_ent.texturePos.w, TextureSize[p_ent.tex].y / p_ent.texturePos.h);
 		textureArray[entityCount] = p_ent.tex;
 		layerArray[entityCount] = p_ent.layer;
+		shadowArray[entityCount] = p_ent.shadow;
 
 		if (TexturesToRender.find(p_ent.layer) == TexturesToRender.end())
 		{
@@ -344,6 +352,7 @@ void RenderWindow::render(ui& p_ui) // i think this copys the texture to the ren
 	texCoordArray[entityCount] = glm::vec4(1,1,1,1);
 	textureArray[entityCount] = p_ui.layer;
 	layerArray[entityCount] = p_ui.tex;
+	shadowArray[entityCount] = false;
 
 	if (TexturesToRender.find(p_ui.layer) == TexturesToRender.end())
 	{
@@ -455,6 +464,7 @@ void RenderWindow::display() // used to display information from the renderer to
 
 	glEnableVertexAttribArray(8);
     glVertexAttribPointer(8, 1, GL_FLOAT, GL_FALSE, sizeof(int), (void*)0);
+    //glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 
     glVertexAttribDivisor(8, 1);
 
@@ -466,6 +476,17 @@ void RenderWindow::display() // used to display information from the renderer to
     glVertexAttribPointer(9, 1, GL_FLOAT, GL_FALSE, sizeof(int), (void*)0);
 
     glVertexAttribDivisor(9, 1);
+
+    // shadow buffer
+    glBindBuffer(GL_ARRAY_BUFFER, IVBO[4]);
+	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(int), &shadowArray[0], GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(10);
+    glVertexAttribIPointer(10, 1, GL_UNSIGNED_BYTE, GL_FALSE, (void*)0);
+    //glVertexAttribIPointer(3, 1, GL_UNSIGNED_BYTE, GL_FALSE, (void*)(8 * sizeof(bool)));
+
+    glVertexAttribDivisor(10, 1);
+
 
     // unbind buffers
     glBindBuffer(GL_ARRAY_BUFFER, 0);

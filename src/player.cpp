@@ -32,6 +32,7 @@ void Player::init() // this was the biggest pain in the fucking ass ever
 	offset.w = 40;
 	offset.h = 40;
 	layer = 2;
+	shadow = false;
 }
 
 float animationFrame = 0;
