@@ -16,8 +16,10 @@
 #include "text.hpp"
 #include "light.hpp"
 
-float zoomX = 1, zoomY = 1;
+float zoom = 1;
 Entity OnscreenCamera(Vector2(0,0));
+
+Shader framebufferShader("assets/shaders/framebuffer.vs", "assets/shaders/framebuffer.fs");
 
 Shader defaultShader("assets/shaders/shader.vs", "assets/shaders/shader.fs");
 
@@ -74,6 +76,7 @@ void RenderWindow::create(const char* p_title, int p_w, int p_h)
     1, 2, 3    // second triangle
 	};  
 
+	framebufferShader.compile();
 	defaultShader.compile();
 	shadowShader.compile();
 	lightShader.compile();
@@ -110,6 +113,9 @@ void RenderWindow::create(const char* p_title, int p_w, int p_h)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	glGenFramebuffers(1, &FBO);
+	glGenRenderbuffers(1, &rbo);
+	glGenTextures(1, &fboTex);
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
@@ -118,7 +124,23 @@ void RenderWindow::create(const char* p_title, int p_w, int p_h)
     glGenBuffers(1, &IVBO[2]); // texture 
     glGenBuffers(1, &IVBO[3]); // layer
     glGenBuffers(1, &IVBO[4]); // shadow
-    
+
+    glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);  
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 1280, 720);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);  
+
+	glBindTexture(GL_TEXTURE_2D, fboTex);	  
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1280, 720, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  	
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fboTex, 0); 
+
+	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);  
+	    
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -188,12 +210,14 @@ void RenderWindow::clear() // clears the renderer
 	entityCount = 0;
 	lightCount = 0;
 
+	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 	glClearColor(0.439, 0.502, 0.565, 1.0);
 	//glClearColor(0, 0, 0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	OnscreenCamera.transform = Vector2(cameraPos.x - OnscreenCamera.size.x / 2, cameraPos.y - OnscreenCamera.size.y / 2);
-	OnscreenCamera.size = Vector2(getSize().x / zoomX, getSize().y / zoomY);
+	OnscreenCamera.size = Vector2(getSize().x / zoom, getSize().y / zoom);
 }
 
 void RenderWindow::render(Entity& p_ent, bool cam) // i think this copys the texture to the renderer
@@ -202,7 +226,7 @@ void RenderWindow::render(Entity& p_ent, bool cam) // i think this copys the tex
 	{
 		glm::mat4 transform = glm::mat4(1.0f);
 
-		transform = glm::scale(transform, glm::vec3((p_ent.offset.w * zoomX) / getSize().x, (p_ent.offset.h * zoomY) / getSize().y, 0));  
+		transform = glm::scale(transform, glm::vec3((p_ent.offset.w) / getSize().x, (p_ent.offset.h) / getSize().y, 0));  
 		transform = glm::translate(transform, glm::vec3(((((p_ent.offset.x + round(p_ent.transform.x)) + p_ent.offset.w / 2) - getSize().x / 2) - cameraOffset.x) / (p_ent.offset.w / 2), -((((p_ent.offset.y + round(p_ent.transform.y)) + p_ent.offset.h / 2) - getSize().y / 2) - cameraOffset.y) / (p_ent.offset.h / 2), 0)); 
 
 		positionArray[entityCount] = transform;
@@ -402,7 +426,7 @@ void RenderWindow::render(Light& p_light) // i think this copys the texture to t
 	{
 		glm::mat4 transform = glm::mat4(1.0f);
 
-		transform = glm::scale(transform, glm::vec3((p_light.radius * zoomX) / getSize().x, (p_light.radius * zoomY) / getSize().y, 0));  
+		transform = glm::scale(transform, glm::vec3((p_light.radius) / getSize().x, (p_light.radius) / getSize().y, 0));  
 		transform = glm::translate(transform, glm::vec3(((round(p_light.transform.x) - getSize().x / 2) - cameraOffset.x) / (p_light.radius / 2), -((round(p_light.transform.y) - getSize().y / 2) - cameraOffset.y) / (p_light.radius / 2), 0)); 
 
 		lightColorArray[lightCount] = glm::vec4(p_light.r, p_light.g, p_light.b, p_light.intensity);
@@ -411,7 +435,7 @@ void RenderWindow::render(Light& p_light) // i think this copys the texture to t
 
 		transform = glm::mat4(1.0f);
 
-		transform = glm::scale(transform, glm::vec3((p_light.radius * zoomX) / getSize().x, (p_light.radius * zoomY) / getSize().y, 0));  
+		transform = glm::scale(transform, glm::vec3((p_light.radius) / getSize().x, (p_light.radius) / getSize().y, 0));  
 		transform = glm::translate(transform, glm::vec3(((round(p_light.transform.x - p_light.radius / 2) - getSize().x / 2) - cameraOffset.x) / (p_light.radius / 2), -((round(p_light.transform.y  + p_light.radius / 2) - getSize().y / 2) - cameraOffset.y) / (p_light.radius / 2), 0)); 
 
 
@@ -423,11 +447,21 @@ void RenderWindow::render(Light& p_light) // i think this copys the texture to t
 
 void RenderWindow::display() // used to display information from the renderer to the window
 {
+	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+	glEnable(GL_DEPTH_TEST);
+
 	glBindVertexArray(VAO);
 
 	glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
 
 	glViewport(0, 0, getSize().x, getSize().y);
+
+	glBindTexture(GL_TEXTURE_2D, fboTex);	  
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, getSize().x, getSize().y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glBindRenderbuffer(GL_RENDERBUFFER, rbo);  
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, getSize().x, getSize().y);
 
 	//glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
  	
@@ -492,62 +526,6 @@ void RenderWindow::display() // used to display information from the renderer to
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 
-
- //    for (std::map<unsigned int,std::vector<int>>::iterator it = TexturesToRender.begin(); it != TexturesToRender.end(); ++it)
- //    {
-	// 	for (int j = 0; j < lightCount; j++)
- //    	{
- //    		if (it->first == lightLayerArray[j])
- //    		{
-	// 			glClear(GL_STENCIL_BUFFER_BIT);
-
-	// 			glStencilOp( GL_KEEP, GL_KEEP, GL_REPLACE );
-	// 			glStencilFunc( GL_ALWAYS, 1, 0xFF );
-
-	// 			shadowShader.use();
-
-	// 			shadowShader.setMat4("lightMatrix", shadowPositionArray[j]); 
-
-	// 			shadowShader.setInt("currentLayer", it->first);
-
-	// 			glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
-
-	// 			glStencilOp( GL_KEEP, GL_KEEP, GL_KEEP );
-	// 			glStencilFunc( GL_NOTEQUAL, 1, 0xFF );
-
-	// 			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-
-	// 			lightShader.use();
-
-	// 			lightShader.setMat4("lightPos", lightPositionArray[j]);
-
-	// 			lightShader.setVec4("lightColor", lightColorArray[j]);
-
-	// 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-	// 			glStencilOp( GL_KEEP, GL_KEEP, GL_REPLACE );
-	// 			glStencilFunc( GL_ALWAYS, 1, 0xFF );
-
-	// 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	// 		}
-	// 	}
-
-	//     for (int i : it->second)
-	//     {
-	// 		defaultShader.use(); 
-
-	// 		defaultShader.setInt("ourTexture", i);
-
-	// 		defaultShader.setInt("currentTexture", i);
-
-	// 		defaultShader.setInt("currentLayer", it->first);     
-
-	// 		glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
-	//     }
-	// }
-
-	// TexturesToRender.clear();
-
 	defaultShader.use(); 
 
 	int bruh[16] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
@@ -604,8 +582,18 @@ void RenderWindow::display() // used to display information from the renderer to
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
-	SDL_GL_SwapWindow(window);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
 
+	glDisable(GL_DEPTH_TEST);
+
+	framebufferShader.use();
+	framebufferShader.setFloat("zoom", zoom);
+
+	glBindTexture(GL_TEXTURE_2D, fboTex);
+
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+	SDL_GL_SwapWindow(window);
 }
 
 void RenderWindow::quit() // used before exiting the program
@@ -624,13 +612,12 @@ void RenderWindow::camera(Vector2 pos) // used before exiting the program
 	cameraPos.x = std::clamp(cameraPos.x, pos.x - clampAmount, pos.x + clampAmount);
 	cameraPos.y = std::clamp(cameraPos.y, pos.y - clampAmount, pos.y + clampAmount);
 
-	cameraOffset = Vector2(round(cameraPos.x) - ((getSize().x) / 2)  ,round(cameraPos.y) - ((getSize().y) / 2) );
+	cameraOffset = Vector2(round(cameraPos.x) - ((getSize().x) / 2)  ,round(cameraPos.y) - ((getSize().y) / 2 ));
 }
 
 void RenderWindow::setZoom(float x)
 {
-	zoomX = x;
-	zoomY = x;
+	zoom = x;
 	//SDL_RenderSetScale(renderer, x, x);
 }
 
