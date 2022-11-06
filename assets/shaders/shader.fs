@@ -9,9 +9,6 @@ flat in float layerId;
 
 uniform sampler2D ourTexture[16];
 
-uniform int currentTexture;
-uniform int currentLayer;
-
 void main()
 {
     vec4 texColor;

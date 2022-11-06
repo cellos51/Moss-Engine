@@ -76,6 +76,6 @@ void main()
     discard;
   }
   
-  //FragColor = vec4(-canvas + 1, -canvas + 1) * lightColor;
-  FragColor = vec4(vec3(dither( vec4(-canvas + 1, -canvas + 1).x )), 0.5f);
+  FragColor = vec4(-canvas + 1, -canvas + 1) * lightColor;
+  //FragColor = vec4(vec3(dither( vec4(-canvas + 1, -canvas + 1).x )), 0.5f);
 }

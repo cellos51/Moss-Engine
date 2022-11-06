@@ -26,6 +26,8 @@ Shader defaultShader("assets/shaders/shader.vs", "assets/shaders/shader.fs");
 Shader shadowShader("assets/shaders/shadowshader.vs", "assets/shaders/shadowshader.fs");
 Shader lightShader("assets/shaders/lightshader.vs", "assets/shaders/lightshader.fs");
 
+unsigned int newestTexture = 0;
+
 std::map<unsigned int,Vector2> TextureSize;
 
 const int maxEntities = 10000;
@@ -113,9 +115,10 @@ void RenderWindow::create(const char* p_title, int p_w, int p_h)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	
 	glGenFramebuffers(1, &FBO);
-	glGenRenderbuffers(1, &rbo);
-	glGenTextures(1, &fboTex);
+	glGenTextures(1, &FBOTex);
+	glGenRenderbuffers(1, &RBO);
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
@@ -127,19 +130,20 @@ void RenderWindow::create(const char* p_title, int p_w, int p_h)
 
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 
-    glBindRenderbuffer(GL_RENDERBUFFER, rbo);  
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 1280, 720);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);  
-
-	glBindTexture(GL_TEXTURE_2D, fboTex);	  
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1280, 720, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glBindTexture(GL_TEXTURE_2D, FBOTex);	  
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, p_w, p_h, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  	
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fboTex, 0); 
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, FBOTex, 0); 
+
+    glBindRenderbuffer(GL_RENDERBUFFER, RBO);  
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, p_w, p_h);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);  
 
 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);  
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	    
     glBindVertexArray(VAO);
 
@@ -169,6 +173,8 @@ void RenderWindow::create(const char* p_title, int p_w, int p_h)
     glBindVertexArray(0);
 }
 
+unsigned int test = 0;
+
 unsigned int RenderWindow::loadTexture(const char* p_filePath) // used load textures :P
 {
 	int width, height, nrChannels;
@@ -183,7 +189,6 @@ unsigned int RenderWindow::loadTexture(const char* p_filePath) // used load text
 	glGenTextures(1, &texture);  
 	glActiveTexture(GL_TEXTURE0 + texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
-
 
 	if (data)
 	{
@@ -201,7 +206,9 @@ unsigned int RenderWindow::loadTexture(const char* p_filePath) // used load text
 
 	TextureSize.insert(std::pair<unsigned int,Vector2>(texture, Vector2(width, height)));
 
-	//std::cout << texture << std::endl;
+	std::cout << texture << std::endl;
+
+	newestTexture = texture;
 	return texture;
 }
 
@@ -214,7 +221,10 @@ void RenderWindow::clear() // clears the renderer
 	glClearColor(0.439, 0.502, 0.565, 1.0);
 	//glClearColor(0, 0, 0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClearColor(0, 0, 0, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	OnscreenCamera.transform = Vector2(cameraPos.x - OnscreenCamera.size.x / 2, cameraPos.y - OnscreenCamera.size.y / 2);
 	OnscreenCamera.size = Vector2(getSize().x / zoom, getSize().y / zoom);
@@ -456,11 +466,11 @@ void RenderWindow::display() // used to display information from the renderer to
 
 	glViewport(0, 0, getSize().x, getSize().y);
 
-	glBindTexture(GL_TEXTURE_2D, fboTex);	  
+	glBindTexture(GL_TEXTURE_2D, FBOTex);	  
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, getSize().x, getSize().y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	glBindRenderbuffer(GL_RENDERBUFFER, rbo);  
+	glBindRenderbuffer(GL_RENDERBUFFER, RBO);  
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, getSize().x, getSize().y);
 
 	//glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
@@ -525,20 +535,18 @@ void RenderWindow::display() // used to display information from the renderer to
     // unbind buffers
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	glBindTexture(GL_TEXTURE_2D, newestTexture);
 
 	defaultShader.use(); 
 
 	int bruh[16] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
 
-	defaultShader.setIntArray("ourTexture", 16, bruh);
-
-	defaultShader.setInt("currentTexture", 2);
-
-	defaultShader.setInt("currentLayer", 1);     
+	defaultShader.setIntArray("ourTexture", 16, bruh);  
 
 	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
 
 
+	// this is supposed to be drawn to a separate framebuffer but it wont fucking work
 	for (int i = 0; i < lightCount; i++)
 	{
 		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
@@ -558,7 +566,6 @@ void RenderWindow::display() // used to display information from the renderer to
 		glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
 
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-		glDepthMask(GL_TRUE);
 
 		glStencilOp( GL_KEEP, GL_KEEP, GL_KEEP );
 		glStencilFunc( GL_NOTEQUAL, 1, 0xFF );
@@ -575,6 +582,7 @@ void RenderWindow::display() // used to display information from the renderer to
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
+		glDepthMask(GL_TRUE);
 
 		glStencilOp( GL_KEEP, GL_KEEP, GL_REPLACE );
 		glStencilFunc( GL_ALWAYS, 1, 0xFF );
@@ -588,8 +596,8 @@ void RenderWindow::display() // used to display information from the renderer to
 
 	framebufferShader.use();
 	framebufferShader.setFloat("zoom", zoom);
-
-	glBindTexture(GL_TEXTURE_2D, fboTex);
+	//framebufferShader.setInt("screenTexture", 0);
+	glBindTexture(GL_TEXTURE_2D, FBOTex);
 
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 

@@ -72,10 +72,13 @@ bool init() // used to initiate things before using
 	ipInput.uiText.font = swansea;
 
 	plr.setTex(window.loadTexture("assets/textures/light_animsheet.png"));
+
+
+
 	plr.transform = Level::LoadLevel(Level::LoadFile("assets/levels/level.lvl"), walls, window);
 	plr.layer = 2;
 
-	window.loadTexture("assets/textures/light_animsheet.png");
+	//window.loadTexture(""); // major bullshit but this is like the tf2 coconut kinda
 
 	realLight.layer = 2;
 	realLight.intensity = 1;

@@ -31,8 +31,8 @@ private:
 	SDL_Window* window;
 	SDL_GLContext context;
 	SDL_Renderer* renderer;
-	unsigned int shaderProgram;
-	unsigned int rbo;
-	unsigned int fboTex;
+	//unsigned int shaderProgram;
+	unsigned int RBO;
+	unsigned int FBOTex;
 	unsigned int FBO, VAO, VBO, EBO, IVBO[5];
 };
