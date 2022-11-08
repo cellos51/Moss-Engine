@@ -21,6 +21,7 @@ void main()
         case 1: texColor = texture(ourTexture[1], TexCoord); break;
         case 2: texColor = texture(ourTexture[2], TexCoord); break;
         case 3: texColor = texture(ourTexture[3], TexCoord); break;
+        case 4: texColor = texture(ourTexture[4], TexCoord); break;
         case 5: texColor = texture(ourTexture[5], TexCoord); break;
         case 6: texColor = texture(ourTexture[6], TexCoord); break;
         case 7: texColor = texture(ourTexture[7], TexCoord); break;
