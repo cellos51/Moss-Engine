@@ -115,9 +115,10 @@ void RenderWindow::create(const char* p_title, int p_w, int p_h)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	
 	glGenFramebuffers(1, &FBO);
+	glGenFramebuffers(1, &FBOLight);
 	glGenTextures(1, &FBOTex);
+	glGenTextures(1, &FBOLightTex);
 	glGenRenderbuffers(1, &RBO);
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -130,14 +131,33 @@ void RenderWindow::create(const char* p_title, int p_w, int p_h)
 
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 
-    glBindTexture(GL_TEXTURE_2D, FBOTex);	  
+    glActiveTexture(GL_TEXTURE0 + FBOTex);
+    glBindTexture(GL_TEXTURE_2D, FBOTex);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, p_w, p_h, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  	
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, FBOTex, 0); 
+	//glBindTexture(GL_TEXTURE_2D, 0);
 
     glBindRenderbuffer(GL_RENDERBUFFER, RBO);  
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, p_w, p_h);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);  
+
+	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+
+	glBindFramebuffer(GL_FRAMEBUFFER, FBOLight);
+
+    glActiveTexture(GL_TEXTURE0 + FBOLightTex);
+    glBindTexture(GL_TEXTURE_2D, FBOLightTex);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, p_w, p_h, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  	
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, FBOLightTex, 0); 
+	//glBindTexture(GL_TEXTURE_2D, 0);
+
+    glBindRenderbuffer(GL_RENDERBUFFER, RBO);  
+    //glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, p_w, p_h);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);  
 
 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -221,6 +241,11 @@ void RenderWindow::clear() // clears the renderer
 	glClearColor(0.439, 0.502, 0.565, 1.0);
 	//glClearColor(0, 0, 0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, FBOLight);
+	glClearColor(0.1, 0.1, 0.1, 1.0);
+	//glClearColor(0, 0, 0, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT);
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClearColor(0, 0, 0, 1.0);
@@ -470,6 +495,10 @@ void RenderWindow::display() // used to display information from the renderer to
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, getSize().x, getSize().y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
+	glBindTexture(GL_TEXTURE_2D, FBOLightTex);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, getSize().x, getSize().y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
 	glBindRenderbuffer(GL_RENDERBUFFER, RBO);  
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, getSize().x, getSize().y);
 
@@ -546,7 +575,7 @@ void RenderWindow::display() // used to display information from the renderer to
 	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
 
 
-	// this is supposed to be drawn to a separate framebuffer but it wont fucking work
+	glBindFramebuffer(GL_FRAMEBUFFER, FBOLight);
 	for (int i = 0; i < lightCount; i++)
 	{
 		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
@@ -594,10 +623,12 @@ void RenderWindow::display() // used to display information from the renderer to
 
 	glDisable(GL_DEPTH_TEST);
 
+	//glBindTexture(GL_TEXTURE_2D, FBOTex);
+
 	framebufferShader.use();
 	framebufferShader.setFloat("zoom", zoom);
-	//framebufferShader.setInt("screenTexture", 0);
-	glBindTexture(GL_TEXTURE_2D, FBOTex);
+	framebufferShader.setInt("screenTexture", FBOTex);
+	framebufferShader.setInt("lightTexture", FBOLightTex);
 
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
