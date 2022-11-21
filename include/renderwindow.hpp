@@ -14,7 +14,6 @@ class RenderWindow
 public:
 	void create(const char* p_title, int p_w, int p_h);
 	unsigned int loadTexture(const char* p_filePath);
-	TTF_Font* loadFont(const char* p_filePath);
 	void clear();
 	void render(Entity& p_ent, bool cam);
 	void render(Text& p_text, bool cam);

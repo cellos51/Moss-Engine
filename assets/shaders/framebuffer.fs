@@ -46,7 +46,7 @@ float normpdf(in float x, in float sigma)
     return 0.39894*exp(-0.5*x*x/(sigma*sigma))/sigma;
 }
 
-vec2 iResolution = vec2(0.999, 0.999);
+vec2 iResolution = vec2(0.9995, 0.9995);
 
 void main()
 {
