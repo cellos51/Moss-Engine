@@ -35,6 +35,10 @@ int netMode = 0;
 Light realLight(Vector2(144,144));
 std::vector<Light> lights;
 
+//fps counter
+float timer = 0;
+Text FPS;
+
 bool init() // used to initiate things before using
 {
 	SDL_Init(SDL_INIT_EVERYTHING);
@@ -63,11 +67,23 @@ bool init() // used to initiate things before using
 	realLight.layer = 2;
 	realLight.intensity = 1;
 
+	FPS.font = window.loadTexture("assets/fonts/font.png");
+	FPS.setText("FPS");
+
 	return true;
 }
 
 void gameLoop() // it runs forever
 {
+	timer += Time::deltaTime();
+
+	if (timer > 100)
+	{
+		FPS.setText("FPS: " + std::to_string(int(1000 / Time::deltaTime())));
+		timer = 0;
+	}
+	
+
 	if (Event::KeyPressed(SDLK_1))
 	{
 		//window.zoom = 0;
@@ -157,7 +173,7 @@ void render() // honestly i feel like putting the stuff that is at the end of th
 
 	window.render(plr, true);
 
-	window.render(funnyButton);
+	window.render(FPS, false);
 }
 
 int main(int argc, char* args[])

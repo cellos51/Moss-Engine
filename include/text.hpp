@@ -17,7 +17,7 @@ public:
 	std::string getText();
 	unsigned int font = 3;
 	int fontSize = 15;
-	Vector2 transform;
+	Vector2 transform = Vector2(50,50);
 	SDL_Color color = {255, 255, 255};
 	//Vector2 size;
 	std::vector<Entity> characters;
