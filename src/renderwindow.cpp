@@ -243,7 +243,7 @@ void RenderWindow::clear() // clears the renderer
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glBindFramebuffer(GL_FRAMEBUFFER, FBOLight);
-	glClearColor(0.1, 0.1, 0.1, 1.0);
+	glClearColor(ambientLight.r, ambientLight.g, ambientLight.b, ambientLight.a);
 	//glClearColor(0, 0, 0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
     
@@ -374,30 +374,13 @@ void RenderWindow::render(Entity& p_ent, bool cam) // i think this copys the tex
 
 void RenderWindow::render(Text& p_text, bool cam) // i think this copys the texture to the renderer
 {
-	// if (p_text.getText().size() > 0 && p_text.font != NULL)
-	// {
-	// 	SDL_Rect dst;
-		
-	// 	if (cam == true)
-	// 	{
-	// 		dst.x = (p_text.transform.x) - cameraOffset.x;
-	// 		dst.y = (p_text.transform.y) - cameraOffset.y;
-	// 		dst.w = (p_text.size.x);
-	// 		dst.h = (p_text.size.y);
-	// 	}
-	// 	else
-	// 	{
-	// 		dst.x = p_text.transform.x;
-	// 		dst.y = p_text.transform.y;
-	// 		dst.w = p_text.size.x;
-	// 		dst.h = p_text.size.y;
-	// 	}
-	// 	SDL_Surface* messageSurface = TTF_RenderText_Blended(p_text.font, p_text.getText().c_str(), p_text.color);
-	// 	SDL_Texture* Message = SDL_CreateTextureFromSurface(renderer, messageSurface);
-	// 	SDL_RenderCopy(renderer, Message, NULL, &dst);
-	// 	SDL_FreeSurface(messageSurface);
-	// 	SDL_DestroyTexture(Message);
-	// }	
+	if (p_text.getText().size() > 0)
+	{
+		for (Entity character : p_text.characters)
+		{
+			render(character, cam);
+		}
+	}	
 }
 
 void RenderWindow::render(ui& p_ui) // i think this copys the texture to the renderer
@@ -409,8 +392,8 @@ void RenderWindow::render(ui& p_ui) // i think this copys the texture to the ren
 
 	positionArray[entityCount] = transform;
 	texCoordArray[entityCount] = glm::vec4(1,1,1,1);
-	textureArray[entityCount] = p_ui.layer;
-	layerArray[entityCount] = p_ui.tex;
+	textureArray[entityCount] = p_ui.tex;
+	layerArray[entityCount] = p_ui.layer;
 	shadowArray[entityCount] = false;
 
 	if (TexturesToRender.find(p_ui.layer) == TexturesToRender.end())
@@ -437,22 +420,7 @@ void RenderWindow::render(ui& p_ui) // i think this copys the texture to the ren
 	//SDL_SetRenderDrawColor( renderer, p_ui.red, p_ui.green, p_ui.blue, 0);
     //SDL_RenderFillRect( renderer, &dst );
     
-   	// render(p_ui.uiText, false);
- 	// if (p_ui.uiText.getText().size() > 0 && p_ui.uiText.font != NULL)
-	// {
-	// 	SDL_Rect dst;
-		
-	// 	dst.x = p_ui.uiText.transform.x + ((p_ui.transform.x) + ((p_ui.size.x / 2) - p_ui.uiText.size.x / 2));
-	// 	dst.y = p_ui.uiText.transform.y + ((p_ui.transform.y) + ((p_ui.size.y / 2) - p_ui.uiText.size.y / 2));
-	// 	dst.w = p_ui.uiText.size.x;
-	// 	dst.h = p_ui.uiText.size.y;
-		
-	// 	SDL_Surface* messageSurface = TTF_RenderText_Blended(p_ui.uiText.font, p_ui.uiText.getText().c_str(), p_ui.uiText.color);
-	// 	SDL_Texture* Message = SDL_CreateTextureFromSurface(renderer, messageSurface);
-	// 	SDL_RenderCopy(renderer, Message, NULL, &dst);
-	// 	SDL_FreeSurface(messageSurface);
-	// 	SDL_DestroyTexture(Message);
-	// }
+   	render(p_ui.uiText, false);
 }
 
 void RenderWindow::render(Light& p_light) // i think this copys the texture to the renderer

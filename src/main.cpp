@@ -48,20 +48,17 @@ bool init() // used to initiate things before using
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,24);
 
-	if (enet_initialize () != 0)
-    {
-        std::cout << "An error occurred while initializing ENet.\n";
-        return EXIT_FAILURE;
-    }
+	// if (enet_initialize () != 0)
+    // {
+    //     std::cout << "An error occurred while initializing ENet.\n";
+    //     return EXIT_FAILURE;
+    // }
 
 	window.create("Moss Engine", 1280, 720); // name and size of application window
 
-	plr.setTex(window.loadTexture("assets/textures/light_animsheet.png"));
-
 	plr.transform = Level::LoadLevel(Level::LoadFile("assets/levels/level.lvl"), walls, window);
+	plr.setTex(window.loadTexture("assets/textures/light_animsheet.png"));
 	plr.layer = 3;
-
-	//window.loadTexture(""); // major bullshit but this is like the tf2 coconut kinda
 
 	realLight.layer = 2;
 	realLight.intensity = 1;
@@ -159,6 +156,8 @@ void render() // honestly i feel like putting the stuff that is at the end of th
 	}
 
 	window.render(plr, true);
+
+	window.render(funnyButton);
 }
 
 int main(int argc, char* args[])

@@ -27,6 +27,16 @@ Vector2 Vector2::lerp(Vector2 a, Vector2 b, float time)
    return a;
 }
 
+Color4::Color4() : r(0.0), g(0.0), b(0.0), a(0.0)
+{
+
+}
+
+Color4::Color4(float p_r, float p_g, float p_b, float p_a) : r(p_r), g(p_g), b(p_b), a(p_a)
+{
+
+}
+
 float std::clamp(float value, float min, float max)
 {
    if (value > max)

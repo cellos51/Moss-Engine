@@ -25,6 +25,7 @@ public:
 	void setZoom(float x);
 	Vector2 getSize();
 	Vector2 cameraPos = Vector2(0,0);
+	Color4 ambientLight = Color4(0.5,0.5,0.5,1);
 private:
 	Vector2 cameraOffset = Vector2(0,0);
 	SDL_Window* window;

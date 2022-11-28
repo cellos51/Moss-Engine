@@ -31,7 +31,7 @@ class  ui::TextInput : public ui
 public:
 	//using ui::ui;
 	TextInput();
-	unsigned int charLimit = 15;
+	unsigned int charLimit = 100;
 	bool startTextInput();
 	~TextInput();
 private:

@@ -17,6 +17,7 @@ ui::ui()
 	size.x = 64;
 	size.y = 64;
 	uiText.setText("");
+	uiText.transform = transform;
 	layer = 3;
 	tex = 1;
 }
