@@ -121,6 +121,8 @@ void gameLoop() // it runs forever
 		boi.getCol(wall);
 	}
 
+	//bruh
+
 	// int x, y;
 	// SDL_GetMouseState(&x, &y);
 
