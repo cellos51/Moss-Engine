@@ -121,40 +121,40 @@ void gameLoop() // it runs forever
 		boi.getCol(wall);
 	}
 
-	int x, y;
-	SDL_GetMouseState(&x, &y);
+	// int x, y;
+	// SDL_GetMouseState(&x, &y);
 
-	x = ((x + (window.cameraPos.x)) - window.getSize().x / 2);
-	y = ((y + (window.cameraPos.y)) - window.getSize().y / 2);
+	// x = ((x + (window.cameraPos.x)) - window.getSize().x / 2);
+	// y = ((y + (window.cameraPos.y)) - window.getSize().y / 2);
 
 	realLight.transform = Vector2(plr.transform.x + plr.size.x / 2, plr.transform.y + plr.size.y / 2);
 
-	if (Event::MouseDown(SDL_BUTTON_RIGHT))
-	{
-		//for (int i = 0; i < 100; i++)
-		//{
-		lights.push_back(realLight);
-		std::cout << "Lights: " << lights.size() + 1 << std::endl;
-		//}
-	}
+	// if (Event::MouseDown(SDL_BUTTON_RIGHT))
+	// {
+	// 	//for (int i = 0; i < 100; i++)
+	// 	//{
+	// 	lights.push_back(realLight);
+	// 	std::cout << "Lights: " << lights.size() + 1 << std::endl;
+	// 	//}
+	// }
 
-	if (Event::KeyDown(SDLK_q))
-	{
-		realLight.radius += 10;
-	}
-	else if (Event::KeyDown(SDLK_e))
-	{
-		realLight.radius -= 10;
-	}
-	else if (Event::KeyDown(SDLK_r))
-	{
-		std::cout << std::endl << "Red: ";
-		std::cin >> realLight.r;
-		std::cout << std::endl << "Green: ";
-		std::cin >> realLight.g;
-		std::cout << std::endl << "Blue: ";
-		std::cin >> realLight.b;
-	}
+	// if (Event::KeyDown(SDLK_q))
+	// {
+	// 	realLight.radius += 10;
+	// }
+	// else if (Event::KeyDown(SDLK_e))
+	// {
+	// 	realLight.radius -= 10;
+	// }
+	// else if (Event::KeyDown(SDLK_r))
+	// {
+	// 	std::cout << std::endl << "Red: ";
+	// 	std::cin >> realLight.r;
+	// 	std::cout << std::endl << "Green: ";
+	// 	std::cin >> realLight.g;
+	// 	std::cout << std::endl << "Blue: ";
+	// 	std::cin >> realLight.b;
+	// }
 }
 
 
