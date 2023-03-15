@@ -13,6 +13,8 @@ layout (location = 10) in int iShadow;
 uniform mat4 lightMatrix;
 uniform int currentLayer;
 
+flat out int draw;
+
 vec2 lightPos = vec2(0,0);
 
 vec2 posR = vec2(0,0);
@@ -22,6 +24,8 @@ void main()
 {
     if(iLayerID == currentLayer && iShadow == 1)
     {
+        draw = 0;
+
         lightPos = (lightMatrix * vec4(1.0f, 1.0f, 1.0f, 1.0f)).xy;
 
         if (gl_VertexID == 1 || gl_VertexID == 0) // this shit is slow as hell and needs to be remade 💀
@@ -81,5 +85,9 @@ void main()
         {
             gl_Position = iPosOffset * vec4(posL.x, posL.y, aPos.z,  1.0f);
         }
+    }
+    else
+    {
+        draw = 1;
     }
 }

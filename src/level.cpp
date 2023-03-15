@@ -7,7 +7,7 @@
 
 #include "entity.hpp"
 #include "math.hpp"
-#include "renderwindow.hpp"
+#include "openglwindow.hpp"
 
 const int tileSize = 24;
 
@@ -54,7 +54,7 @@ std::vector<std::string> Level::LoadFile(std::string path)
     return level;
 }
 
-Vector2 Level::LoadLevel(std::vector<std::string> data, std::vector<Entity>& p_ent, RenderWindow& win)
+Vector2 Level::LoadLevel(std::vector<std::string> data, std::vector<Entity>& p_ent, OpenGLWindow& win)
 {	
 
 	unsigned int texture = win.loadTexture(texturePath.c_str());

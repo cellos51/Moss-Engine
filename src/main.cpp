@@ -7,7 +7,8 @@
 #include "network.hpp"
 #include "text.hpp"
 #include "math.hpp"
-#include "renderwindow.hpp"
+#include "openglwindow.hpp"
+#include "vulkanwindow.hpp"
 #include "player.hpp"
 #include "event.hpp"
 #include "level.hpp"
@@ -18,7 +19,8 @@
 bool gameRunning = true;
 
 // main window
-RenderWindow window;
+OpenGLWindow window;
+//VulkanWindow window;
 
 // literally just walls (for the level) (also why the fuck don't i make a seperete entity derived class for the level??? ahh fuck it)
 std::vector<Entity> walls; 
@@ -31,26 +33,21 @@ Player plr (PlayerSpawn, -1, Vector2(16, 16));
 std::map<int,Entity> players;
 int netMode = 0;
 
-//Vector2 cameraPos;
+// Vector2 cameraPos;
 Light realLight(Vector2(144,144));
 std::vector<Light> lights;
 
-//fps counter
+// fps counter
 float timer = 0;
 Text FPS;
+
+// gravity test thing
+PhysicsEntity boi(Vector2(16,16));
 
 bool init() // used to initiate things before using
 {
 	SDL_Init(SDL_INIT_EVERYTHING);
-	//IMG_Init(IMG_INIT_PNG);
 	SDL_StopTextInput();
-
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,24);
 
 	// if (enet_initialize () != 0)
     // {
@@ -70,6 +67,9 @@ bool init() // used to initiate things before using
 	FPS.font = window.loadTexture("assets/fonts/font.png");
 	FPS.setText("FPS");
 
+	boi.setTex(window.loadTexture("assets/textures/player.png"));
+	boi.layer = 3;
+	boi.gravity = Vector2(0,0);
 	return true;
 }
 
@@ -108,11 +108,17 @@ void gameLoop() // it runs forever
 
 	plr.update();
 	window.camera(Vector2(plr.transform.x + plr.size.x / 2, plr.transform.y + plr.size.y / 2));
+
+
+	boi.velocity.x += ((plr.transform.x - boi.transform.x) / 1000) * Time::deltaTime();
+	boi.velocity.y += ((plr.transform.y - boi.transform.y)  / 1000) * Time::deltaTime();
+	boi.update();
 	//window.camera(cameraPos);
 
 	for (Entity wall : walls)
 	{
 		plr.getCol(wall);
+		boi.getCol(wall);
 	}
 
 	int x, y;
@@ -121,7 +127,7 @@ void gameLoop() // it runs forever
 	x = ((x + (window.cameraPos.x)) - window.getSize().x / 2);
 	y = ((y + (window.cameraPos.y)) - window.getSize().y / 2);
 
-	realLight.transform = Vector2(x,y);
+	realLight.transform = Vector2(plr.transform.x + plr.size.x / 2, plr.transform.y + plr.size.y / 2);
 
 	if (Event::MouseDown(SDL_BUTTON_RIGHT))
 	{
@@ -174,6 +180,8 @@ void render() // honestly i feel like putting the stuff that is at the end of th
 	window.render(plr, true);
 
 	window.render(FPS, false);
+
+	window.render(boi, true);
 }
 
 int main(int argc, char* args[])
