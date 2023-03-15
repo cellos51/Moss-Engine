@@ -1,0 +1,27 @@
+{
+	"folders":
+	[
+		{
+			"path": ".",
+			"file_exclude_patterns": ["*.sublime-project"],
+		}
+	],
+
+	"build_systems":
+	[
+		{
+			"name": "SDL2 Debug",
+			"working_dir": "${project_path}",
+			"cmd": "rmdir /s /q \"C:/Users/Creep/Documents/Moss Engine Dev/Moss-Engine/bin/debug/assets\" && xcopy /E /I \"C:/Users/Creep/Documents/Moss Engine Dev/Moss-Engine/assets\" \"C:/Users/Creep/Documents/Moss Engine Dev/Moss-Engine/bin/debug/assets/\" && g++ -c src/*.cpp \"C:/Users/Creep/Documents/Moss Engine Dev/Libraries/glad/src/glad.c\" -std=c++17 -Og -Wall -m64 -I include -I \"C:/Users/Creep/Documents/Moss Engine Dev/Libraries/SDL2/include\" -I \"C:/Users/Creep/Documents/Moss Engine Dev/Libraries/enet-1.3.17/include\" -I \"C:/Users/Creep/Documents/Moss Engine Dev/Libraries/glad/include\" -I \"C:/Users/Creep/Documents/Moss Engine Dev/Libraries/glm\" -I C:/VulkanSDK/1.3.236.0/Include -I C:/msys64/mingw64/include && g++ -static-libstdc++ -static-libgcc *.o -o bin/debug/main -L C:/msys64/mingw64/lib -lmingw32 -L \"C:/Users/Creep/Documents/Moss Engine Dev/Libraries/SDL2/lib\" -lSDL2main -lSDL2 -L C:/VulkanSDK/1.3.236.0/Lib -lvulkan-1 -L \"C:/Users/Creep/Documents/Moss Engine Dev/Libraries/enet-1.3.17\" -lenet64 -lws2_32 -lwinmm && start bin/debug/main",
+			"selector": "source.c++",
+			"shell": true,
+		},
+		{
+			"name": "SDL2 Release",
+			"working_dir": "${project_path}",
+			"cmd": "C:/mingw64/bin/g++ -c src/*.cpp -std=c++14 -O3 -Wall -m64 -I include -I C:/SDL2/include -I C:/Users/Creep/Documents/SourceCode/Libraries/enet-1.3.17/include -I C:/mingw64/include && C:/mingw64/bin/g++ *.o -o bin/release/main -L C:/mingw64/lib -lmingw32 -L C:/SDL2/lib -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -L C:/Users/Creep/Documents/SourceCode/Libraries/enet-1.3.17 -lenet64 -lws2_32 -lwinmm -mwindows && start bin/release/main",
+			"selector": "source.c++",
+			"shell": true,
+		}
+	],
+}
