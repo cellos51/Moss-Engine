@@ -31,7 +31,9 @@ private:
 	SDL_Window* window;
 	SDL_GLContext context;
 	//SDL_Renderer* renderer;
+	Vector2 screenSize = Vector2(0,0);
 	
+
 	unsigned int FBOLight;
 	unsigned int FBOLightTex;
 

@@ -4,8 +4,51 @@
 #include <vulkan/vulkan.h>
 #include <iostream>
 #include <vector>
+#include <cmath>
+#include <optional>
+
+#include "math.hpp"
 
 const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
+
+struct QueueFamilyIndices 
+{
+    std::optional<uint32_t> graphicsFamily;
+
+    bool isComplete() 
+    {
+        return graphicsFamily.has_value();
+    }
+};
+
+QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device) 
+{
+    QueueFamilyIndices indices;
+
+   	uint32_t queueFamilyCount = 0;
+	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+
+	std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+	int i = 0;
+	for (const auto& queueFamily : queueFamilies) 
+	{
+	    if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) 
+	    {
+	        indices.graphicsFamily = i;
+	    }
+
+	    if (indices.isComplete()) 
+	    {
+        	break;
+    	}
+
+    	i++;
+	}
+
+    return indices;
+}
 
 #ifdef NDEBUG
     const bool enableValidationLayers = false;
@@ -13,7 +56,79 @@ const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"
     const bool enableValidationLayers = true;
 #endif
 
-bool checkValidationLayerSupport() 
+void VulkanWindow::pickPhysicalDevice()
+{
+	uint32_t deviceCount = 0;
+	vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+	if (deviceCount == 0) 
+	{
+    	throw std::runtime_error("failed to find GPUs with Vulkan support!");
+	}
+
+	std::vector<VkPhysicalDevice> devices(deviceCount);
+	vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+
+	for (const auto& device : devices) {
+	    if (isDeviceSuitable(device)) {
+	        physicalDevice = device;
+	        break;
+	    }
+	}
+
+	if (physicalDevice == VK_NULL_HANDLE) {
+    	throw std::runtime_error("failed to find a suitable GPU!");
+	}
+}
+
+bool VulkanWindow::isDeviceSuitable(VkPhysicalDevice device) 
+{
+    QueueFamilyIndices indices = findQueueFamilies(device);
+
+    return indices.isComplete();
+}
+
+void VulkanWindow::createLogicalDevice()
+{
+	QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
+
+	VkDeviceQueueCreateInfo queueCreateInfo{};
+	queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+	queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value();
+	queueCreateInfo.queueCount = 1;
+
+	float queuePriority = 1.0f;
+	queueCreateInfo.pQueuePriorities = &queuePriority;
+
+	VkPhysicalDeviceFeatures deviceFeatures{};
+	VkDeviceCreateInfo createInfo{};
+	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+
+	createInfo.pQueueCreateInfos = &queueCreateInfo;
+	createInfo.queueCreateInfoCount = 1;
+
+	createInfo.pEnabledFeatures = &deviceFeatures;
+
+	createInfo.enabledExtensionCount = 0;
+
+	if (enableValidationLayers) 
+	{
+	    createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+	    createInfo.ppEnabledLayerNames = validationLayers.data();
+	} 
+	else 
+	{
+	    createInfo.enabledLayerCount = 0;
+	}
+
+	if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS) 
+	{
+    	throw std::runtime_error("failed to create logical device! THIS IS NOT POGGERS!!! :<");
+	}
+
+	vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
+}
+
+bool VulkanWindow::checkValidationLayerSupport() 
 {
     uint32_t layerCount;
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
@@ -86,12 +201,43 @@ void VulkanWindow::create(const char* p_title, int p_w, int p_h)
 	{
     	throw std::runtime_error("Failed to create instance. Error: " + result);
 	}
+
+	pickPhysicalDevice();
+	createLogicalDevice();
+}
+
+void VulkanWindow::camera(Vector2 pos) // used before exiting the program
+{
+	cameraPos.lerp(cameraPos, pos, lerpAmount * Time::deltaTime());
+
+	cameraPos.x = std::clamp(cameraPos.x, pos.x - clampAmount, pos.x + clampAmount);
+	cameraPos.y = std::clamp(cameraPos.y, pos.y - clampAmount, pos.y + clampAmount);
+
+	cameraOffset = Vector2(round(cameraPos.x) - ((getSize().x) / 2)  ,round(cameraPos.y) - ((getSize().y) / 2 ));
+}
+
+void VulkanWindow::setZoom(float x)
+{
+	zoom = x;
+	//SDL_RenderSetScale(renderer, x, x);
+}
+
+Vector2 VulkanWindow::getSize()
+{
+	int w, h;
+	SDL_GetWindowSize(window, &w, &h);
+
+	w = (w & ~1);
+	h = (h & ~1);
+	
+	return Vector2(w, h);
+	//return(Vector2(1024, 640));
 }
 
 void VulkanWindow::quit() // used before exiting the program
 {
+	vkDestroyDevice(device, nullptr);
 	vkDestroyInstance(instance, nullptr);
-
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 }

@@ -100,8 +100,7 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
 	std::cout << "Max Vertex Unifrom Components:" << glConsts << std::endl;
 
 	glGetIntegerv(GL_MAX_VERTEX_OUTPUT_COMPONENTS, &glConsts);
-	std::cout << "Max Vertex Output Components:" << glConsts << std::endl;
-	
+	std::cout << "Max Vertex Output Components:" << glConsts << std::endl;	
 
 	glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, &glConsts);
 	std::cout << "Max Fragment Unifrom Components:" << glConsts << std::endl;
@@ -131,25 +130,26 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
-    glGenBuffers(1, &IVBO[0]); // position
-    glGenBuffers(1, &IVBO[1]); // texture position
-    glGenBuffers(1, &IVBO[2]); // texture 
-    glGenBuffers(1, &IVBO[3]); // layer
-    glGenBuffers(1, &IVBO[4]); // shadow
+    glGenBuffers(5, IVBO); 
 
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 
     glActiveTexture(GL_TEXTURE0 + FBOTex);
     glBindTexture(GL_TEXTURE_2D, FBOTex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, p_w, p_h, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  	
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, FBOTex, 0); 
-	//glBindTexture(GL_TEXTURE_2D, 0);
+	
+	glActiveTexture(GL_TEXTURE0 + 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
     glBindRenderbuffer(GL_RENDERBUFFER, RBO);  
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, p_w, p_h);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);  
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
@@ -158,13 +158,17 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
 
     glActiveTexture(GL_TEXTURE0 + FBOLightTex);
     glBindTexture(GL_TEXTURE_2D, FBOLightTex);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, p_w, p_h, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  	
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, FBOLightTex, 0); 
-	//glBindTexture(GL_TEXTURE_2D, 0);
+	
+	glActiveTexture(GL_TEXTURE0 + 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
-    glBindRenderbuffer(GL_RENDERBUFFER, RBO);  
+    glBindRenderbuffer(GL_RENDERBUFFER, RBO);
     //glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, p_w, p_h);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);  
 
@@ -199,9 +203,11 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0); 
     glBindVertexArray(0);
-}
 
-unsigned int test = 0;
+    screenSize = getSize();
+
+    std::cout << "Error check: " << glGetError() << std::endl;
+}
 
 unsigned int OpenGLWindow::loadTexture(const char* p_filePath) // used load textures :P
 {
@@ -218,6 +224,11 @@ unsigned int OpenGLWindow::loadTexture(const char* p_filePath) // used load text
 	glActiveTexture(GL_TEXTURE0 + texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
 
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
 	if (data)
 	{
 	    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
@@ -229,12 +240,12 @@ unsigned int OpenGLWindow::loadTexture(const char* p_filePath) // used load text
 	}
 	stbi_image_free(data);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glActiveTexture(GL_TEXTURE0 + 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 	TextureSize.insert(std::pair<unsigned int,Vector2>(texture, Vector2(width, height)));
 
-	std::cout << texture << std::endl;
+	std::cout << "TextureID: " << texture << std::endl;
 
 	newestTexture = texture;
 	return texture;
@@ -244,6 +255,25 @@ void OpenGLWindow::clear() // clears the renderer
 {
 	entityCount = 0;
 	lightCount = 0;
+
+	if (screenSize.x != getSize().x || screenSize.y != getSize().y)
+	{
+		screenSize = getSize();
+
+		glViewport(0, 0, getSize().x, getSize().y);
+
+		glBindTexture(GL_TEXTURE_2D, FBOTex);	  
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, getSize().x, getSize().y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glBindTexture(GL_TEXTURE_2D, FBOLightTex);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, getSize().x, getSize().y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glBindRenderbuffer(GL_RENDERBUFFER, RBO);  
+	    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, getSize().x, getSize().y);
+	    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 	glClearColor(0.439, 0.502, 0.565, 1.0);
@@ -256,7 +286,7 @@ void OpenGLWindow::clear() // clears the renderer
     glClear(GL_COLOR_BUFFER_BIT);
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glClearColor(0, 0, 0, 1.0);
+    glClearColor(1.0, 1.0, 1.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	OnscreenCamera.transform = Vector2(cameraPos.x - OnscreenCamera.size.x / 2, cameraPos.y - OnscreenCamera.size.y / 2);
@@ -465,19 +495,6 @@ void OpenGLWindow::display() // used to display information from the renderer to
 
 	glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
 
-	glViewport(0, 0, getSize().x, getSize().y);
-
-	glBindTexture(GL_TEXTURE_2D, FBOTex);	  
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, getSize().x, getSize().y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	glBindTexture(GL_TEXTURE_2D, FBOLightTex);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, getSize().x, getSize().y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	glBindRenderbuffer(GL_RENDERBUFFER, RBO);  
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, getSize().x, getSize().y);
-
 	//glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
  	
  	// position buffer
@@ -540,7 +557,6 @@ void OpenGLWindow::display() // used to display information from the renderer to
     // unbind buffers
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	glBindTexture(GL_TEXTURE_2D, newestTexture);
 
 	defaultShader.use(); 
 
@@ -549,7 +565,6 @@ void OpenGLWindow::display() // used to display information from the renderer to
 	defaultShader.setIntArray("ourTexture", 16, bruh);  
 
 	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
-
 
 	glBindFramebuffer(GL_FRAMEBUFFER, FBOLight);
 	for (int i = 0; i < lightCount; i++)
@@ -598,8 +613,6 @@ void OpenGLWindow::display() // used to display information from the renderer to
 	glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
 
 	glDisable(GL_DEPTH_TEST);
-
-	//glBindTexture(GL_TEXTURE_2D, FBOTex);
 
 	framebufferShader.use();
 	framebufferShader.setFloat("zoom", zoom);
