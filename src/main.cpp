@@ -4,14 +4,15 @@
 #include <iostream>
 #include <map>
 
-#include "network.hpp"
 #include "text.hpp"
 #include "math.hpp"
+
 #ifdef OPENGL
 #include "openglwindow.hpp"
 #elif VULKAN
 #include "vulkanwindow.hpp"
 #endif
+
 #include "player.hpp"
 #include "event.hpp"
 #include "level.hpp"
@@ -52,29 +53,21 @@ bool init() // used to initiate things before using
 	SDL_Init(SDL_INIT_EVERYTHING);
 	SDL_StopTextInput();
 
-	// if (enet_initialize () != 0)
-    // {
-    //     std::cout << "An error occurred while initializing ENet.\n";
-    //     return EXIT_FAILURE;
-    // }
 	#ifdef OPENGL
 	window.create("Moss Engine (OpenGL)", 1280, 720); // name and size of application window
-	plr.transform = Level::LoadLevel(Level::LoadFile("assets/levels/level.lvl"), walls, window);
-	plr.setTex(window.loadTexture("assets/textures/light_animsheet.png"));
-	FPS.font = window.loadTexture("assets/fonts/font.png");
 	#elif VULKAN
 	window.create("Moss Engine (Vulkan)", 1280, 720); // name and size of application window
 	#endif
 
-	//plr.transform = Level::LoadLevel(Level::LoadFile("assets/levels/level.lvl"), walls, window);
-	//plr.setTex(window.loadTexture("assets/textures/light_animsheet.png"));
+	plr.transform = Level::LoadLevel(Level::LoadFile("assets/levels/level.lvl"), walls, window);
+	plr.setTex(window.loadTexture("assets/textures/light_animsheet.png"));
 	plr.layer = 3;
 
 	realLight.layer = 2;
-	realLight.intensity = 1;
-	realLight.radius = 100;
+	realLight.intensity = 1.5;
+	realLight.radius = 150;
 
-	//FPS.font = window.loadTexture("assets/fonts/font.png");
+	FPS.font = window.loadTexture("assets/fonts/font.png");
 	FPS.setText("FPS");
 	return true;
 }
@@ -126,7 +119,6 @@ void gameLoop() // it runs forever
 	realLight.transform = Vector2(plr.transform.x + plr.size.x / 2, plr.transform.y + plr.size.y / 2);
 }
 
-#ifdef OPENGL
 void render() // honestly i feel like putting the stuff that is at the end of the gameloop in here
 {
   	// for (std::map<int,Entity>::iterator it = players.begin(); it != players.end(); ++it)
@@ -150,33 +142,7 @@ void render() // honestly i feel like putting the stuff that is at the end of th
 
 	window.render(FPS, false);
 }
-#elif VULKAN
-void render() // honestly i feel like putting the stuff that is at the end of the gameloop in here
-{
-  	// for (std::map<int,Entity>::iterator it = players.begin(); it != players.end(); ++it)
-  	// {
-  	// 	window.render(it->second, true);
-  	// }
 
-	// window.render(realLight);
-
-	// for (Light light : lights)
-	// {
-	// 	window.render(light);
-	// }
-
-	// for (Entity wall : walls)
-	// {
-	// 	window.render(wall, true);
-	// }
-
-	// window.render(plr, true);
-
-	// window.render(FPS, false);
-}
-#endif
-
-#ifdef OPENGL
 int main(int argc, char* args[])
 {
 	init();
@@ -191,29 +157,6 @@ int main(int argc, char* args[])
     	render();
     	window.display();
 	}
-
-	atexit (enet_deinitialize);
 	window.quit(); // run when user asks to exit program
 	return 0;
 }
-#elif VULKAN
-int main(int argc, char* args[])
-{
-	init();
-	while (gameRunning) // main game loop ran every frame
-	{
-		Time::Tick();
-    	Event::PollEvent();
-    	gameRunning = Event::AppQuit();
-		gameLoop();
-
-		//window.clear();
-    	//render();
-    	//window.display();
-	}
-
-	atexit (enet_deinitialize);
-	window.quit(); // run when user asks to exit program
-	return 0;
-}
-#endif

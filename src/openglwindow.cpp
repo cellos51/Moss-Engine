@@ -111,6 +111,9 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
 	glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &glConsts);
 	std::cout << "Max Array Texture Layers:" << glConsts << std::endl;
 
+	glEnable(GL_CULL_FACE);
+    glCullFace(GL_FRONT);
+
 	glEnable(GL_STENCIL_TEST);
     glStencilFunc( GL_ALWAYS, 1, 0xFF );
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
@@ -350,64 +353,6 @@ void OpenGLWindow::render(Entity& p_ent, bool cam) // i think this copies the te
 
 		entityCount++;
 	}
-
-	// if (entityCount >= maxEntities)
-	// {
-	// 	defaultShader.use();  
-	
-	// 	glUniformMatrix4fv(glGetUniformLocation(defaultShader.ID, "transform"), entityCount, GL_FALSE, glm::value_ptr(positionArray[0]));
-
-	// 	//glUniform4fv(glGetUniformLocation(defaultShader.ID, "texOffset"), entityCount, glm::value_ptr(texCoordArray[0]));
-
-	// 	//glUniform1iv(glGetUniformLocation(defaultShader.ID, "textureId"), entityCount, textureArray);
-
-	// 	int test[16] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
-
-	// 	glUniform1iv(glGetUniformLocation(defaultShader.ID, "ourTexture"), 16, test);
-
-	// 	glBindVertexArray(VAO);      
-
-	// 	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
-
-	// 	entityCount = 0;
-	// }
-
-	// if (p_ent.intersecting(OnscreenCamera) == true)
-	// {
-	// 	SDL_Rect src;
-	// 	src.x = p_ent.texturePos.x;
-	// 	src.y = p_ent.texturePos.y;
-	// 	src.w = p_ent.texturePos.w;
-	// 	src.h = p_ent.texturePos.h;	
-
-	// 	SDL_Rect dst;
-		
-	// 	if (cam == true)
-	// 	{
-	// 		dst.x = (p_ent.offset.x + p_ent.transform.x) - cameraOffset.x;
-	// 		dst.y = (p_ent.offset.y + p_ent.transform.y) - cameraOffset.y;
-	// 		dst.w = p_ent.offset.w;
-	// 		dst.h = p_ent.offset.h;
-	// 	}
-	// 	else
-	// 	{
-	// 		dst.x = p_ent.transform.x + p_ent.offset.x;
-	// 		dst.y = p_ent.transform.y + p_ent.offset.x;
-	// 		dst.w = p_ent.offset.w;
-	// 		dst.h = p_ent.offset.h;
-	// 	}
-
-
-	// 	if (p_ent.getTex() != NULL)
-	// 	{
-	// 		SDL_RenderCopy(renderer, p_ent.getTex(), &src, &dst);
-	// 	}
-	// 	else
-	// 	{
-	// 		SDL_SetRenderDrawColor( renderer, 153, 170, 181, 0);        
-	//     	SDL_RenderFillRect( renderer, &dst );
-	// 	}
-	// }
 }
 
 void OpenGLWindow::render(Text& p_text, bool cam) // i think this copys the texture to the renderer
@@ -447,16 +392,6 @@ void OpenGLWindow::render(ui& p_ui) // i think this copys the texture to the ren
 	}
 
 	entityCount++;
-
-	// SDL_Rect dst;
-	
-	// dst.x = p_ui.transform.x;
-	// dst.y = p_ui.transform.y;
-	// dst.w = p_ui.size.x;
-	// dst.h = p_ui.size.y;
-	
-	//SDL_SetRenderDrawColor( renderer, p_ui.red, p_ui.green, p_ui.blue, 0);
-    //SDL_RenderFillRect( renderer, &dst );
     
    	render(p_ui.uiText, false);
 }

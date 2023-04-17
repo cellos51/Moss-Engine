@@ -6,13 +6,15 @@ uniform int layerId;
 
 out vec4 FragColor;
 
-varying vec2 v_texcoord;
+in vec2 v_texcoord;
 
-float circleshape(vec2 position, float radius){
+float circleshape(vec2 position, float radius)
+{
   return step(radius, length(position - vec2(0.5)));
 }
 
-void main(){
+void main()
+{
   gl_FragDepth = (1.0f - (layerId / 100.0f));
 
   vec2 position = v_texcoord;

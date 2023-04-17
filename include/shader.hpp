@@ -8,6 +8,8 @@
 #include <sstream>
 #include <iostream>
 
+#include "math.hpp"
+
 class Shader
 {
 public:
@@ -162,6 +164,10 @@ public:
     void setVec4(const std::string &name, float x, float y, float z, float w) 
     { 
         glUniform4f(glGetUniformLocation(ID, name.c_str()), x, y, z, w); 
+    }
+    void setVec4(const std::string &name, Color4 &color)
+    { 
+        glUniform4f(glGetUniformLocation(ID, name.c_str()), color.r, color.b, color.g, color.a); 
     }
     // ------------------------------------------------------------------------
     void setMat2(const std::string &name, const glm::mat2 &mat) const
