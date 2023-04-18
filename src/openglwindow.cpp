@@ -20,11 +20,12 @@ float zoom = 1;
 Entity OnscreenCamera(Vector2(0,0));
 
 Shader framebufferShader("assets/shaders/framebuffer.vs", "assets/shaders/framebuffer.fs");
-
 Shader defaultShader("assets/shaders/shader.vs", "assets/shaders/shader.fs");
-
 Shader shadowShader("assets/shaders/shadowshader.vs", "assets/shaders/shadowshader.fs");
 Shader lightShader("assets/shaders/lightshader.vs", "assets/shaders/lightshader.fs");
+Shader luminosityShader("assets/shaders/luminosity.vs", "assets/shaders/luminosity.fs");
+
+int textureUnits[16] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
 
 unsigned int newestTexture = 0;
 
@@ -44,7 +45,7 @@ int textureArray[maxEntities];
 
 unsigned int layerArray[maxEntities];
 
-bool shadowArray[maxEntities];
+glm::vec4 shadowArray[maxEntities];
 
 int lightCount = 0; // begin stuff for lights
 
@@ -90,6 +91,7 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
 	defaultShader.compile();
 	shadowShader.compile();
 	lightShader.compile();
+	luminosityShader.compile();
 
 	int glConsts;
 	
@@ -133,7 +135,7 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
-    glGenBuffers(5, IVBO); 
+    glGenBuffers(6, IVBO); 
 
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 
@@ -309,7 +311,7 @@ void OpenGLWindow::render(Entity& p_ent, bool cam) // i think this copies the te
 		texCoordArray[entityCount] = glm::vec4(p_ent.texturePos.x / TextureSize[p_ent.tex].x,p_ent.texturePos.y / TextureSize[p_ent.tex].y, TextureSize[p_ent.tex].x / p_ent.texturePos.w, TextureSize[p_ent.tex].y / p_ent.texturePos.h);
 		textureArray[entityCount] = p_ent.tex;
 		layerArray[entityCount] = p_ent.layer;
-		shadowArray[entityCount] = p_ent.shadow;
+		shadowArray[entityCount] = glm::vec4(p_ent.luminosity.r,p_ent.luminosity.g,p_ent.luminosity.b,p_ent.luminosity.a);
 
 		if (TexturesToRender.find(p_ent.layer) == TexturesToRender.end())
 		{
@@ -337,7 +339,7 @@ void OpenGLWindow::render(Entity& p_ent, bool cam) // i think this copies the te
 		texCoordArray[entityCount] = glm::vec4(p_ent.texturePos.x / TextureSize[p_ent.tex].x,p_ent.texturePos.y / TextureSize[p_ent.tex].y, TextureSize[p_ent.tex].x / p_ent.texturePos.w, TextureSize[p_ent.tex].y / p_ent.texturePos.h);
 		textureArray[entityCount] = p_ent.tex;
 		layerArray[entityCount] = p_ent.layer;
-		shadowArray[entityCount] = p_ent.shadow;
+		shadowArray[entityCount] = glm::vec4(p_ent.luminosity.r,p_ent.luminosity.g,p_ent.luminosity.b,p_ent.luminosity.a);
 
 		if (TexturesToRender.find(p_ent.layer) == TexturesToRender.end())
 		{
@@ -377,7 +379,7 @@ void OpenGLWindow::render(ui& p_ui) // i think this copys the texture to the ren
 	texCoordArray[entityCount] = glm::vec4(1,1,1,1);
 	textureArray[entityCount] = p_ui.tex;
 	layerArray[entityCount] = p_ui.layer;
-	shadowArray[entityCount] = false;
+	shadowArray[entityCount] = glm::vec4(1,1,1,0);
 
 	if (TexturesToRender.find(p_ui.layer) == TexturesToRender.end())
 	{
@@ -480,31 +482,34 @@ void OpenGLWindow::display() // used to display information from the renderer to
 
     // shadow buffer
     glBindBuffer(GL_ARRAY_BUFFER, IVBO[4]);
-	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(int), &shadowArray[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(glm::vec4), &shadowArray[0], GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(10);
-    glVertexAttribIPointer(10, 1, GL_UNSIGNED_BYTE, GL_FALSE, (void*)0);
-    //glVertexAttribIPointer(3, 1, GL_UNSIGNED_BYTE, GL_FALSE, (void*)(8 * sizeof(bool)));
+    glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)0);
 
     glVertexAttribDivisor(10, 1);
-
 
     // unbind buffers
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	defaultShader.use();
 
-	defaultShader.use(); 
-
-	int bruh[16] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
-
-	defaultShader.setIntArray("ourTexture", 16, bruh);  
+	defaultShader.setIntArray("ourTexture", 16, textureUnits);  
 
 	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, FBOLight);
+	luminosityShader.use();
+	luminosityShader.setIntArray("ourTexture", 16, textureUnits); 
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
+	glClear(GL_DEPTH_BUFFER_BIT);
+
+	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
+
 	for (int i = 0; i < lightCount; i++)
 	{
-		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		//glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 		glDepthMask(GL_FALSE);
 
 		glClear(GL_STENCIL_BUFFER_BIT);
@@ -520,12 +525,11 @@ void OpenGLWindow::display() // used to display information from the renderer to
 
 		glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
 
-		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
 		glStencilOp( GL_KEEP, GL_KEEP, GL_KEEP );
 		glStencilFunc( GL_NOTEQUAL, 1, 0xFF );
 
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 		lightShader.use();
 
@@ -542,8 +546,10 @@ void OpenGLWindow::display() // used to display information from the renderer to
 		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 		glStencilFunc(GL_ALWAYS, 1, 0xFF);
 
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		
 	}
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
 

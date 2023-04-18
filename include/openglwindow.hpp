@@ -39,5 +39,5 @@ private:
 
 	unsigned int RBO;
 	unsigned int FBOTex;
-	unsigned int FBO, VAO, VBO, EBO, IVBO[5];
+	unsigned int FBO, VAO, VBO, EBO, IVBO[6];
 };

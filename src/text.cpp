@@ -20,6 +20,8 @@ void Text::setText(std::string data)
     	// setup
 		Entity character(transform, Vector2(fontSize, fontSize) );
 
+		character.luminosity = Color4(1,1,1,0);
+
 		character.transform.x = character.transform.x + (i * character.size.x);
 
 		character.tex = font;

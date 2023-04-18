@@ -22,5 +22,5 @@ public:
 	Vector2 size;
 	SDL_Rect offset;
 	SDL_Rect texturePos;
-	bool shadow = true;
+	Color4 luminosity = Color4(0.0,0.0,0.0,1.0);
 };
