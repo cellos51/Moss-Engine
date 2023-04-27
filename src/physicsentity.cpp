@@ -266,8 +266,3 @@ void PhysicsEntity::physics(bool p_phys)
 		// }
 	}
 }
-
-void PhysicsEntity::update()
-{
-	PhysicsEntity::physics(phys);
-}

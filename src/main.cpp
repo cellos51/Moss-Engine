@@ -7,13 +7,13 @@
 #include "text.hpp"
 #include "math.hpp"
 
-#ifdef OPENGL
 #include "openglwindow.hpp"
-#elif VULKAN
-#include "vulkanwindow.hpp"
-#endif
 
-#include "player.hpp"
+#include "global.hpp"
+
+#include "player.hpp" // TODO make it so everytime a new type of entity is creted i don't have to #include it :(
+#include "enemy.hpp"
+
 #include "event.hpp"
 #include "level.hpp"
 #include "ui.hpp"
@@ -23,22 +23,13 @@
 bool gameRunning = true;
 
 // main window
-#ifdef OPENGL
 OpenGLWindow window;
-#elif VULKAN
-VulkanWindow window;
-#endif
 
 // literally just walls (for the level) (also why the fuck don't i make a seperete entity derived class for the level??? ahh fuck it)
 std::vector<Entity> walls; 
 
 // player stuff
-Vector2 PlayerSpawn = Vector2(0,0);
-Player plr (PlayerSpawn, -1, Vector2(16, 16));
-
-// for online mode
-std::map<int,Entity> players;
-int netMode = 0;
+std::map<unsigned int,LivingEntity*> LivingEnts;
 
 // Vector2 cameraPos;
 Light realLight(Vector2(144,144));
@@ -53,15 +44,18 @@ bool init() // used to initiate things before using
 	SDL_Init(SDL_INIT_EVERYTHING);
 	SDL_StopTextInput();
 
-	#ifdef OPENGL
 	window.create("Moss Engine (OpenGL)", 1280, 720); // name and size of application window
-	#elif VULKAN
-	window.create("Moss Engine (Vulkan)", 1280, 720); // name and size of application window
-	#endif
 
-	plr.transform = Level::LoadLevel(Level::LoadFile("assets/levels/level.lvl"), walls, window);
-	plr.setTex(window.loadTexture("assets/textures/light_animsheet.png"));
-	plr.layer = 3;
+	LivingEnts.emplace(0 ,new Player (Vector2(0,0), -1, Vector2(16, 16)));
+
+	LivingEnts[0]->transform = Level::LoadLevel(Level::LoadFile("assets/levels/level.lvl"), walls, window);
+	LivingEnts[0]->setTex(window.loadTexture("assets/textures/light_animsheet.png"));
+	LivingEnts[0]->layer = 3;
+
+
+	LivingEnts.emplace(1 ,new Enemy (Vector2(0,0), -1, Vector2(16, 16)));
+	LivingEnts[1]->setTex(window.loadTexture("assets/textures/player.png"));
+	LivingEnts[1]->layer = 3;
 
 	realLight.layer = 2;
 	realLight.intensity = 1.5;
@@ -71,7 +65,6 @@ bool init() // used to initiate things before using
 	FPS.setText("FPS");
 	return true;
 }
-
 
 void gameLoop() // it runs forever
 {
@@ -106,22 +99,29 @@ void gameLoop() // it runs forever
 		window.setZoom(4);
 	}	
 
-	plr.update();
-	window.camera(Vector2(plr.transform.x + plr.size.x / 2, plr.transform.y + plr.size.y / 2));
+	for (auto& [key, ent]: LivingEnts)
+	{
+		ent->update();
+	}
+
+	window.camera(Vector2(LivingEnts[0]->transform.x + LivingEnts[0]->size.x / 2, LivingEnts[0]->transform.y + LivingEnts[0]->size.y / 2));
 
 	//window.camera(cameraPos);
 
 	for (Entity wall : walls)
 	{
-		plr.getCol(wall);
+		for (auto& [key, ent]: LivingEnts)
+		{
+			ent->getCol(wall);
+		}
 	}
 
-	realLight.transform = Vector2(plr.transform.x + plr.size.x / 2, plr.transform.y + plr.size.y / 2);
+	realLight.transform = Vector2(LivingEnts[0]->transform.x + LivingEnts[0]->size.x / 2, LivingEnts[0]->transform.y + LivingEnts[0]->size.y / 2);
 }
 
 void render() // honestly i feel like putting the stuff that is at the end of the gameloop in here
 {
-  	// for (std::map<int,Entity>::iterator it = players.begin(); it != players.end(); ++it)
+  	// for (std::map<int,Entity>::iterator it = LivingEnts.begin(); it != LivingEnts.end(); ++it)
   	// {
   	// 	window.render(it->second, true);
   	// }
@@ -138,7 +138,10 @@ void render() // honestly i feel like putting the stuff that is at the end of th
 		window.render(wall, true);
 	}
 
-	window.render(plr, true);
+	for (auto& [key, ent]: LivingEnts)
+	{
+		window.render(*ent, true);
+	}
 
 	window.render(FPS, false);
 }
@@ -157,6 +160,13 @@ int main(int argc, char* args[])
     	render();
     	window.display();
 	}
+
+	for (auto& [key, ent]: LivingEnts)
+	{
+		delete ent;
+	}
+	LivingEnts.clear();
+
 	window.quit(); // run when user asks to exit program
 	return 0;
 }

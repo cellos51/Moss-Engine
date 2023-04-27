@@ -1,7 +1,8 @@
 #include "entity.hpp"
 
 #include <SDL2/SDL.h>
-#include <math.h>
+#include <vector>
+#include <iostream>
 
 #include "math.hpp"
 

@@ -10,14 +10,17 @@ class PhysicsEntity : public Entity // use this if you'd like an entity with pre
 public:
 	using Entity::Entity;
 	Vector2 velocity;
-	Vector2 gravity = Vector2(0.0, 1.0);
-	float friction = 1;
-	float dragX = 0.01;
-	float dragY = 0.01;
-	float bounciness = 0.8;
+	Vector2 gravity = Vector2(0.0, 0.0);
+	float friction = 0; // 1
+	float dragX = 0.3; // 0.01
+	float dragY = 0.3; // 0.01
+	float bounciness = 0; // 0.8
 	bool phys = true;
 	void getCol(Entity& p_ent);
 	void physics(bool p_phys);
-	void update();
+	virtual void update()
+	{
+		PhysicsEntity::physics(phys);
+	}
 	bool OnGround = false;
 };

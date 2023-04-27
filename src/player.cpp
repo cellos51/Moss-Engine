@@ -7,21 +7,11 @@
 #include "math.h"
 #include "event.hpp"
 
-Player::Player(Vector2 p_pos, unsigned int p_tex, Vector2 p_size) : PhysicsEntity(p_pos,p_tex, p_size)
+Player::Player(Vector2 p_pos, unsigned int p_tex, Vector2 p_size) : LivingEntity(p_pos,p_tex, p_size)
 {
 	transform = p_pos;
 	tex = p_tex;
 	size = p_size;
-	Player::init();
-}
-
-void Player::init() // this was the biggest pain in the fucking ass ever
-{
-	PhysicsEntity::friction = friction;
-	PhysicsEntity::dragX = dragX;
-	PhysicsEntity::dragY = dragY;
-	PhysicsEntity::gravity = gravity;
-	PhysicsEntity::bounciness = bounciness;
 
 	texturePos.x = 0;// imma explain this better. texturepos is like the part of the texture the sprite uses
 	texturePos.y = 0;
@@ -33,29 +23,51 @@ void Player::init() // this was the biggest pain in the fucking ass ever
 	offset.h = 40;
 	layer = 2;
 	luminosity = Color4(1,1,1,0);
-}
 
-float animationFrame = 0;
+	maxHealth = 100;
+	health = maxHealth;
+	regenSpeed = 1;
+	damage = 1;
+	resitence = 1;
+	attackSpeed = 1;
+	movementSpeed = 1;
+	critChance = 0.05;
+	critDamage = 1.25;
+	physDamage = 0;
+	physResitence = 0;
+	iceDamage = 0;
+	iceResitence = 0;
+	fireDamage = 0;
+	fireResitence = 0;
+	elecDamage = 0;
+	elecResitence = 0;
+	windDamage = 0;
+	windResitence = 0;
+	hostile = false;
+
+	LivingEntity::init();
+}
 
 void Player::update()
 {
 	movementDir = Vector2(0,0);
+
 	// SDL_GetMouseState(&mouseX, &mouseY);
 
 	if (Event::KeyPressed(SDLK_LCTRL))
 	{
-		movespeed = 1;
+		running = false;
 	}
 	else
 	{
-		movespeed = 2;
+		running = true;
 	}
 
 	if (Event::KeyPressed(SDLK_RIGHT) || Event::KeyPressed(SDLK_d))
 	{
 		movementDir.x += 1;
 		texturePos.x = 0;
-		if (movespeed == 2)
+		if (running == false)
 		{
 			texturePos.y = 0;
 		}
@@ -69,7 +81,7 @@ void Player::update()
 	{
 		movementDir.x += -1;
 		texturePos.x = 0;
-		if (movespeed == 2)
+		if (running == false)
 		{
 			texturePos.y = 80;
 		}
@@ -84,7 +96,7 @@ void Player::update()
 	{
 		movementDir.y += -1;
 		texturePos.x = 0;
-		if (movespeed == 2)
+		if (running == false)
 		{
 			texturePos.y = 40;
 		}
@@ -99,7 +111,7 @@ void Player::update()
 	{
 		movementDir.y += 1;
 		texturePos.x = 0;
-		if (movespeed == 2)
+		if (running == false)
 		{
 			texturePos.y = 120;
 		}
@@ -110,6 +122,17 @@ void Player::update()
 		
 	}
 
+	if (Event::KeyPressed(SDLK_f))
+	{
+		Entity test(transform, size);
+
+		if (test.intersecting(*LivingEnts[1]))
+		{
+			LivingEnts[1]->velocity.x = movementDir.x * 10;
+			LivingEnts[1]->velocity.y = movementDir.y * 10;
+		}
+	}
+
 	animationFrame = animationFrame + (0.005) * Time::deltaTime();
 	texturePos.x = ((int)animationFrame) * (40);
 
@@ -117,13 +140,8 @@ void Player::update()
 	{
 		animationFrame = 0.9;
 	}
-	
-	float movementMag = sqrt((movementDir.x*movementDir.x) + (movementDir.y*movementDir.y)) + 0.00001;
 
-	velocity.x += ((0.015625 * movespeed) * movementDir.x / movementMag) * Time::deltaTime();
-	velocity.y += ((0.015625 * movespeed) * movementDir.y / movementMag) * Time::deltaTime();
-
-	OnGround = false;
+	LivingEntity::move(movementDir);
 	
 	Player::physics(phys);
 }

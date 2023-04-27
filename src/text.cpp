@@ -11,6 +11,11 @@ Text::Text()
 
 void Text::setText(std::string data)
 {
+	if (data == message)
+	{
+		return;
+	}
+
 	message = data;
 	characters.clear();
 
