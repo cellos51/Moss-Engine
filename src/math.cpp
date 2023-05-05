@@ -1,4 +1,5 @@
 #include "math.hpp"
+#include "math.h"
 
 #include <SDL2/SDL.h>
 
@@ -25,6 +26,11 @@ Vector2 Vector2::lerp(Vector2 a, Vector2 b, float time)
    y = a.y;
 
    return a;
+}
+
+float Vector2::magnitude()
+{
+   return sqrt(pow(x,2) + pow(y,2));
 }
 
 Color4::Color4() : r(0.0), g(0.0), b(0.0), a(0.0)
@@ -78,4 +84,9 @@ double Time::deltaTime()
 float std::lerp(float a, float b, float f)
 {
     return a + f * (b - a);
+}
+
+float std::rad2deg(float value)
+{
+   return value * (M_PI / 180);
 }

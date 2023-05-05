@@ -5,6 +5,7 @@ struct Vector2
 	Vector2();
 	Vector2(float p_x, float p_y);
 	Vector2 lerp(Vector2 a, Vector2 b, float time);
+	float magnitude();
 	float x, y;
 };
 
@@ -26,4 +27,5 @@ namespace std
 {
 	float lerp(float a, float b, float f);
 	float clamp(float value, float min, float max);
+	float rad2deg(float value);
 };

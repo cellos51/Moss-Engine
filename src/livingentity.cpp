@@ -7,13 +7,19 @@
 
 void LivingEntity::init()
 {
-
+	
 }
 
-LivingEntity::~LivingEntity()
+void LivingEntity::takeDamage(int amount)
 {
-
+	damageEffectTimer = 100; // in ms
+	health -= amount;
+	if (health < 0)
+	{
+		health = 0;
+	}
 }
+
 
 void LivingEntity::move(Vector2 moveVector)
 {
@@ -29,4 +35,14 @@ void LivingEntity::move(Vector2 moveVector)
 
 	velocity.x += ((0.015625 * moveSpeed) * moveVector.x / movementMag) * Time::deltaTime();
 	velocity.y += ((0.015625 * moveSpeed) * moveVector.y / movementMag) * Time::deltaTime();
+}
+
+void LivingEntity::update()
+{
+	PhysicsEntity::physics(phys);
+}
+
+LivingEntity::~LivingEntity()
+{
+
 }

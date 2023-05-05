@@ -30,6 +30,14 @@ public:
 	float windResitence = 0;
 	bool running = false;
 	bool hostile = false;
+
+	Entity hitBox = Entity(Vector2(0,0), Vector2(0,0));
+
+	float damageEffectTimer = 0;
+
+	void takeDamage(int amount);
+
+	virtual void update();
 	virtual ~LivingEntity();
 protected:
 	using PhysicsEntity::PhysicsEntity; // i don't need to change the constructer because this class should never be called on it's own

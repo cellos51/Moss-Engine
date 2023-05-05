@@ -20,6 +20,7 @@ public:
 	unsigned int tex;
 	unsigned int layer;
 	Vector2 size;
+	float rotation = 0.0f;
 	SDL_Rect offset;
 	SDL_Rect texturePos;
 	Color4 luminosity = Color4(0.0,0.0,0.0,1.0);

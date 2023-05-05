@@ -54,5 +54,15 @@ Enemy::Enemy(Vector2 p_pos, unsigned int p_tex, Vector2 p_size) : LivingEntity(p
 
 void Enemy::update()
 {	
+	if (damageEffectTimer > 0)
+	{
+		luminosity = Color4(1,0,0,0);
+		damageEffectTimer -= Time::deltaTime();
+	}
+	else
+	{
+		luminosity = Color4(1,1,1,0);
+	}
+
 	Enemy::physics(phys);
 }

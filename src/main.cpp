@@ -1,4 +1,5 @@
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 #include <glad/glad.h>
 #include <vector>
 #include <iostream>
@@ -39,9 +40,21 @@ std::vector<Light> lights;
 float timer = 0;
 Text FPS;
 
+Mix_Music *music = NULL;
+
 bool init() // used to initiate things before using
 {
-	SDL_Init(SDL_INIT_EVERYTHING);
+	if( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO ) < 0 )
+    {
+        printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
+        gameRunning = false;
+    }
+    if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
+	{
+		printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
+		gameRunning = false;
+	}
+
 	SDL_StopTextInput();
 
 	window.create("Moss Engine (OpenGL)", 1280, 720); // name and size of application window
@@ -51,7 +64,6 @@ bool init() // used to initiate things before using
 	LivingEnts[0]->transform = Level::LoadLevel(Level::LoadFile("assets/levels/level.lvl"), walls, window);
 	LivingEnts[0]->setTex(window.loadTexture("assets/textures/light_animsheet.png"));
 	LivingEnts[0]->layer = 3;
-
 
 	LivingEnts.emplace(1 ,new Enemy (Vector2(0,0), -1, Vector2(16, 16)));
 	LivingEnts[1]->setTex(window.loadTexture("assets/textures/player.png"));
@@ -63,6 +75,10 @@ bool init() // used to initiate things before using
 
 	FPS.font = window.loadTexture("assets/fonts/font.png");
 	FPS.setText("FPS");
+
+	music = Mix_LoadMUS("assets/audio/Synchronicity.flac");
+	Mix_PlayMusic(music, -0);
+
 	return true;
 }
 
@@ -81,7 +97,6 @@ void gameLoop() // it runs forever
 	{
 		//window.zoom = 0;
 		window.setZoom(1);
-
 	}
 	else if (Event::KeyPressed(SDLK_2))
 	{
@@ -143,6 +158,8 @@ void render() // honestly i feel like putting the stuff that is at the end of th
 		window.render(*ent, true);
 	}
 
+	window.render(LivingEnts[0]->hitBox, true);
+
 	window.render(FPS, false);
 }
 
@@ -167,6 +184,9 @@ int main(int argc, char* args[])
 	}
 	LivingEnts.clear();
 
+	
 	window.quit(); // run when user asks to exit program
+	Mix_Quit();
+	SDL_Quit();
 	return 0;
 }
