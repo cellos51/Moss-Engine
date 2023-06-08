@@ -58,9 +58,29 @@ void Enemy::update()
 	{
 		luminosity = Color4(1,0,0,0);
 		damageEffectTimer -= Time::deltaTime();
+		shakeTimer -= Time::deltaTime();
+
+		if (damageEffectTimer > 90)
+		{
+			Time::setTimeScale(0.1);
+		}
+		else
+		{
+			Time::setTimeScale(1);
+		}
+
+		if (shakeTimer <= 0)
+		{
+			offset.x = ((rand() % 20 + 1) - 10) * (damageEffectTimer / 100);
+			offset.y = ((rand() % 20 + 1) - 10) * (damageEffectTimer / 100);
+
+			shakeTimer = 5;
+		}
 	}
 	else
 	{
+		offset.x = 0;
+		offset.y = 0;
 		luminosity = Color4(1,1,1,0);
 	}
 

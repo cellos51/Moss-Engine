@@ -3,7 +3,7 @@
 
 #include <SDL2/SDL.h>
 
-
+double timeScale = 1;
 
 Vector2::Vector2() : x(0.0), y(0.0)
 {
@@ -68,7 +68,7 @@ void Time::Tick()
    LAST = NOW;
    NOW = SDL_GetPerformanceCounter();
 
-   delta = (double)((NOW - LAST)*1000 / (double)SDL_GetPerformanceFrequency() );
+   delta = (double)((NOW - LAST)*1000 / (double)SDL_GetPerformanceFrequency() ) * timeScale;
 
    if(delta > 1000 / minfps)
    {
@@ -79,6 +79,12 @@ void Time::Tick()
 double Time::deltaTime()
 {
 	return delta;
+}
+
+void Time::setTimeScale(double scale)
+{
+   timeScale = scale;
+   return;
 }
 
 float std::lerp(float a, float b, float f)

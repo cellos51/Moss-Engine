@@ -21,6 +21,7 @@ namespace Time
 {
 	void Tick();
 	double deltaTime();
+	void setTimeScale(double scale);
 };
 
 namespace std

@@ -8,8 +8,11 @@
 #include "math.h"
 #include "event.hpp"
 
+bool hasHit = false;
+
 //erm audio testtt
 Mix_Chunk *step1 = NULL;
+Mix_Chunk *hit = NULL;
 
 Player::Player(Vector2 p_pos, unsigned int p_tex, Vector2 p_size) : LivingEntity(p_pos,p_tex, p_size)
 {
@@ -53,8 +56,13 @@ Player::Player(Vector2 p_pos, unsigned int p_tex, Vector2 p_size) : LivingEntity
 	hitBox.tex = window.loadTexture( "assets/textures/sword.png" );
 	//hitBox.tex = 3;
 	hitBox.luminosity = Color4(1,1,1,0);
+	hitBox.offset.w = 72;
+	hitBox.offset.h = 72;
+	hitBox.texturePos.w = 72;
+	hitBox.texturePos.h = 72;
 
 	step1 = Mix_LoadWAV( "assets/audio/step1.wav" );
+	hit = Mix_LoadWAV( "assets/audio/hitsound.wav" );
 
 	LivingEntity::init();
 }
@@ -77,6 +85,8 @@ void Player::update()
 	if (Event::KeyPressed(SDLK_RIGHT) || Event::KeyPressed(SDLK_d))
 	{
 		hitDir = Vector2(1,0);
+		hitBox.rotation = 90.0f;
+		hitBox.layer = layer + 1;
 
 		movementDir.x += 1;
 		texturePos.x = 0;
@@ -93,6 +103,8 @@ void Player::update()
 	if (Event::KeyPressed(SDLK_LEFT) || Event::KeyPressed(SDLK_a))
 	{
 		hitDir = Vector2(-1,0);
+		hitBox.rotation = -90.0f;
+		hitBox.layer = layer + 1;
 
 		movementDir.x += -1;
 		texturePos.x = 0;
@@ -110,6 +122,8 @@ void Player::update()
 	if ((Event::KeyPressed(SDLK_UP)) || (Event::KeyPressed(SDLK_w)))
 	{
 		hitDir = Vector2(0,-1);
+		hitBox.rotation = 180.0f;
+		hitBox.layer = layer - 1;
 
 		movementDir.y += -1;
 		texturePos.x = 0;
@@ -127,6 +141,8 @@ void Player::update()
 	if ((Event::KeyPressed(SDLK_DOWN)) || (Event::KeyPressed(SDLK_s)))
 	{
 		hitDir = Vector2(0,1);
+		hitBox.rotation = 0.0f;
+		hitBox.layer = layer + 1;
 
 		movementDir.y += 1;
 		texturePos.x = 0;
@@ -165,7 +181,7 @@ void Player::update()
 		animationFrameSword = animationFrameSword - (0.025) * Time::deltaTime();
 		hitBox.texturePos.x = -((int)animationFrameSword) * (72);
 
-		if ((int)animationFrameSword == 6)
+		if ((int)animationFrameSword == 6 && hasHit == false)
 		{
 			for (auto& [key, ent]: LivingEnts)
 			{
@@ -174,24 +190,49 @@ void Player::update()
 					ent->takeDamage(0);
 					ent->velocity.x = hitDir.x * 10;
 					ent->velocity.y = hitDir.y * 10;
+					hasHit = true;
+					Mix_PlayChannel( -1, hit, 0 );
 				}
 			}
 		}
 	}
 
-	hitBox.transform.x = transform.x - (hitBox.size.x / 2) + 8;
-	hitBox.transform.y = transform.y - (hitBox.size.y / 2);
+	hitBox.transform.x = transform.x - (hitBox.size.x / 2) + 8 + (hitDir.x * 6);
+	hitBox.transform.y = transform.y - (hitBox.size.y / 2) + (hitDir.y * 6);
+
+	hitBox.size = Vector2(24 + (std::abs( hitDir.y * 12 )),24 + (std::abs( hitDir.x * 12 )));
+
+
+	if (hitDir.x > 0)
+	{
+		hitBox.offset.x = -hitBox.size.y + 4;
+		hitBox.offset.y = -hitBox.size.x + 8;
+	}
+	else if (hitDir.x < 0)
+	{
+		hitBox.offset.x = -hitBox.size.y + 19;
+		hitBox.offset.y = -hitBox.size.x + 5;
+	}
+	else if (hitDir.y > 0)
+	{
+		hitBox.offset.x = -hitBox.size.y + 4;
+		hitBox.offset.y = -hitBox.size.x + 2;
+	}
+	else if (hitDir.y < 0)
+	{
+		hitBox.offset.x = -hitBox.size.y + 4;
+		hitBox.offset.y = -hitBox.size.x + 8;
+	}
+
+
+
 
 	if (Event::KeyDown(SDLK_f))
 	{
+		hasHit = false;
 		animationFrameSword = 9;
 
-		hitBox.size = Vector2(72,72);
-
-		hitBox.offset.w = hitBox.size.x;
-		hitBox.offset.h = hitBox.size.y;
-		hitBox.texturePos.w = hitBox.size.x;
-		hitBox.texturePos.h = hitBox.size.y;
+		//hitBox.size = Vector2(48,24);
 	}
 
 	lastFrame = (int)animationFrame;
