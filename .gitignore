@@ -33,4 +33,7 @@
 
 # Directories
 /bin/*
+/x64/*
+/.vs/*
+/.git/*
 *.txt

@@ -106,17 +106,29 @@ bool Event::AppQuit()
 
 bool Event::MousePressed(int i)
 {
-	return mouseMap.find(i)->second;
+	if (mouseMap.find(i) != mouseMap.end())
+	{
+		return mouseMap.find(i)->second;
+	}
+	return false;
 }
 
 bool Event::MouseDown(int i)
 {
-	return mouseDownMap.find(i)->second;
+	if (mouseDownMap.find(i) != mouseDownMap.end())
+	{
+		return mouseDownMap.find(i)->second;
+	}
+	return false;
 }
 
 bool Event::KeyPressed(int i)
 {
-	return keyMap.find(i)->second; 
+	if (keyMap.find(i) != keyMap.end())
+	{
+		return keyMap.find(i)->second;
+	}
+	return false;
 }
 
 bool Event::TextInputEnabled(bool i)
@@ -140,7 +152,11 @@ bool Event::TextInputEnabled()
 
 bool Event::KeyDown(int i)
 {
-	return keyDownMap.find(i)->second; 
+	if (keyDownMap.find(i) != keyDownMap.end())
+	{
+		return keyDownMap.find(i)->second;
+	}
+	return false;
 }
 
 std::string Event::GetInputText()

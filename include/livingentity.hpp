@@ -16,8 +16,8 @@ public:
 	float attackSpeed = 1;
 	float movementSpeed = 1;
 	float sprintMultiplier = 2;
-	float critChance = 0.05;
-	float critDamage = 1.25;
+	float critChance = 0.05f;
+	float critDamage = 1.25f;
 	float physDamage = 0;
 	float physResitence = 0;
 	float iceDamage = 0;

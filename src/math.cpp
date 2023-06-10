@@ -87,10 +87,10 @@ void Time::setTimeScale(double scale)
    return;
 }
 
-float std::lerp(float a, float b, float f)
-{
-    return a + f * (b - a);
-}
+//float std::lerp(float a, float b, float f)
+//{
+//    return a + f * (b - a);
+//}
 
 float std::rad2deg(float value)
 {

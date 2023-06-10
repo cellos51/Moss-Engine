@@ -1,3 +1,8 @@
+#include "steamcallbacks.hpp"
+#include <steam/steam_api.h>
+#include <steam/isteammatchmaking.h>
+#include <steam/isteamfriends.h>
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 #include <glad/glad.h>
@@ -20,8 +25,10 @@
 #include "ui.hpp"
 #include "light.hpp"
 
+
 // random shit needed to be here to run
 bool gameRunning = true;
+SteamCallbacks test;
 
 // main window
 OpenGLWindow window;
@@ -44,6 +51,17 @@ Mix_Music *music = NULL;
 
 bool init() // used to initiate things before using
 {
+	if (SteamAPI_RestartAppIfNecessary(k_uAppIdInvalid)) // Replace with your App ID
+	{
+		gameRunning = false;
+	}
+
+	if (!SteamAPI_Init())
+	{
+		printf("Fatal Error - Steam must be running to play this game (SteamAPI_Init() failed).\n");
+		gameRunning = false;
+	}
+
 	if( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO ) < 0 )
     {
         printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
@@ -77,7 +95,7 @@ bool init() // used to initiate things before using
 	FPS.setText("FPS");
 
 	music = Mix_LoadMUS("assets/audio/Synchronicity.flac");
-	Mix_PlayMusic(music, -0);
+	Mix_PlayMusic(music, -1);
 
 	return true;
 }
@@ -91,7 +109,6 @@ void gameLoop() // it runs forever
 		FPS.setText("FPS: " + std::to_string(int(1000 / Time::deltaTime())));
 		timer = 0;
 	}
-	
 
 	if (Event::KeyPressed(SDLK_1))
 	{
@@ -113,6 +130,11 @@ void gameLoop() // it runs forever
 		//window.zoom = 0.75;
 		window.setZoom(4);
 	}	
+
+	if (Event::KeyDown(SDLK_p))
+	{
+		SteamMatchmaking()->CreateLobby(k_ELobbyTypePublic, 2);
+	}
 
 	for (auto& [key, ent]: LivingEnts)
 	{
@@ -168,6 +190,8 @@ int main(int argc, char* args[])
 	init();
 	while (gameRunning) // main game loop ran every frame
 	{
+		SteamAPI_RunCallbacks();
+
 		Time::Tick();
     	Event::PollEvent();
     	gameRunning = Event::AppQuit();
@@ -188,5 +212,6 @@ int main(int argc, char* args[])
 	window.quit(); // run when user asks to exit program
 	Mix_Quit();
 	SDL_Quit();
+	SteamAPI_Shutdown();
 	return 0;
 }

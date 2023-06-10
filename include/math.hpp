@@ -26,7 +26,7 @@ namespace Time
 
 namespace std
 {
-	float lerp(float a, float b, float f);
+	//float lerp(float a, float b, float f);
 	float clamp(float value, float min, float max);
 	float rad2deg(float value);
 };

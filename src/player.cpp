@@ -38,8 +38,8 @@ Player::Player(Vector2 p_pos, unsigned int p_tex, Vector2 p_size) : LivingEntity
 	resitence = 1;
 	attackSpeed = 1;
 	movementSpeed = 1;
-	critChance = 0.05;
-	critDamage = 1.25;
+	critChance = 0.05f;
+	critDamage = 1.25f;
 	physDamage = 0;
 	physResitence = 0;
 	iceDamage = 0;
