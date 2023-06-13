@@ -1,7 +1,7 @@
-#include "steamcallbacks.hpp"
 #include <steam/steam_api.h>
 #include <steam/isteammatchmaking.h>
 #include <steam/isteamfriends.h>
+#include "networkmanager.hpp"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
@@ -25,10 +25,9 @@
 #include "ui.hpp"
 #include "light.hpp"
 
-
 // random shit needed to be here to run
 bool gameRunning = true;
-SteamCallbacks test;
+NetworkManager netManager;
 
 // main window
 OpenGLWindow window;
@@ -95,7 +94,7 @@ bool init() // used to initiate things before using
 	FPS.setText("FPS");
 
 	music = Mix_LoadMUS("assets/audio/Synchronicity.flac");
-	Mix_PlayMusic(music, -1);
+	//Mix_PlayMusic(music, -1);
 
 	return true;
 }
@@ -133,7 +132,7 @@ void gameLoop() // it runs forever
 
 	if (Event::KeyDown(SDLK_p))
 	{
-		SteamMatchmaking()->CreateLobby(k_ELobbyTypePublic, 2);
+		netManager.CreateLobby();
 	}
 
 	for (auto& [key, ent]: LivingEnts)
@@ -207,7 +206,6 @@ int main(int argc, char* args[])
 		delete ent;
 	}
 	LivingEnts.clear();
-
 	
 	window.quit(); // run when user asks to exit program
 	Mix_Quit();

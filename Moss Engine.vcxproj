@@ -79,6 +79,7 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>C:\Users\Creep\Documents\Moss Engine Dev\Libraries\SDL2-VC\include;C:\Users\Creep\Documents\Moss Engine Dev\Libraries\Steamworks\public;C:\Users\Creep\Documents\Moss Engine Dev\Libraries\glm;C:\Users\Creep\Documents\Moss Engine Dev\Libraries\glad\include;C:\Users\Creep\Documents\Moss Engine Dev\Moss-Engine\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\Creep\Documents\Moss Engine Dev\Libraries\Steamworks\redistributable_bin\win64;C:\Users\Creep\Documents\Moss Engine Dev\Libraries\SDL2-VC\lib\x64;$(LibraryPath)</LibraryPath>
+    <SourcePath>C:\Users\Creep\Documents\Moss Engine Dev\Libraries\glad\src;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -133,7 +134,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Libraries\glad\src\glad.c" />
-    <ClCompile Include="include\steamcallbacks.cpp" />
     <ClCompile Include="src\enemy.cpp" />
     <ClCompile Include="src\entity.cpp" />
     <ClCompile Include="src\event.cpp" />
@@ -142,6 +142,7 @@
     <ClCompile Include="src\livingentity.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\math.cpp" />
+    <ClCompile Include="src\networkmanager.cpp" />
     <ClCompile Include="src\openglwindow.cpp" />
     <ClCompile Include="src\physicsentity.cpp" />
     <ClCompile Include="src\player.cpp" />
@@ -158,12 +159,12 @@
     <ClInclude Include="include\light.hpp" />
     <ClInclude Include="include\livingentity.hpp" />
     <ClInclude Include="include\math.hpp" />
+    <ClInclude Include="include\networkmanager.hpp" />
     <ClInclude Include="include\openglwindow.hpp" />
     <ClInclude Include="include\physicsentity.hpp" />
     <ClInclude Include="include\player.hpp" />
     <ClInclude Include="include\shader.hpp" />
     <ClInclude Include="include\stb_image.h" />
-    <ClInclude Include="include\steamcallbacks.hpp" />
     <ClInclude Include="include\text.hpp" />
     <ClInclude Include="include\ui.hpp" />
   </ItemGroup>
