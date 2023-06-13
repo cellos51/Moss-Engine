@@ -135,6 +135,11 @@ void gameLoop() // it runs forever
 		netManager.CreateLobby();
 	}
 
+	if (Event::KeyDown(SDLK_o))
+	{
+		//netManager.MessageServer("Test message \n");
+	}
+
 	for (auto& [key, ent]: LivingEnts)
 	{
 		ent->update();
@@ -190,6 +195,7 @@ int main(int argc, char* args[])
 	while (gameRunning) // main game loop ran every frame
 	{
 		SteamAPI_RunCallbacks();
+		netManager.ReceiveMessages();
 
 		Time::Tick();
     	Event::PollEvent();
