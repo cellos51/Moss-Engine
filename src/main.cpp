@@ -75,15 +75,17 @@ bool init() // used to initiate things before using
 	SDL_StopTextInput();
 
 	window.create("Moss Engine (OpenGL)", 1280, 720); // name and size of application window
+	unsigned int playerTex = window.loadTexture("assets/textures/light_animsheet.png");
+	unsigned int enemyTex = window.loadTexture("assets/textures/player.png");
 
 	LivingEnts.emplace(0 ,new Player (Vector2(0,0), -1, Vector2(16, 16)));
 
 	LivingEnts[0]->transform = Level::LoadLevel(Level::LoadFile("assets/levels/level.lvl"), walls, window);
-	LivingEnts[0]->setTex(window.loadTexture("assets/textures/light_animsheet.png"));
+	LivingEnts[0]->setTex(playerTex);
 	LivingEnts[0]->layer = 3;
 
 	LivingEnts.emplace(1 ,new Enemy (Vector2(0,0), -1, Vector2(16, 16)));
-	LivingEnts[1]->setTex(window.loadTexture("assets/textures/player.png"));
+	LivingEnts[1]->setTex(enemyTex);
 	LivingEnts[1]->layer = 3;
 
 	realLight.layer = 2;
@@ -95,6 +97,8 @@ bool init() // used to initiate things before using
 
 	music = Mix_LoadMUS("assets/audio/Synchronicity.flac");
 	//Mix_PlayMusic(music, -1);
+
+	netManager.playerTex = playerTex;
 
 	return true;
 }
@@ -130,16 +134,6 @@ void gameLoop() // it runs forever
 		window.setZoom(4);
 	}	
 
-	if (Event::KeyDown(SDLK_p))
-	{
-		netManager.CreateLobby();
-	}
-
-	if (Event::KeyDown(SDLK_o))
-	{
-		//netManager.MessageServer("Test message \n");
-	}
-
 	for (auto& [key, ent]: LivingEnts)
 	{
 		ent->update();
@@ -158,6 +152,27 @@ void gameLoop() // it runs forever
 	}
 
 	realLight.transform = Vector2(LivingEnts[0]->transform.x + LivingEnts[0]->size.x / 2, LivingEnts[0]->transform.y + LivingEnts[0]->size.y / 2);
+
+	// lobby stuff
+	if (Event::KeyDown(SDLK_p))
+	{
+		netManager.CreateLobby();
+	}
+	else if (netManager.InLobby())
+	{
+		// Create a byte array to hold the serialized float values
+		uint32_t dataSize = sizeof(float) * 2;
+		uint8_t* pData = new uint8_t[dataSize];
+
+		// Serialize the float values into the byte array
+		memcpy(pData, &LivingEnts[0]->transform.x, sizeof(float));
+		memcpy(pData + sizeof(float), &LivingEnts[0]->transform.y, sizeof(float));
+
+		netManager.MessageAll(pData, dataSize, k_nSteamNetworkingSend_UnreliableNoDelay, 0);
+
+		LivingEnts[1]->transform = netManager.playerPos;
+	}
+
 }
 
 void render() // honestly i feel like putting the stuff that is at the end of the gameloop in here
@@ -178,6 +193,8 @@ void render() // honestly i feel like putting the stuff that is at the end of th
 	{
 		window.render(wall, true);
 	}
+
+
 
 	for (auto& [key, ent]: LivingEnts)
 	{
