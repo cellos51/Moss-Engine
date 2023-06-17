@@ -13,6 +13,14 @@
 
 #define MAX_MESSAGES 8
 
+struct PlayerData
+{
+	unsigned int index = 0;
+	Vector2 position;
+	unsigned int movement = 0; // 0 standing, 1 walking, 2 running.
+	unsigned int direction = 0; // 0 up, 1 down, 2 left, 3 right.
+};
+
 class NetworkManager
 {
 public:
@@ -21,21 +29,21 @@ public:
 	void CreateLobby();
 	void LeaveLobby();
 	bool InLobby();
+	void PingServer();
 	void MessageServer(const void* message, uint32 size, int flag, int channel); // just for testing :P
 	void MessageAll(const void* message, uint32 size, int flag, int channel); // just for testing :P
 	void ReceiveMessages();
 
 	unsigned int playerTex = 0;
 
-	Vector2 playerPos;
-
-	std::vector<Player> netPlayers;
+	std::map<unsigned int, Player> netPlayers;
+	unsigned int playerIndex = 0;
 private:
-	void PlayerJoined(CSteamID player);
+	void AddPeer(CSteamID player);
 
 	CSteamID LobbyID;
 	SteamNetworkingMessage_t* pMessages[MAX_MESSAGES] = {};
-	std::vector<SteamNetworkingIdentity> peers;
+	std::map<unsigned int, SteamNetworkingIdentity> peers;
 
 	STEAM_CALLBACK(NetworkManager, LobbyCreated, LobbyCreated_t);
 	STEAM_CALLBACK(NetworkManager, GameLobbyJoinRequested, GameLobbyJoinRequested_t);

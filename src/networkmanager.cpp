@@ -29,11 +29,13 @@ void NetworkManager::LeaveLobby()
 		SteamMatchmaking()->LeaveLobby(LobbyID);
 	}
 
-	for (SteamNetworkingIdentity peer : peers)
+	for (auto& [key, peer] : peers)
 	{
 		SteamNetworkingMessages()->CloseSessionWithUser(peer);
 		peer.Clear();
 	}
+	playerIndex = 0;
+	netPlayers.clear();
 	peers.clear();
 }
 
@@ -42,25 +44,42 @@ bool NetworkManager::InLobby()
 	return LobbyID.IsValid();
 }
 
+void NetworkManager::PingServer()
+{
+	CSteamID OwnerID = SteamMatchmaking()->GetLobbyOwner(LobbyID);
+	CSteamID LocalID = SteamUser()->GetSteamID();
+
+	if (LocalID == OwnerID) { return; }
+
+	SteamNetworkingIdentity identity;
+	identity.SetSteamID(OwnerID);
+
+	SteamNetworkingMessages()->SendMessageToUser(identity, "", 0, k_nSteamNetworkingSend_Reliable, 0);
+}
+
 void NetworkManager::MessageServer(const void* message, uint32 size, int flag, int channel)
 {
 	CSteamID OwnerID = SteamMatchmaking()->GetLobbyOwner(LobbyID);
+	CSteamID LocalID = SteamUser()->GetSteamID();
 
-	if (OwnerID != SteamUser()->GetSteamID())
-	{
-		SteamNetworkingIdentity identity;
-		identity.SetSteamID(OwnerID);
+	if (playerIndex == 0 || LocalID == OwnerID) { return; }
+		
+	SteamNetworkingIdentity identity;
+	identity.SetSteamID(OwnerID);
 
-		SteamNetworkingMessages()->SendMessageToUser(identity, message, size, flag, channel);
-	}
+	SteamNetworkingMessages()->SendMessageToUser(identity, message, size, flag, channel);
 }
 
 void NetworkManager::MessageAll(const void* message, uint32 size, int flag, int channel)
 {
-	SteamNetworkingIdentity identity;
-	identity.SetSteamID(SteamUser()->GetSteamID());
+	CSteamID LocalID = SteamUser()->GetSteamID();
 
-	for (const SteamNetworkingIdentity& peer : peers)
+	if (playerIndex == 0 && LocalID != SteamMatchmaking()->GetLobbyOwner(LobbyID)) { return; }
+
+	SteamNetworkingIdentity identity;
+	identity.SetSteamID(LocalID);
+
+	for (const auto& [key, peer] : peers)
 	{
 		if (peer != identity)
 		{
@@ -81,18 +100,22 @@ void NetworkManager::ReceiveMessages()
 			const uint8_t* pData = static_cast<const uint8_t*>(pMessages[i]->GetData());
 			uint32_t dataSize = pMessages[i]->GetSize();
 
-			// Deserialize the byte array back into a Vector2
-			if (dataSize == sizeof(Vector2))
+			if (dataSize == sizeof(unsigned int))
 			{
-				Vector2 receivedVector;
-				memcpy(&receivedVector, pData, sizeof(Vector2));
+				memcpy(&playerIndex, pData, sizeof(unsigned int));
 
-				playerPos = receivedVector;
-				
-				// Debug output
+				playerIndex = 1;
+
 				char debugMsg[256];
-				sprintf_s(debugMsg, "Received Vector2: x=%.2f, y=%.2f\n", receivedVector.x, receivedVector.y);
+				sprintf_s(debugMsg, "Index received: %u\n", playerIndex);
 				OutputDebugStringA(debugMsg);
+			}
+			else if (dataSize == sizeof(PlayerData))
+			{
+				PlayerData receivedData;
+				memcpy(&receivedData, pData, sizeof(PlayerData));
+
+				netPlayers.find(receivedData.index)->second.transform = receivedData.position;
 			}
 
 			// Process the received message(s) as needed
@@ -123,11 +146,11 @@ void NetworkManager::LobbyEnter(LobbyEnter_t* pCallback)
 {
 	LobbyID = pCallback->m_ulSteamIDLobby;
 
-	MessageServer("", 0, k_nSteamNetworkingSend_Reliable, 0);
+	PingServer();
 
 	CSteamID OwnerID = SteamMatchmaking()->GetLobbyOwner(LobbyID);
 
-	PlayerJoined(OwnerID);
+	AddPeer(OwnerID);
 
 	OutputDebugString("Lobby entered. \n");
 }
@@ -172,7 +195,19 @@ void NetworkManager::SteamNetworkingMessagesSessionRequest(SteamNetworkingMessag
 
 	SteamNetworkingMessages()->AcceptSessionWithUser(pCallback->m_identityRemote);
 
-	PlayerJoined(pCallback->m_identityRemote.GetSteamID());
+	AddPeer(pCallback->m_identityRemote.GetSteamID());
+
+	for (const auto& [key, peer] : peers)
+	{
+		if (peer == pCallback->m_identityRemote)
+		{
+			uint32_t dataSize = sizeof(unsigned int);
+			uint8_t* pData = new uint8_t[dataSize];
+			memcpy(pData, &key, sizeof(float));
+
+			SteamNetworkingMessages()->SendMessageToUser(peer, pData, dataSize, k_nSteamNetworkingSend_Reliable, 0);
+		}
+	}
 }
 
 void NetworkManager::SteamNetworkingMessagesSessionFailed(SteamNetworkingMessagesSessionFailed_t* pCallback)
@@ -183,19 +218,22 @@ void NetworkManager::SteamNetworkingMessagesSessionFailed(SteamNetworkingMessage
 	OutputDebugStringA(debugMsg);
 }
 
-void NetworkManager::PlayerJoined(CSteamID player)
+void NetworkManager::AddPeer(CSteamID player)
 {
-	if (player == SteamUser()->GetSteamID()) { return; }
-
 	SteamNetworkingIdentity identity;
 	identity.SetSteamID(player);
 
-	if (std::find(peers.begin(), peers.end(), identity) == peers.end())
+	unsigned int index = 0;
+	while (peers.find(index) != peers.end())
 	{
-		OutputDebugStringA("Hello!");
+		++index;
+	}
 
-		peers.push_back(identity);
+	peers.emplace(index, identity);
 
-		netPlayers.push_back(Player(Vector2(100, 0), playerTex, Vector2(16, 16)));
+	if (player != SteamUser()->GetSteamID())
+	{
+		netPlayers.emplace(index, Player(Vector2(0, 0), playerTex, Vector2(16, 16)));
+		netPlayers.find(index)->second.layer = 3;
 	}
 }

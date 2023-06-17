@@ -161,16 +161,19 @@ void gameLoop() // it runs forever
 	else if (netManager.InLobby())
 	{
 		// Create a byte array to hold the serialized float values
-		uint32_t dataSize = sizeof(float) * 2;
+		uint32_t dataSize = sizeof(PlayerData);
 		uint8_t* pData = new uint8_t[dataSize];
 
+		PlayerData data;
+		data.index = netManager.playerIndex;
+		data.position = LivingEnts[0]->transform;
+		data.movement = 0;
+		data.direction = 0;
+
 		// Serialize the float values into the byte array
-		memcpy(pData, &LivingEnts[0]->transform.x, sizeof(float));
-		memcpy(pData + sizeof(float), &LivingEnts[0]->transform.y, sizeof(float));
+		memcpy(pData, &data, dataSize);
 
 		netManager.MessageAll(pData, dataSize, k_nSteamNetworkingSend_UnreliableNoDelay, 0);
-
-		LivingEnts[1]->transform = netManager.playerPos;
 	}
 
 }
@@ -194,7 +197,10 @@ void render() // honestly i feel like putting the stuff that is at the end of th
 		window.render(wall, true);
 	}
 
-
+	for (auto& [key, value] : netManager.netPlayers)
+	{
+		window.render(value, true);
+	}
 
 	for (auto& [key, ent]: LivingEnts)
 	{
