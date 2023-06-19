@@ -32,6 +32,7 @@ public:
 	bool hostile = false;
 
 	Entity hitBox = Entity(Vector2(0,0), Vector2(0,0));
+	Vector2 movementDir = Vector2(0, 0);
 
 	float damageEffectTimer = 0;
 

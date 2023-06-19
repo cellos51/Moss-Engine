@@ -115,7 +115,15 @@ void NetworkManager::ReceiveMessages()
 				PlayerData receivedData;
 				memcpy(&receivedData, pData, sizeof(PlayerData));
 
-				netPlayers.find(receivedData.index)->second.transform = receivedData.position;
+				NetworkPlayer* proxy = &netPlayers.find(receivedData.index)->second;
+
+				proxy->transform = receivedData.position;
+				proxy->movement = receivedData.movement;
+
+				if (receivedData.direction > 0)
+				{
+					proxy->direction = receivedData.direction;
+				}
 			}
 
 			// Process the received message(s) as needed
@@ -233,7 +241,7 @@ void NetworkManager::AddPeer(CSteamID player)
 
 	if (player != SteamUser()->GetSteamID())
 	{
-		netPlayers.emplace(index, Player(Vector2(0, 0), playerTex, Vector2(16, 16)));
+		netPlayers.emplace(index, NetworkPlayer(Vector2(0, 0), playerTex, Vector2(16, 16)));
 		netPlayers.find(index)->second.layer = 3;
 	}
 }

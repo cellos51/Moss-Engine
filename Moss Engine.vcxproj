@@ -143,6 +143,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\math.cpp" />
     <ClCompile Include="src\networkmanager.cpp" />
+    <ClCompile Include="src\networkplayer.cpp" />
     <ClCompile Include="src\openglwindow.cpp" />
     <ClCompile Include="src\physicsentity.cpp" />
     <ClCompile Include="src\player.cpp" />
@@ -160,6 +161,7 @@
     <ClInclude Include="include\livingentity.hpp" />
     <ClInclude Include="include\math.hpp" />
     <ClInclude Include="include\networkmanager.hpp" />
+    <ClInclude Include="include\networkplayer.hpp" />
     <ClInclude Include="include\openglwindow.hpp" />
     <ClInclude Include="include\physicsentity.hpp" />
     <ClInclude Include="include\player.hpp" />

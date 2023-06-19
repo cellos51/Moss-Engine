@@ -7,7 +7,7 @@
 #include <steam/isteamgameserver.h>
 
 #include <map>
-#include "player.hpp"
+#include "networkplayer.hpp"
 
 #define MAX_PLAYERS 4
 
@@ -18,7 +18,7 @@ struct PlayerData
 	unsigned int index = 0;
 	Vector2 position;
 	unsigned int movement = 0; // 0 standing, 1 walking, 2 running.
-	unsigned int direction = 0; // 0 up, 1 down, 2 left, 3 right.
+	unsigned int direction = 0; // 1 up, 2 down, 3 left, 4 right.
 };
 
 class NetworkManager
@@ -36,7 +36,7 @@ public:
 
 	unsigned int playerTex = 0;
 
-	std::map<unsigned int, Player> netPlayers;
+	std::map<unsigned int, NetworkPlayer> netPlayers;
 	unsigned int playerIndex = 0;
 private:
 	void AddPeer(CSteamID player);

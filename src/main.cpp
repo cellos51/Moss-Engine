@@ -167,8 +167,42 @@ void gameLoop() // it runs forever
 		PlayerData data;
 		data.index = netManager.playerIndex;
 		data.position = LivingEnts[0]->transform;
-		data.movement = 0;
-		data.direction = 0;
+
+		if (LivingEnts[0]->movementDir.magnitude() > 0)
+		{
+			if (LivingEnts[0]->running == true)
+			{
+				data.movement = 2;
+			}
+			else
+			{
+				data.movement = 1;
+			}
+
+			if (LivingEnts[0]->movementDir.y > 0)
+			{
+				data.direction = 4;
+			}
+			else if (LivingEnts[0]->movementDir.y < 0)
+			{
+				data.direction = 3;
+			}
+			else if (LivingEnts[0]->movementDir.x < 0)
+			{
+				data.direction = 2;
+			}
+			else if (LivingEnts[0]->movementDir.x > 0)
+			{
+				data.direction = 1;
+			}
+		}
+		else
+		{
+			data.movement = 0;
+			data.direction = 0;
+		}
+		
+
 
 		// Serialize the float values into the byte array
 		memcpy(pData, &data, dataSize);
@@ -199,6 +233,7 @@ void render() // honestly i feel like putting the stuff that is at the end of th
 
 	for (auto& [key, value] : netManager.netPlayers)
 	{
+		value.update();
 		window.render(value, true);
 	}
 

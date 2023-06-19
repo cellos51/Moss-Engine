@@ -6,14 +6,16 @@
 
 #include "math.hpp"
 
-class Player : public LivingEntity
+class NetworkPlayer : public LivingEntity
 {
 public:
 	//using Entity::Entity;
-	Player(Vector2 p_pos, unsigned int p_tex, Vector2 p_size);
-	Vector2 hitDir = Vector2(0,1);
+	NetworkPlayer(Vector2 p_pos, unsigned int p_tex, Vector2 p_size);
 	float animationFrame = 0;
-	float animationFrameSword = 0;
 	int lastFrame = 0;
+
+	unsigned int movement = 0;
+	unsigned int direction = 1;
+
 	void update();
 };
