@@ -52,7 +52,7 @@ bool init() // used to initiate things before using
 {
 	if (SteamAPI_RestartAppIfNecessary(k_uAppIdInvalid)) // Replace with your App ID
 	{
-		gameRunning = false;
+		//gameRunning = false;
 	}
 
 	if (!SteamAPI_Init())
@@ -202,14 +202,11 @@ void gameLoop() // it runs forever
 			data.direction = 0;
 		}
 		
-
-
 		// Serialize the float values into the byte array
 		memcpy(pData, &data, dataSize);
 
 		netManager.MessageAll(pData, dataSize, k_nSteamNetworkingSend_UnreliableNoDelay, 0);
 	}
-
 }
 
 void render() // honestly i feel like putting the stuff that is at the end of the gameloop in here

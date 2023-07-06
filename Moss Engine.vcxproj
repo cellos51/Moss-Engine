@@ -70,7 +70,7 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>C:\Users\Creep\Documents\Moss Engine Dev\Libraries\SDL2-VC\include;C:\Users\Creep\Documents\Moss Engine Dev\Libraries\Steamworks\public;C:\Users\Creep\Documents\Moss Engine Dev\Libraries\glm;C:\Users\Creep\Documents\Moss Engine Dev\Libraries\glad\include;C:\Users\Creep\Documents\Moss Engine Dev\Moss-Engine\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\Creep\Documents\Moss Engine Dev\Libraries\Steamworks\redistributable_bin\win64;C:\Users\Creep\Documents\Moss Engine Dev\Libraries\SDL2-VC\lib\x64;$(LibraryPath)</LibraryPath>
-    <SourcePath>$(SourcePath)</SourcePath>
+    <SourcePath>C:\Users\Creep\Documents\Moss Engine Dev\Libraries\glad\src;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
@@ -101,7 +101,6 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>C:\Users\Creep\Documents\Moss Engine Dev\Libraries\Steamworks\public\steam\lib\win64;C:\Users\Creep\Documents\Moss Engine Dev\Libraries\SDL2\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(CoreLibraryDependencies);steam_api64.lib;SDL2main.lib;SDL2.lib;SDL2_mixer.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -169,6 +168,7 @@
     <ClInclude Include="include\stb_image.h" />
     <ClInclude Include="include\text.hpp" />
     <ClInclude Include="include\ui.hpp" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
