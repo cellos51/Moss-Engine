@@ -19,17 +19,15 @@
 float zoom = 1;
 Entity OnscreenCamera(Vector2(0,0));
 
-Shader framebufferShader("assets/shaders/framebuffer.vs", "assets/shaders/framebuffer.fs");
-Shader defaultShader("assets/shaders/shader.vs", "assets/shaders/shader.fs");
-Shader shadowShader("assets/shaders/shadowshader.vs", "assets/shaders/shadowshader.fs");
-Shader lightShader("assets/shaders/lightshader.vs", "assets/shaders/lightshader.fs");
-Shader luminosityShader("assets/shaders/luminosity.vs", "assets/shaders/luminosity.fs");
+Shader framebufferShader("assets/shaders/framebuffer.vert", "assets/shaders/framebuffer.frag");
+Shader defaultShader("assets/shaders/shader.vert", "assets/shaders/shader.frag");
+Shader shadowShader("assets/shaders/shadowshader.vert", "assets/shaders/shadowshader.frag");
+Shader lightShader("assets/shaders/lightshader.vert", "assets/shaders/lightshader.frag");
+Shader luminosityShader("assets/shaders/luminosity.vert", "assets/shaders/luminosity.frag");
 
 int textureUnits[16] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
 
 unsigned int newestTexture = 0;
-
-std::map<unsigned int,Vector2> TextureSize;
 
 const int maxEntities = 10000;
 
@@ -377,10 +375,10 @@ void OpenGLWindow::render(ui& p_ui) // i think this copys the texture to the ren
 	transform = glm::translate(transform, glm::vec3(((((p_ui.transform.x) + p_ui.size.x / 2) - getSize().x / 2)) / (p_ui.size.x / 2), -((((p_ui.transform.y) + p_ui.size.y / 2) - getSize().y / 2)) / (p_ui.size.y / 2), 0)); 
 
 	positionArray[entityCount] = transform;
-	texCoordArray[entityCount] = glm::vec4(1,1,1,1);
+	texCoordArray[entityCount] = glm::vec4(p_ui.texturePos.x / TextureSize[p_ui.tex].x, p_ui.texturePos.y / TextureSize[p_ui.tex].y, TextureSize[p_ui.tex].x / p_ui.texturePos.w, TextureSize[p_ui.tex].y / p_ui.texturePos.h);
 	textureArray[entityCount] = p_ui.tex;
 	layerArray[entityCount] = p_ui.layer;
-	shadowArray[entityCount] = glm::vec4(1,1,1,0);
+	shadowArray[entityCount] = glm::vec4(p_ui.red, p_ui.green, p_ui.blue, 1);
 
 	if (TexturesToRender.find(p_ui.layer) == TexturesToRender.end())
 	{

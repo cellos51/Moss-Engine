@@ -20,6 +20,27 @@ ui::ui()
 	uiText.transform = transform;
 	layer = 3;
 	tex = 1;
+	texturePos.x = 0;
+	texturePos.y = 0;
+	texturePos.w = size.x;
+	texturePos.h = size.y;
+	offset.x = 0;
+	offset.y = 0;
+	offset.w = size.x;
+	offset.h = size.y;
+}
+
+bool ui::touchingMouse()
+{
+	int x, y;
+	SDL_GetMouseState(&x, &y);
+
+	if (x >= transform.x && x <= transform.x + size.x && y >= transform.y && y <= transform.y + size.y)
+	{
+		return true;
+	}
+
+	return false;
 }
 
 // button

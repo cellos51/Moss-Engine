@@ -2,6 +2,7 @@
 
 #include <SDL2/SDL.h>
 #include <glad/glad.h>
+#include <map>
 
 #include "entity.hpp"
 #include "ui.hpp"
@@ -26,6 +27,7 @@ public:
 	Vector2 getSize();
 	Vector2 cameraPos = Vector2(0,0);
 	Color4 ambientLight = Color4(0.478f, 0.443f, 0.596f,1);
+	std::map<unsigned int, Vector2> TextureSize;
 private:
 	Vector2 cameraOffset = Vector2(0,0);
 	SDL_Window* window;

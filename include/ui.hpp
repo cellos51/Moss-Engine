@@ -12,8 +12,11 @@ public:
 	Vector2 size;
 	unsigned int layer;
 	unsigned int tex;
-	int red, green, blue;
+	SDL_Rect offset;
+	SDL_Rect texturePos;
+	float red, green, blue;
 	Text uiText;
+	bool touchingMouse();
 	class Button;
 	class TextInput;
 	class Panel;
