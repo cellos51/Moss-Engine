@@ -9,6 +9,7 @@ layout (location = 7) in vec4 iTexOffset;
 layout (location = 8) in int iTexID;
 layout (location = 9) in int iLayerID;
 //layout (location = 10) in int iShadow;
+layout (location = 11) in vec4 iColor;
 
 //uniform vec4 ambientLight;
 
@@ -33,13 +34,11 @@ void main()
     // else
     // {
     //    ourColor = vec4(aColor - 0.1f, 1.0f); 
-    // }
-
-    
+    // }  
 
     //ourColor = vec4(aColor, 1.0f) * ambientLight;
 
-    ourColor = vec4(aColor, 1.0f);
+    ourColor = vec4(aColor, 1.0f) * iColor;
 
     TexCoord = vec2((aTexCoord.x / iTexOffset.z) + iTexOffset.x, (aTexCoord.y / iTexOffset.w) + iTexOffset.y);
 }

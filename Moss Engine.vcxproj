@@ -170,6 +170,19 @@
     <ClInclude Include="include\ui.hpp" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\shaders\3Dshader.vert" />
+    <None Include="assets\shaders\framebuffer.frag" />
+    <None Include="assets\shaders\framebuffer.vert" />
+    <None Include="assets\shaders\lightshader.frag" />
+    <None Include="assets\shaders\lightshader.vert" />
+    <None Include="assets\shaders\luminosity.frag" />
+    <None Include="assets\shaders\luminosity.vert" />
+    <None Include="assets\shaders\shader.frag" />
+    <None Include="assets\shaders\shader.vert" />
+    <None Include="assets\shaders\shadowshader.frag" />
+    <None Include="assets\shaders\shadowshader.vert" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

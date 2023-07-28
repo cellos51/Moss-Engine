@@ -23,5 +23,6 @@ public:
 	float rotation = 0.0f;
 	SDL_Rect offset;
 	SDL_Rect texturePos;
-	Color4 luminosity = Color4(0.0,0.0,0.0,1.0);
+	Color4 luminosity = Color4(0.0f, 0.0f, 0.0f, 1.0f);
+	Color4 color = Color4(1.0f, 1.0f, 1.0f, 1.0f);
 };

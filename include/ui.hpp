@@ -14,7 +14,8 @@ public:
 	unsigned int tex;
 	SDL_Rect offset;
 	SDL_Rect texturePos;
-	float red, green, blue;
+	Color4 color;
+	Color4 luminosity;
 	Text uiText;
 	bool touchingMouse();
 	class Button;

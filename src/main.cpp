@@ -75,10 +75,6 @@ Entity playerSpawn(Vector2(24, 24));
 // Vector2 cameraPos;
 std::vector<Light> lights;
 
-// fps counter
-float timer = 0;
-Text FPS;
-
 Mix_Music *music = NULL;
 
 void loadTextures(std::string texPath)
@@ -238,11 +234,10 @@ bool init() // used to initiate things before using
 	playerButton.layer = 12;
 	importButton.layer = 12;
 
-	FPS.font = window.loadTexture("assets/fonts/font.png");
-	FPS.setText("FPS");
-
 	music = Mix_LoadMUS("assets/audio/Synchronicity.flac");
 	//Mix_PlayMusic(music, -1);
+
+	window.camera(Vector2(0, 0));
 
 	return true;
 }
@@ -267,14 +262,6 @@ void gameLoop() // it runs forever
 	tileSet.texturePos.h = window.TextureSize[tileSet.tex].y;
 	tileSet.texturePos.w = window.TextureSize[tileSet.tex].x;
 
-	timer += Time::deltaTime();
-
-	if (timer > 100)
-	{
-		FPS.setText("FPS: " + std::to_string(int(1000 / Time::deltaTime())));
-		timer = 0;
-	}
-
 	if (playerButton.onClick())
 	{
 		if (editingPlayer == false)
@@ -289,119 +276,155 @@ void gameLoop() // it runs forever
 
 	if (editingPlayer == true)
 	{
-		playerButton.red = 0.5;
-		playerButton.green = 0.5;
-		playerButton.blue = 0.5;
+		playerButton.color.r = 0.5;
+		playerButton.color.g = 0.5;
+		playerButton.color.b = 0.5;
 		viewCollision = false;
 	}
 	else
 	{
-		playerButton.red = 1;
-		playerButton.green = 1;
-		playerButton.blue = 1;
-	}
-
-	for (unsigned int i = 0; i < walls.size(); i++)
-	{
-		if (walls[i].layer != activeLayer)
-		{
-			walls[i].luminosity.a = 1;
-		}
-		else
-		{
-			walls[i].luminosity.a = 1;
-		}
+		playerButton.color.r = 1;
+		playerButton.color.g = 1;
+		playerButton.color.b = 1;
 	}
 
 	if (layer1.onClick())
 	{
 		activeLayer = 1;
+
+		for (unsigned int i = 0; i < walls.size(); i++)
+		{
+			if (walls[i].layer != activeLayer)
+			{
+				walls[i].color.a = 0.5;
+			}
+			else
+			{
+				walls[i].color.a = 1;
+			}
+		}
 	}
 
 	if (layer2.onClick())
 	{
 		activeLayer = 2;
+
+		for (unsigned int i = 0; i < walls.size(); i++)
+		{
+			if (walls[i].layer != activeLayer)
+			{
+				walls[i].color.a = 0.5;
+			}
+			else
+			{
+				walls[i].color.a = 1;
+			}
+		}
 	}
 
 	if (layer3.onClick())
 	{
 		activeLayer = 3;
+
+		for (unsigned int i = 0; i < walls.size(); i++)
+		{
+			if (walls[i].layer != activeLayer)
+			{
+				walls[i].color.a = 0.5;
+			}
+			else
+			{
+				walls[i].color.a = 1;
+			}
+		}
 	}
 
 	if (layer4.onClick())
 	{
 		activeLayer = 4;
+
+		for (unsigned int i = 0; i < walls.size(); i++)
+		{
+			if (walls[i].layer != activeLayer)
+			{
+				walls[i].color.a = 0.5;
+			}
+			else
+			{
+				walls[i].color.a = 1;
+			}
+		}
 	}
 
 	switch (activeLayer)
 	{
 	case 1:
-		layer1.red = 0.5;
-		layer1.green = 0.5;
-		layer1.blue = 0.5;
+		layer1.color.r = 0.5;
+		layer1.color.g = 0.5;
+		layer1.color.b = 0.5;
 
-		layer2.red = 1;
-		layer2.green = 1;
-		layer2.blue = 1;
+		layer2.color.r = 1;
+		layer2.color.g = 1;
+		layer2.color.b = 1;
 
-		layer3.red = 1;
-		layer3.green = 1;
-		layer3.blue = 1;
+		layer3.color.r = 1;
+		layer3.color.g = 1;
+		layer3.color.b = 1;
 
-		layer4.red = 1;
-		layer4.green = 1;
-		layer4.blue = 1;
+		layer4.color.r = 1;
+		layer4.color.g = 1;
+		layer4.color.b = 1;
 		break;
 	case 2:
-		layer1.red = 1;
-		layer1.green = 1;
-		layer1.blue = 1;
+		layer1.color.r = 1;
+		layer1.color.g = 1;
+		layer1.color.b = 1;
 
-		layer2.red = 0.5;
-		layer2.green = 0.5;
-		layer2.blue = 0.5;
+		layer2.color.r = 0.5;
+		layer2.color.g = 0.5;
+		layer2.color.b = 0.5;
 
-		layer3.red = 1;
-		layer3.green = 1;
-		layer3.blue = 1;
+		layer3.color.r = 1;
+		layer3.color.g = 1;
+		layer3.color.b = 1;
 
-		layer4.red = 1;
-		layer4.green = 1;
-		layer4.blue = 1;
+		layer4.color.r = 1;
+		layer4.color.g = 1;
+		layer4.color.b = 1;
 		break;
 	case 3:
-		layer1.red = 1;
-		layer1.green = 1;
-		layer1.blue = 1;
+		layer1.color.r = 1;
+		layer1.color.g = 1;
+		layer1.color.b = 1;
 
-		layer2.red = 1;
-		layer2.green = 1;
-		layer2.blue = 1;
+		layer2.color.r = 1;
+		layer2.color.g = 1;
+		layer2.color.b = 1;
 
-		layer3.red = 0.5;
-		layer3.green = 0.5;
-		layer3.blue = 0.5;
+		layer3.color.r = 0.5;
+		layer3.color.g = 0.5;
+		layer3.color.b = 0.5;
 
-		layer4.red = 1;
-		layer4.green = 1;
-		layer4.blue = 1;
+		layer4.color.r = 1;
+		layer4.color.g = 1;
+		layer4.color.b = 1;
 		break;
 	case 4:
-		layer1.red = 1;
-		layer1.green = 1;
-		layer1.blue = 1;
+		layer1.color.r = 1;
+		layer1.color.g = 1;
+		layer1.color.b = 1;
 
-		layer2.red = 1;
-		layer2.green = 1;
-		layer2.blue = 1;
+		layer2.color.r = 1;
+		layer2.color.g = 1;
+		layer2.color.b = 1;
 
-		layer3.red = 1;
-		layer3.green = 1;
-		layer3.blue = 1;
+		layer3.color.r = 1;
+		layer3.color.g = 1;
+		layer3.color.b = 1;
 
-		layer4.red = 0.5;
-		layer4.green = 0.5;
-		layer4.blue = 0.5;
+		layer4.color.r = 0.5;
+		layer4.color.g = 0.5;
+		layer4.color.b = 0.5;
 		break;
 	}
 
@@ -421,9 +444,9 @@ void gameLoop() // it runs forever
 
 	if (viewCollision == true)
 	{
-		collisionButton.red = 0.5;
-		collisionButton.green = 0.5;
-		collisionButton.blue = 0.5;
+		collisionButton.color.r = 0.5;
+		collisionButton.color.g = 0.5;
+		collisionButton.color.b = 0.5;
 		editingPlayer = false;
 
 		Entity collisionTile(Vector2(24, 24));
@@ -444,9 +467,9 @@ void gameLoop() // it runs forever
 	}
 	else
 	{
-		collisionButton.red = 1;
-		collisionButton.green = 1;
-		collisionButton.blue = 1;
+		collisionButton.color.r = 1;
+		collisionButton.color.g = 1;
+		collisionButton.color.b = 1;
 	}
 
 	if (tileSet.onClick())
@@ -462,8 +485,6 @@ void gameLoop() // it runs forever
 			selector.transform.x = tileSet.size.x - 24;
 		}
 	}
-
-	//cursor.luminosity.a = 1;
 
 	if (!topBar.touchingMouse() && !sideBar.touchingMouse())
 	{
@@ -489,7 +510,7 @@ void gameLoop() // it runs forever
 
 		if (viewCollision == true)
 		{
-			cursor.luminosity.a = 1;
+			cursor.color.a = 1;
 			cursor.tex = collisionTexture;
 			cursor.texturePos.x = 0;
 			cursor.texturePos.y = 0;
@@ -497,7 +518,7 @@ void gameLoop() // it runs forever
 		}
 		else if (editingPlayer == true)
 		{
-			cursor.luminosity.a = 1;
+			cursor.color.a = 0.5;
 			cursor.tex = playerSpawn.tex;
 			cursor.texturePos.x = 0;
 			cursor.texturePos.y = 0;
@@ -505,7 +526,7 @@ void gameLoop() // it runs forever
 		}
 		else
 		{
-			cursor.luminosity.a = 1;
+			cursor.color.a = 0.5;
 			cursor.tex = tileSet.tex;
 			cursor.texturePos.x = selector.transform.x;
 			cursor.texturePos.y = -(selector.transform.y - (tileSet.size.y + 24));
@@ -791,8 +812,6 @@ void render() // honestly i feel like putting the stuff that is at the end of th
 	window.render(playerButton);
 
 	window.render(importButton);
-
-	window.render(FPS, false);
 }
 
 int main(int argc, char* args[])

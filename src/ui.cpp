@@ -11,9 +11,8 @@ ui::ui()
 {
 	transform.x = 64;
 	transform.y = 64;
-	red = 10;
-	green = 10;
-	blue = 10;
+	color = Color4(1, 1, 1, 1);
+	luminosity = Color4(1, 1, 1, 0);
 	size.x = 64;
 	size.y = 64;
 	uiText.setText("");
@@ -67,9 +66,7 @@ ui::TextInput::TextInput()
 {
 	transform.x = 64;
 	transform.y = 64;
-	red = 255;
-	green = 255;
-	blue = 255;
+	color = Color4(255, 255, 255, 0);
 	size.x = 64;
 	size.y = 64;
 	uiText.setText("");

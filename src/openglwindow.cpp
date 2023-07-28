@@ -45,6 +45,8 @@ unsigned int layerArray[maxEntities];
 
 glm::vec4 shadowArray[maxEntities];
 
+glm::vec4 colorArray[maxEntities];
+
 int lightCount = 0; // begin stuff for lights
 
 glm::vec4 lightColorArray[maxLights];
@@ -133,7 +135,7 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
-    glGenBuffers(6, IVBO); 
+    glGenBuffers(7, IVBO); 
 
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 
@@ -311,6 +313,7 @@ void OpenGLWindow::render(Entity& p_ent, bool cam) // i think this copies the te
 		textureArray[entityCount] = p_ent.tex;
 		layerArray[entityCount] = p_ent.layer;
 		shadowArray[entityCount] = glm::vec4(p_ent.luminosity.r,p_ent.luminosity.g,p_ent.luminosity.b,p_ent.luminosity.a);
+		colorArray[entityCount] = glm::vec4(p_ent.color.r, p_ent.color.g, p_ent.color.b, p_ent.color.a);
 
 		if (TexturesToRender.find(p_ent.layer) == TexturesToRender.end())
 		{
@@ -339,6 +342,7 @@ void OpenGLWindow::render(Entity& p_ent, bool cam) // i think this copies the te
 		textureArray[entityCount] = p_ent.tex;
 		layerArray[entityCount] = p_ent.layer;
 		shadowArray[entityCount] = glm::vec4(p_ent.luminosity.r,p_ent.luminosity.g,p_ent.luminosity.b,p_ent.luminosity.a);
+		colorArray[entityCount] = glm::vec4(p_ent.color.r, p_ent.color.g, p_ent.color.b, p_ent.color.a);
 
 		if (TexturesToRender.find(p_ent.layer) == TexturesToRender.end())
 		{
@@ -378,7 +382,8 @@ void OpenGLWindow::render(ui& p_ui) // i think this copys the texture to the ren
 	texCoordArray[entityCount] = glm::vec4(p_ui.texturePos.x / TextureSize[p_ui.tex].x, p_ui.texturePos.y / TextureSize[p_ui.tex].y, TextureSize[p_ui.tex].x / p_ui.texturePos.w, TextureSize[p_ui.tex].y / p_ui.texturePos.h);
 	textureArray[entityCount] = p_ui.tex;
 	layerArray[entityCount] = p_ui.layer;
-	shadowArray[entityCount] = glm::vec4(p_ui.red, p_ui.green, p_ui.blue, 1);
+	shadowArray[entityCount] = glm::vec4(p_ui.luminosity.r, p_ui.luminosity.b, p_ui.luminosity.g, p_ui.luminosity.a);
+	colorArray[entityCount] = glm::vec4(p_ui.color.r, p_ui.color.b, p_ui.color.g, p_ui.color.a);
 
 	if (TexturesToRender.find(p_ui.layer) == TexturesToRender.end())
 	{
@@ -487,6 +492,15 @@ void OpenGLWindow::display() // used to display information from the renderer to
     glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)0);
 
     glVertexAttribDivisor(10, 1);
+
+	// color buffer
+	glBindBuffer(GL_ARRAY_BUFFER, IVBO[5]);
+	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(glm::vec4), &colorArray[0], GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(11);
+	glVertexAttribPointer(11, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)0);
+
+	glVertexAttribDivisor(11, 1);
 
     // unbind buffers
     glBindBuffer(GL_ARRAY_BUFFER, 0);
