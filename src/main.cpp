@@ -28,6 +28,8 @@
 #include "ui.hpp"
 #include "light.hpp"
 
+#define TILE_SIZE 24
+
 // random shit needed to be here to run
 bool gameRunning = true;
 NetworkManager netManager;
@@ -44,11 +46,13 @@ Vector2 offsetMouse;
 
 // literally just walls (for the level) (also why the fuck don't i make a seperete entity derived class for the level??? ahh fuck it)
 std::vector<Entity> walls; 
+std::vector<Light> lights; // original name :skull emoji:
 
 std::vector<Entity> collisionView;
 unsigned int collisionTexture;
 bool viewCollision = false;
 bool editingPlayer = false;
+bool editingLights = false;
 
 ui::Button tileSet;
 ui::Panel topBar;
@@ -58,22 +62,23 @@ ui::Button layer2;
 ui::Button layer3;
 ui::Button layer4;
 ui::Button collisionButton;
+ui::Button playerButton;
+ui::Button lightsButton;
 ui::Button saveButton;
 ui::Button saveAsButton;
 ui::Button loadButton;
-ui::Button playerButton;
 ui::Button importButton;
 
 unsigned int activeLayer = 1;
 std::string currentFile;
 std::string activeTexture;
 
-Entity selector(Vector2(0, 48), Vector2(24, 24));
-Entity cursor(Vector2(24, 24));
-Entity playerSpawn(Vector2(24, 24));
+Entity selector(Vector2(0, TILE_SIZE * 2), Vector2(TILE_SIZE, TILE_SIZE));
+Entity cursor(Vector2(TILE_SIZE, TILE_SIZE));
+Light lightCursor;
+Entity playerSpawn(Vector2(TILE_SIZE, TILE_SIZE));
 
 // Vector2 cameraPos;
-std::vector<Light> lights;
 
 Mix_Music *music = NULL;
 
@@ -126,6 +131,7 @@ bool init() // used to initiate things before using
 	layer3.tex = topBar.tex;
 	layer4.tex = topBar.tex;
 	collisionButton.tex = topBar.tex;
+	lightsButton.tex = topBar.tex;
 	saveButton.tex = topBar.tex;
 	saveAsButton.tex = topBar.tex;
 	loadButton.tex = topBar.tex;
@@ -180,42 +186,49 @@ bool init() // used to initiate things before using
 	collisionButton.texturePos.y = 15;
 	collisionButton.texturePos.w = 59;
 	collisionButton.texturePos.h = 13;
-	collisionButton.transform = Vector2(180, 13);
+	collisionButton.transform = Vector2(190, 13);
 
 	playerButton.size = Vector2(92, 26);
 	playerButton.texturePos.x = 110;
 	playerButton.texturePos.y = 15;
 	playerButton.texturePos.w = 46;
 	playerButton.texturePos.h = 13;
-	playerButton.transform = Vector2(320, 13);
+	playerButton.transform = Vector2(330, 13);
+
+	lightsButton.size = Vector2(92, 26);
+	lightsButton.texturePos.x = 130;
+	lightsButton.texturePos.y = 29;
+	lightsButton.texturePos.w = 46;
+	lightsButton.texturePos.h = 13;
+	lightsButton.transform = Vector2(440, 13);
 
 	saveButton.size = Vector2(64, 26);
 	saveButton.texturePos.x = 50;
 	saveButton.texturePos.y = 43;
 	saveButton.texturePos.w = 32;
 	saveButton.texturePos.h = 13;
-	saveButton.transform = Vector2(450, 13);
+	saveButton.transform = Vector2(550, 13);
 
 	saveAsButton.size = Vector2(106, 26);
 	saveAsButton.texturePos.x = 83;
 	saveAsButton.texturePos.y = 43;
 	saveAsButton.texturePos.w = 53;
 	saveAsButton.texturePos.h = 13;
-	saveAsButton.transform = Vector2(550, 13);
+	saveAsButton.transform = Vector2(630, 13);
 
 	loadButton.size = Vector2(64, 26);
 	loadButton.texturePos.x = 50;
 	loadButton.texturePos.y = 29;
 	loadButton.texturePos.w = 32;
 	loadButton.texturePos.h = 13;
-	loadButton.transform = Vector2(690, 13);
+	loadButton.transform = Vector2(750, 13);
 
 	importButton.size = Vector2(92, 26);
 	importButton.texturePos.x = 83;
 	importButton.texturePos.y = 29;
 	importButton.texturePos.w = 46;
 	importButton.texturePos.h = 13;
-	importButton.transform = Vector2(790, 13);
+	importButton.transform = Vector2(840, 13);
 
 	playerSpawn.layer = 4;
 	cursor.layer = 8;
@@ -228,10 +241,11 @@ bool init() // used to initiate things before using
 	layer3.layer = 12;
 	layer4.layer = 12;
 	collisionButton.layer = 12;
+	playerButton.layer = 12;
+	lightsButton.layer = 12;
 	saveButton.layer = 12;
 	saveAsButton.layer = 12;
 	loadButton.layer = 12;
-	playerButton.layer = 12;
 	importButton.layer = 12;
 
 	music = Mix_LoadMUS("assets/audio/Synchronicity.flac");
@@ -252,41 +266,15 @@ void gameLoop() // it runs forever
 	topBar.texturePos.w = 44;
 	topBar.texturePos.h = 11;
 
-	sideBar.size = Vector2(tileSet.size.x + 24, window.getSize().y);
+	sideBar.size = Vector2(tileSet.size.x + TILE_SIZE, window.getSize().y);
 	sideBar.texturePos.x = 123;
 	sideBar.texturePos.y = 2;
 	sideBar.texturePos.w = 44;
 	sideBar.texturePos.h = 11;
 
-	tileSet.transform = Vector2(0, 48);
+	tileSet.transform = Vector2(0, TILE_SIZE * 2);
 	tileSet.texturePos.h = window.TextureSize[tileSet.tex].y;
 	tileSet.texturePos.w = window.TextureSize[tileSet.tex].x;
-
-	if (playerButton.onClick())
-	{
-		if (editingPlayer == false)
-		{
-			editingPlayer = true;
-		}
-		else
-		{
-			editingPlayer = false;
-		}
-	}
-
-	if (editingPlayer == true)
-	{
-		playerButton.color.r = 0.5;
-		playerButton.color.g = 0.5;
-		playerButton.color.b = 0.5;
-		viewCollision = false;
-	}
-	else
-	{
-		playerButton.color.r = 1;
-		playerButton.color.g = 1;
-		playerButton.color.b = 1;
-	}
 
 	if (layer1.onClick())
 	{
@@ -448,12 +436,13 @@ void gameLoop() // it runs forever
 		collisionButton.color.g = 0.5;
 		collisionButton.color.b = 0.5;
 		editingPlayer = false;
+		editingLights = false;
 
-		Entity collisionTile(Vector2(24, 24));
+		Entity collisionTile(Vector2(TILE_SIZE, TILE_SIZE));
 		collisionTile.tex = collisionTexture;
 		collisionTile.layer = 5;
 
-		for (Entity wall : walls)
+		for (const Entity& wall : walls)
 		{
 			if (wall.colUp == true || wall.colDown == true || wall.colLeft == true || wall.colRight == true)
 			{
@@ -472,17 +461,71 @@ void gameLoop() // it runs forever
 		collisionButton.color.b = 1;
 	}
 
+	if (playerButton.onClick())
+	{
+		if (editingPlayer == false)
+		{
+			editingPlayer = true;
+		}
+		else
+		{
+			editingPlayer = false;
+		}
+	}
+
+	if (editingPlayer == true)
+	{
+		playerButton.color.r = 0.5;
+		playerButton.color.g = 0.5;
+		playerButton.color.b = 0.5;
+		viewCollision = false;
+		editingLights = false;
+	}
+	else
+	{
+		playerButton.color.r = 1;
+		playerButton.color.g = 1;
+		playerButton.color.b = 1;
+	}
+
+	if (lightsButton.onClick())
+	{
+		if (editingLights == false)
+		{
+			editingLights = true;
+		}
+		else
+		{
+			editingLights = false;
+		}
+	}
+
+	if (editingLights == true)
+	{
+		lightsButton.color.r = 0.5;
+		lightsButton.color.g = 0.5;
+		lightsButton.color.b = 0.5;
+		viewCollision = false;
+		editingPlayer = false;
+	}
+	else
+	{
+		lightsButton.color.r = 1;
+		lightsButton.color.g = 1;
+		lightsButton.color.b = 1;
+	}
+
 	if (tileSet.onClick())
 	{
 		int x, y;
 		SDL_GetMouseState(&x, &y);
-		x = (x / 24) * 24;
-		y = (y / 24) * 24;
+		x = (x / TILE_SIZE) * TILE_SIZE;
+		y = (y / TILE_SIZE) * TILE_SIZE;
 		selector.transform = Vector2(x, y);
 
-		if (selector.transform.x >= tileSet.size.x - 24)
+		if (selector.transform.x >= tileSet.size.x - TILE_SIZE)
 		{
-			selector.transform.x = tileSet.size.x - 24;
+			selector.transform.x = tileSet.size.x - TILE_SIZE;
 		}
 	}
 
@@ -490,23 +533,26 @@ void gameLoop() // it runs forever
 	{
 		int x, y;
 		SDL_GetMouseState(&x, &y);
+		int x2 = x, y2 = y;
 
 		if (((x + (window.cameraPos.x)) - window.getSize().x / 2) <= 0)
 		{
-			x = x - 24; // this needs to change if we use anything other than 24 x 24 tiles
+			x = x - TILE_SIZE; // this needs to change if we use anything other than 24 x 24 tiles
 		}
 
 		if (((y + (window.cameraPos.y)) - window.getSize().y / 2) <= 0)
 		{
-			y = y - 24;
+			y = y - TILE_SIZE;
 		}
-
 
 		x = (x + (window.cameraPos.x) - window.getSize().x / 2);
 		y = (y + (window.cameraPos.y) - window.getSize().y / 2);
 
-		x = (x / 24) * 24;
-		y = (y / 24) * 24;
+		x2 = (x2 + (window.cameraPos.x) - window.getSize().x / 2);
+		y2 = (y2 + (window.cameraPos.y) - window.getSize().y / 2);
+
+		x = (x / TILE_SIZE) * TILE_SIZE;
+		y = (y / TILE_SIZE) * TILE_SIZE;
 
 		if (viewCollision == true)
 		{
@@ -524,16 +570,21 @@ void gameLoop() // it runs forever
 			cursor.texturePos.y = 0;
 			cursor.transform = Vector2(x, y);
 		}
+		else if (editingLights == true)
+		{
+			lightCursor.layer = activeLayer;
+			lightCursor.transform = Vector2(x2, y2);
+		}
 		else
 		{
 			cursor.color.a = 0.5;
 			cursor.tex = tileSet.tex;
 			cursor.texturePos.x = selector.transform.x;
-			cursor.texturePos.y = -(selector.transform.y - (tileSet.size.y + 24));
+			cursor.texturePos.y = -(selector.transform.y - (tileSet.size.y + TILE_SIZE));
 			cursor.transform = Vector2(x, y);
 		}
 
-		if (Event::MousePressed(SDL_BUTTON_RIGHT) && viewCollision == false && editingPlayer == false)
+		if (Event::MousePressed(SDL_BUTTON_RIGHT) && viewCollision == false && editingPlayer == false && editingLights == false)
 		{
 			for (unsigned int i = 0; i < walls.size(); i++)
 			{
@@ -543,7 +594,7 @@ void gameLoop() // it runs forever
 				}
 			}
 		}
-		else if (Event::MousePressed(SDL_BUTTON_RIGHT) && viewCollision == true && editingPlayer == false)
+		else if (Event::MousePressed(SDL_BUTTON_RIGHT) && viewCollision == true)
 		{
 			for (unsigned int i = 0; i < walls.size(); i++)
 			{
@@ -556,13 +607,23 @@ void gameLoop() // it runs forever
 				}
 			}
 		}
-
-		if (Event::MousePressed(SDL_BUTTON_LEFT) && viewCollision == false && editingPlayer == false)
+		else if (Event::MousePressed(SDL_BUTTON_RIGHT) && editingLights == true)
 		{
-			Entity tile(Vector2(24, 24));
+			for (unsigned int i = 0; i < lights.size(); i++)
+			{
+				if ((Vector2(lights[i].transform.x - x2,lights[i].transform.y - y2).magnitude()) < 30) // this is stupid as fuck but it should probably work?
+				{
+					lights.erase(lights.begin() + i);
+				}
+			}
+		}
+
+		if (Event::MousePressed(SDL_BUTTON_LEFT) && viewCollision == false && editingPlayer == false && editingLights == false)
+		{
+			Entity tile(Vector2(TILE_SIZE, TILE_SIZE));
 			tile.tex = tileSet.tex;
 			tile.texturePos.x = selector.transform.x;
-			tile.texturePos.y = -(selector.transform.y - (tileSet.size.y + 24));
+			tile.texturePos.y = -(selector.transform.y - (tileSet.size.y + TILE_SIZE));
 			tile.layer = activeLayer;
 			tile.colUp = false;
 			tile.colDown = false;
@@ -573,7 +634,7 @@ void gameLoop() // it runs forever
 
 			bool obstructed = false;
 
-			for (Entity wall : walls)
+			for (const Entity& wall : walls)
 			{
 				if (wall.transform.x == x && wall.transform.y == y && wall.layer == tile.layer)
 				{
@@ -585,7 +646,7 @@ void gameLoop() // it runs forever
 				walls.push_back(tile);
 			}
 		}
-		else if (Event::MousePressed(SDL_BUTTON_LEFT) && viewCollision == true && editingPlayer == false)
+		else if (Event::MousePressed(SDL_BUTTON_LEFT) && viewCollision == true)
 		{
 			for (unsigned int i = 0; i < walls.size(); i++)
 			{
@@ -598,9 +659,13 @@ void gameLoop() // it runs forever
 				}
 			}
 		}
-		else if (Event::MousePressed(SDL_BUTTON_LEFT) && viewCollision == false && editingPlayer == true)
+		else if (Event::MousePressed(SDL_BUTTON_LEFT) && editingPlayer == true)
 		{
 			playerSpawn.transform = Vector2(x, y);
+		}
+		else if (Event::MouseDown(SDL_BUTTON_LEFT) && editingLights == true)
+		{
+			lights.push_back(lightCursor);
 		}
 	}
 
@@ -697,10 +762,10 @@ void gameLoop() // it runs forever
 
 		if (std::string(filename).length() > 0)
 		{
-			std::string activeTexture = Level::LoadFile(std::string(filename))[0];
+			//std::string activeTexture = Level::LoadFile(std::string(filename))[0];
 
-			loadTextures(activeTexture);
-			//playerSpawn.transform = Level::LoadLevel(Level::LoadFile(std::string(filename)), walls, tileSet.tex);
+			//loadTextures(activeTexture);
+			Level::LoadLevel(Level::LoadFile(std::string(filename)), walls, window);
 
 			currentFile = std::string(filename);
 
@@ -787,7 +852,14 @@ void render() // honestly i feel like putting the stuff that is at the end of th
 		window.render(playerSpawn, true);
 	}
 
-	window.render(cursor, true);
+	if (editingLights)
+	{
+		window.render(lightCursor);
+	}
+	else
+	{
+		window.render(cursor, true);
+	}
 
 	window.render(tileSet);
 
@@ -802,6 +874,8 @@ void render() // honestly i feel like putting the stuff that is at the end of th
 	window.render(layer4);
 
 	window.render(collisionButton);
+
+	window.render(lightsButton);
 
 	window.render(saveButton);
 
