@@ -10,6 +10,8 @@ bool quit = false;
 
 bool isTextInput = false;
 
+float mouseWheel = 0;
+
 std::map<int, bool> mouseMap;
 
 std::map<int, bool> mouseDownMap;
@@ -19,6 +21,7 @@ std::map<int, bool> keyMap;
 std::map<int, bool> keyDownMap;
 
 std::string text;
+
 
 void Event::PollEvent()
 {
@@ -35,10 +38,16 @@ void Event::PollEvent()
 	SDL_Event event;
 	while (SDL_PollEvent(&event))
 	{
+		mouseWheel = 0;
 		switch (event.type) 
 		{
 			case SDL_QUIT: 
 			quit = true;
+			break;
+			case SDL_MOUSEWHEEL:
+			{
+				mouseWheel = event.wheel.y;
+			}
 			break;
 			case SDL_MOUSEBUTTONDOWN:
 			{
@@ -120,6 +129,11 @@ bool Event::MouseDown(int i)
 		return mouseDownMap.find(i)->second;
 	}
 	return false;
+}
+
+float Event::MouseWheel()
+{
+	return mouseWheel;
 }
 
 bool Event::KeyPressed(int i)

@@ -40,5 +40,5 @@ void main()
         discard;
     }
 
-    FragColor = vec4(ourColor, 1.0f) * texColor.a;
+    FragColor = vec4(ourColor, 1.0f) * texColor;
 }

@@ -26,7 +26,7 @@ public:
 	void setZoom(float x);
 	Vector2 getSize();
 	Vector2 cameraPos = Vector2(0,0);
-	Color4 ambientLight = Color4(0.478f, 0.443f, 0.596f,1);
+	Color4 ambientLight = Color4(0.5f, 0.5f, 0.5f,1);
 	std::map<unsigned int, Vector2> TextureSize;
 private:
 	Vector2 cameraOffset = Vector2(0,0);
@@ -38,8 +38,10 @@ private:
 
 	unsigned int FBOLight;
 	unsigned int FBOLightTex;
+	unsigned int FBOBlurTex;
 
 	unsigned int RBO;
 	unsigned int FBOTex;
+	unsigned int FBOBlur;
 	unsigned int FBO, VAO, VBO, EBO, IVBO[7];
 };

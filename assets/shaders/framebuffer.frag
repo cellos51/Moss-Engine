@@ -5,222 +5,87 @@ out vec4 fragColor;
 in vec2 TexCoord;
 
 uniform sampler2D screenTexture;
+uniform sampler2D blurTexture;
 uniform sampler2D lightTexture;
+uniform vec4 unlitColor;
+uniform vec2 direction;
 
-//
-// PUBLIC DOMAIN CRT STYLED SCAN-LINE SHADER
-//
-//   by Timothy Lottes
-//
-// This is more along the style of a really good CGA arcade monitor.
-// With RGB inputs instead of NTSC.
-// The shadow mask example has the mask rotated 90 degrees for less chromatic aberration.
-//
-// Left it unoptimized to show the theory behind the algorithm.
-//
-// It is an example what I personally would want as a display option for pixel art games.
-// Please take and use, change, or whatever.
-//
+//credit to lisyarus btw :pray: https://github.com/lisyarus/compute/blob/master/blur/source/separable_linear.cpp
 
-ivec2 iResolution = textureSize(screenTexture, 0);
+const int M = 8;
+const int N = 2 * M + 1;
 
-// Emulated input resolution.
-#if 0
-  // Fix resolution to set amount.
-  #define res (vec2(320.0/1.0,160.0/1.0))
-#else
-  // Optimize for resize.
-  #define res (iResolution.xy/2.0)
-#endif
+// sigma = 10
+const float coeffs[N] = float[N](
+	3.219646771412954e-14,
+    4.032574274503986e-11,
+    1.899604179511627e-8,
+    0.0000033817668214086716,
+    0.000229272580848483,
+    0.005977006727368395,
+    0.0605975508650643,
+    0.24173030629950387,
+    0.3829249254479876,
+    0.24173030629950387,
+    0.0605975508650643,
+    0.005977006727368395,
+    0.000229272580848483,
+    0.0000033817668214086716,
+    1.899604179511627e-8,
+    4.032574274503986e-11,
+    3.219646771412954e-14
+);
 
-// Hardness of scanline.
-//  -8.0 = soft
-// -16.0 = medium
-float hardScan=-8.0;
-
-// Hardness of pixels in scanline.
-// -2.0 = soft
-// -4.0 = hard
-float hardPix=-3.0;
-
-// Display warp.
-// 0.0 = none
-// 1.0/8.0 = extreme
-vec2 warp=vec2(1.0/32.0,1.0/24.0); 
-
-// Amount of shadow mask.
-float maskDark=0.5;
-float maskLight=1.5;
-
-//------------------------------------------------------------------------
-
-// sRGB to Linear.
-// Assuing using sRGB typed textures this should not be needed.
-float ToLinear1(float c)
+vec4 blurMask(sampler2D image, sampler2D mask)
 {
-    return(c<=0.04045)?c/12.92:pow((c+0.055)/1.055,2.4);
-}
-vec3 ToLinear(vec3 c)
-{
-    return vec3(ToLinear1(c.r),ToLinear1(c.g),ToLinear1(c.b));
+	vec4 sum = vec4(0.0);
+
+	for (int i = 0; i < N; ++i)
+	{
+		vec2 tc = TexCoord + direction * float(i - M);
+		sum += coeffs[i] * texture(image, tc) * vec4(1.0,1.0,1.0, ((texture(mask, tc).r + texture(mask, tc).g + texture(mask, tc).b) / 3) * 2);
+	}
+	
+	return sum;
 }
 
-// Linear to sRGB.
-// Assuing using sRGB typed textures this should not be needed.
-float ToSrgb1(float c)
+vec4 blur(sampler2D image)
 {
-    return(c<0.0031308?c*12.92:1.055*pow(c,0.41666)-0.055);
-}
-vec3 ToSrgb(vec3 c)
-{
-    return vec3(ToSrgb1(c.r),ToSrgb1(c.g),ToSrgb1(c.b));
+	vec4 sum = vec4(0.0);
+
+	for (int i = 0; i < N; ++i)
+	{
+		vec2 tc = TexCoord + direction * float(i - M);
+		sum += coeffs[i] * texture(image, tc);
+	}
+	
+	return sum;
 }
 
-// Nearest emulated sample given floating point position and texel offset.
-// Also zero's off screen.
-vec3 Fetch(vec2 pos,vec2 off)
+void main() 
 {
-    pos=floor(pos*res+off)/res;
-    if(max(abs(pos.x-0.5),abs(pos.y-0.5))>0.5)
-    {
-        return vec3(0.0,0.0,0.0);
-    }
-    return ToLinear(texture(screenTexture,pos.xy,-16.0).rgb * texture(lightTexture, pos.xy,-16.0).rgb);
-}
+	if (direction.x != 0.0) // first pass
+	{
+		//fragColor = blurMask(blurTexture, lightTexture);
+		fragColor = texture(blurTexture, TexCoord) * texture(lightTexture, TexCoord);
+	}
+	else // second pass
+	{
 
-// Distance in emulated pixels to nearest texel.
-vec2 Dist(vec2 pos)
-{
-    pos=pos*res;return -((pos-floor(pos))-vec2(0.5));
-}
+		//fragColor = textureLod(blurTexture, TexCoord, 2.0);
+
+		vec4 bloom = vec4(0.0,0.0,0.0,0.0);
+		
+		float radius = 7.0;
+		float intensity = 6.0;
+
+		for (float i = 1.0; i < radius; i++)
+		{
+			bloom += textureLod(blurTexture, TexCoord, i) / radius;
+		}
+
+		fragColor = (texture(screenTexture, TexCoord) * min(unlitColor + texture(lightTexture, TexCoord), 1.0)) + (bloom * intensity);
+	}
     
-// 1D Gaussian.
-float Gaus(float pos,float scale)
-{
-    return exp2(scale*pos*pos);
-}
-
-// 3-tap Gaussian filter along horz line.
-vec3 Horz3(vec2 pos,float off)
-{
-  vec3 b=Fetch(pos,vec2(-1.0,off));
-  vec3 c=Fetch(pos,vec2( 0.0,off));
-  vec3 d=Fetch(pos,vec2( 1.0,off));
-  float dst=Dist(pos).x;
-  // Convert distance to weight.
-  float scale=hardPix;
-  float wb=Gaus(dst-1.0,scale);
-  float wc=Gaus(dst+0.0,scale);
-  float wd=Gaus(dst+1.0,scale);
-  // Return filtered sample.
-  return (b*wb+c*wc+d*wd)/(wb+wc+wd);
-}
-
-// 5-tap Gaussian filter along horz line.
-vec3 Horz5(vec2 pos,float off)
-{
-  vec3 a=Fetch(pos,vec2(-2.0,off));
-  vec3 b=Fetch(pos,vec2(-1.0,off));
-  vec3 c=Fetch(pos,vec2( 0.0,off));
-  vec3 d=Fetch(pos,vec2( 1.0,off));
-  vec3 e=Fetch(pos,vec2( 2.0,off));
-  float dst=Dist(pos).x;
-  // Convert distance to weight.
-  float scale=hardPix;
-  float wa=Gaus(dst-2.0,scale);
-  float wb=Gaus(dst-1.0,scale);
-  float wc=Gaus(dst+0.0,scale);
-  float wd=Gaus(dst+1.0,scale);
-  float we=Gaus(dst+2.0,scale);
-  // Return filtered sample.
-  return (a*wa+b*wb+c*wc+d*wd+e*we)/(wa+wb+wc+wd+we);
-}
-
-// Return scanline weight.
-float Scan(vec2 pos,float off)
-{
-  float dst=Dist(pos).y;
-  return Gaus(dst+off,hardScan);
-}
-
-// Allow nearest three lines to effect pixel.
-vec3 Tri(vec2 pos)
-{
-  vec3 a=Horz3(pos,-1.0);
-  vec3 b=Horz5(pos, 0.0);
-  vec3 c=Horz3(pos, 1.0);
-  float wa=Scan(pos,-1.0);
-  float wb=Scan(pos, 0.0);
-  float wc=Scan(pos, 1.0);
-  return a*wa+b*wb+c*wc;
-}
-
-// Distortion of scanlines, and end of screen alpha.
-vec2 Warp(vec2 pos)
-{
-  pos=pos*2.0-1.0;    
-  pos*=vec2(1.0+(pos.y*pos.y)*warp.x,1.0+(pos.x*pos.x)*warp.y);
-  return pos*0.5+0.5;
-}
-
-// Shadow mask.
-vec3 Mask(vec2 pos)
-{
-  pos.x+=pos.y*3.0;
-  vec3 mask=vec3(maskDark,maskDark,maskDark);
-  pos.x=fract(pos.x/6.0);
-  if(pos.x<0.333)mask.r=maskLight;
-  else if(pos.x<0.666)mask.g=maskLight;
-  else mask.b=maskLight;
-  return mask;
-}    
-
-// Draw dividing bars.
-float Bar(float pos,float bar)
-{
-    pos-=bar;return pos*pos<4.0?0.0:1.0;
-}
-
-//testing stuff for saturation 
-const float Epsilon = 1e-10;
-
-vec3 RGBtoHSV(in vec3 RGB)
-{
-    vec4  P   = (RGB.g < RGB.b) ? vec4(RGB.bg, -1.0, 2.0/3.0) : vec4(RGB.gb, 0.0, -1.0/3.0);
-    vec4  Q   = (RGB.r < P.x) ? vec4(P.xyw, RGB.r) : vec4(RGB.r, P.yzx);
-    float C   = Q.x - min(Q.w, Q.y);
-    float H   = abs((Q.w - Q.y) / (6.0 * C + Epsilon) + Q.z);
-    vec3  HCV = vec3(H, C, Q.x);
-    float S   = HCV.y / (HCV.z + Epsilon);
-    return vec3(HCV.x, S, HCV.z);
-}
-
-vec3 HSVtoRGB(in vec3 HSV)
-{
-    float H   = HSV.x;
-    float R   = abs(H * 6.0 - 3.0) - 1.0;
-    float G   = 2.0 - abs(H * 6.0 - 2.0);
-    float B   = 2.0 - abs(H * 6.0 - 4.0);
-    vec3  RGB = clamp( vec3(R,G,B), 0.0, 1.0 );
-    return ((RGB - 1.0) * HSV.y + 1.0) * HSV.z;
-}
-
-// Entry.
-void main()
-{
-    // vec2 pos=Warp(gl_FragCoord.xy/iResolution.xy);
-    // fragColor.rgb=Tri(pos)*Mask(gl_FragCoord.xy);  
-    // fragColor.a=1.0;
-    // fragColor.rgb=ToSrgb(fragColor.rgb);
-
-
-    fragColor = texture(screenTexture, TexCoord) * texture(lightTexture, TexCoord);
-
-    // vec4 color  = texture(screenTexture, TexCoord) * texture(lightTexture, TexCoord);
-
-    // vec3 col_hsv = RGBtoHSV(color.rgb);
-    // col_hsv.y *= (1.5);
-    // vec3 col_rgb = HSVtoRGB(col_hsv.rgb);
-
-    //fragColor = vec4(col_rgb.rgb, color.a);
+	
 }

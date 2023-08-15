@@ -129,8 +129,10 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
 
 	glGenFramebuffers(1, &FBO);
 	glGenFramebuffers(1, &FBOLight);
+	glGenFramebuffers(1, &FBOBlur);
 	glGenTextures(1, &FBOTex);
 	glGenTextures(1, &FBOLightTex);
+	glGenTextures(1, &FBOBlurTex);
 	glGenRenderbuffers(1, &RBO);
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -179,6 +181,21 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
 
 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+
+	glBindFramebuffer(GL_FRAMEBUFFER, FBOBlur);
+
+	glActiveTexture(GL_TEXTURE0 + FBOBlurTex);
+	glBindTexture(GL_TEXTURE_2D, FBOBlurTex);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, p_w, p_h, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, FBOBlurTex, 0);
+
+	glActiveTexture(GL_TEXTURE0 + 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	    
@@ -278,20 +295,29 @@ void OpenGLWindow::clear() // clears the renderer
 		glBindRenderbuffer(GL_RENDERBUFFER, RBO);  
 	    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, getSize().x, getSize().y);
 	    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+		glBindTexture(GL_TEXTURE_2D, FBOBlurTex);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, getSize().x, getSize().y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-	glClearColor(0.439, 0.502, 0.565, 1.0);
-	//glClearColor(0, 0, 0, 1.0);
+	//glClearColor(0.439, 0.502, 0.565, 1.0);
+	glClearColor(ambientLight.r, ambientLight.g, ambientLight.b, ambientLight.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glBindFramebuffer(GL_FRAMEBUFFER, FBOLight);
-	glClearColor(ambientLight.r, ambientLight.g, ambientLight.b, ambientLight.a);
-	//glClearColor(0, 0, 0, 1.0);
+	//glClearColor(ambientLight.r, ambientLight.g, ambientLight.b, ambientLight.a);
+	glClearColor(0, 0, 0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, FBOBlurTex);
+	//glClearColor(ambientLight.r, ambientLight.g, ambientLight.b, ambientLight.a);
+	glClearColor(0, 0, 0, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT);
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glClearColor(1.0, 1.0, 1.0, 1.0);
+	glClearColor(ambientLight.r, ambientLight.g, ambientLight.b, ambientLight.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	OnscreenCamera.transform = Vector2(cameraPos.x - OnscreenCamera.size.x / 2, cameraPos.y - OnscreenCamera.size.y / 2);
@@ -563,15 +589,34 @@ void OpenGLWindow::display() // used to display information from the renderer to
 	}
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
+	glBindFramebuffer(GL_FRAMEBUFFER, FBOBlur); // back to default
 
 	glDisable(GL_DEPTH_TEST);
 
+	//first pass
+	framebufferShader.use();
+	framebufferShader.setFloat("zoom", 1.0f);
+	framebufferShader.setInt("blurTexture", FBOTex);
+	framebufferShader.setInt("lightTexture", FBOLightTex);
+	framebufferShader.setVec2("direction", 1.0f / getSize().x, 0.0f);
+
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
+
+	glBindTexture(GL_TEXTURE_2D, FBOBlurTex);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+
+	//second pass
 	framebufferShader.use();
 	framebufferShader.setFloat("zoom", zoom);
 	framebufferShader.setInt("screenTexture", FBOTex);
+	framebufferShader.setInt("blurTexture", FBOBlurTex);
 	framebufferShader.setInt("lightTexture", FBOLightTex);
+	framebufferShader.setVec4("unlitColor", ambientLight.r, ambientLight.g, ambientLight.b, ambientLight.a);
+	framebufferShader.setVec2("direction", 0.0f, 1.0f / (getSize().y));
 
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 

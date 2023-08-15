@@ -507,6 +507,31 @@ void gameLoop() // it runs forever
 		lightsButton.color.b = 0.5;
 		viewCollision = false;
 		editingPlayer = false;
+
+		if (Event::KeyPressed(SDLK_LCTRL)) // terrible way to do this rn but i don't feel like making ui
+		{
+			lightCursor.radius += Event::MouseWheel() * 4;
+		}
+		if (Event::KeyPressed(SDLK_LSHIFT))
+		{
+			lightCursor.intensity += Event::MouseWheel() / 2;
+		}
+
+		if (Event::KeyPressed(SDLK_q))
+		{
+			lightCursor.r += Event::MouseWheel();
+			std::clamp(lightCursor.r, 0, 1);
+		}
+		if (Event::KeyPressed(SDLK_w))
+		{
+			lightCursor.g += Event::MouseWheel();
+			std::clamp(lightCursor.g, 0, 1);
+		}
+		if (Event::KeyPressed(SDLK_e))
+		{
+			lightCursor.b += Event::MouseWheel();
+			std::clamp(lightCursor.b, 0, 1);
+		}
 	}
 	else
 	{
