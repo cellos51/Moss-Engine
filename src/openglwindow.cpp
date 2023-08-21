@@ -143,8 +143,8 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
 
     glActiveTexture(GL_TEXTURE0 + FBOTex);
     glBindTexture(GL_TEXTURE_2D, FBOTex);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, p_w, p_h, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
@@ -165,8 +165,8 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
 
     glActiveTexture(GL_TEXTURE0 + FBOLightTex);
     glBindTexture(GL_TEXTURE_2D, FBOLightTex);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, p_w, p_h, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
@@ -186,10 +186,10 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
 
 	glActiveTexture(GL_TEXTURE0 + FBOBlurTex);
 	glBindTexture(GL_TEXTURE_2D, FBOBlurTex);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, p_w, p_h, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, FBOBlurTex, 0);
@@ -292,13 +292,13 @@ void OpenGLWindow::clear() // clears the renderer
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, getSize().x, getSize().y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		glBindRenderbuffer(GL_RENDERBUFFER, RBO);  
-	    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, getSize().x, getSize().y);
-	    glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
 		glBindTexture(GL_TEXTURE_2D, FBOBlurTex);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, getSize().x, getSize().y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glBindRenderbuffer(GL_RENDERBUFFER, RBO);  
+	    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, getSize().x, getSize().y);
+	    glBindRenderbuffer(GL_RENDERBUFFER, 0);
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
@@ -540,11 +540,11 @@ void OpenGLWindow::display() // used to display information from the renderer to
 	glBindFramebuffer(GL_FRAMEBUFFER, FBOLight);
 	luminosityShader.use();
 	luminosityShader.setIntArray("ourTexture", 16, textureUnits); 
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
+
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 	for (int i = 0; i < lightCount; i++)
 	{
@@ -598,25 +598,27 @@ void OpenGLWindow::display() // used to display information from the renderer to
 	framebufferShader.setFloat("zoom", 1.0f);
 	framebufferShader.setInt("blurTexture", FBOTex);
 	framebufferShader.setInt("lightTexture", FBOLightTex);
-	framebufferShader.setVec2("direction", 1.0f / getSize().x, 0.0f);
+	framebufferShader.setFloat("pass", 1.0f);
 
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
 
 	glBindTexture(GL_TEXTURE_2D, FBOBlurTex);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-
 	//second pass
-	framebufferShader.use();
+	framebufferShader.setFloat("pass", 2.0f);
+	framebufferShader.setInt("blurTexture", FBOBlurTex);
+
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
+
+	//third final pass
 	framebufferShader.setFloat("zoom", zoom);
 	framebufferShader.setInt("screenTexture", FBOTex);
-	framebufferShader.setInt("blurTexture", FBOBlurTex);
-	framebufferShader.setInt("lightTexture", FBOLightTex);
 	framebufferShader.setVec4("unlitColor", ambientLight.r, ambientLight.g, ambientLight.b, ambientLight.a);
-	framebufferShader.setVec2("direction", 0.0f, 1.0f / (getSize().y));
+	framebufferShader.setFloat("pass", 3.0f);
 
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 

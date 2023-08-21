@@ -12,7 +12,7 @@ ui::ui()
 	transform.x = 64;
 	transform.y = 64;
 	color = Color4(1, 1, 1, 1);
-	luminosity = Color4(1, 1, 1, 0);
+	luminosity = Color4(0.1, 0.1, 0.1, 0); // bro this is so fucking dumb omg but i'm unironically just gonna do this for now until i setup a seperate fbo or renderpass for unlit objects
 	size.x = 64;
 	size.y = 64;
 	uiText.setText("");
