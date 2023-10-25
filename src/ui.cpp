@@ -70,7 +70,7 @@ ui::TextInput::TextInput()
 	size.x = 64;
 	size.y = 64;
 	uiText.setText("");
-	uiText.color = {10, 10, 10};
+	//uiText.color = {10, 10, 10};
 }
 
 bool ui::TextInput::startTextInput()
@@ -118,4 +118,53 @@ ui::TextInput::~TextInput()
 	Event::TextInputEnabled(false);
 }
 
-// panel
+// slider
+
+ui::Slider::Slider()
+{
+	transform.x = 64;
+	transform.y = 64;
+	color = Color4(255, 255, 255, 0);
+	size.x = 64;
+	size.y = 64;
+	uiText.setText("");
+	bar.tex = -1;
+	bar.color = Color4(1.0, 1.0, 1.0, 0.9);
+	//uiText.color = {10, 10, 10};
+}
+
+void ui::Slider::poll()
+{
+	int x, y;
+	SDL_GetMouseState(&x, &y);
+
+
+
+	if (Event::MouseDown(SDL_BUTTON_LEFT))
+	{
+		if (x >= transform.x && x <= transform.x + size.x && y >= transform.y && y <= transform.y + size.y)
+		{
+			isActive = true;
+		}
+	}
+	else if (!Event::MousePressed(SDL_BUTTON_LEFT))
+	{
+		isActive = false;
+	}
+
+	if (isActive == true)
+	{
+		value = (x - transform.x) / size.x;
+		value = SDL_clamp(value, min, max);
+
+		if (showValue == true)
+		{
+			uiText.setText(std::to_string(value));
+		}
+	}
+
+	bar.layer = layer + 1;
+	bar.transform = Vector2(transform.x, transform.y);
+	bar.offset.w = (int(size.x * value) + 1) & ~1;
+	bar.offset.h = size.y;
+}

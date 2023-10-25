@@ -18,7 +18,8 @@ public:
 	void clear();
 	void render(Entity& p_ent, bool cam);
 	void render(Text& p_text, bool cam);
-	void render(ui& p_ui);
+	void render(ui::Slider& p_slider);
+	void render(ui& p_ui);	
 	void render(Light& p_light);
 	void display();
 	void quit();

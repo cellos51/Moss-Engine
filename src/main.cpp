@@ -28,8 +28,6 @@
 #include "ui.hpp"
 #include "light.hpp"
 
-#define TILE_SIZE 24
-
 // random shit needed to be here to run
 bool gameRunning = true;
 NetworkManager netManager;
@@ -68,7 +66,13 @@ ui::Button saveButton;
 ui::Button saveAsButton;
 ui::Button loadButton;
 ui::Button importButton;
+ui::Slider brightness;
+ui::Slider radius;
+ui::Slider red;
+ui::Slider green;
+ui::Slider blue;
 
+unsigned int font = 0;
 unsigned int activeLayer = 1;
 std::string currentFile;
 std::string activeTexture;
@@ -252,12 +256,59 @@ bool init() // used to initiate things before using
 	//Mix_PlayMusic(music, -1);
 
 	window.camera(Vector2(0, 0));
+	font = window.loadTexture("assets/fonts/font.png");
+
+	brightness.size = Vector2(64, 16);
+	brightness.layer = 13;
+	brightness.tex = -1;
+	brightness.transform = Vector2(1000, 5);
+	brightness.color = Color4(0.0, 0.0, 0.0, 1);
+	brightness.uiText.font = font;
+	brightness.uiText.transform = Vector2(brightness.transform.x, brightness.transform.y + brightness.size.y);
+
+	radius.size = Vector2(64, 16);
+	radius.layer = 13;
+	radius.tex = -1;
+	radius.transform = Vector2(1000, 22);
+	radius.color = Color4(0.5, 0.5, 0.5, 1);
+	radius.uiText.font = font;
+	radius.uiText.transform = Vector2(radius.transform.x, radius.transform.y + radius.size.y);
+
+	red.size = Vector2(64, 8);
+	red.layer = 13;
+	red.tex = -1;
+	red.transform = Vector2(1100, 5);
+	red.color = Color4(0.5, 0.0, 0.0, 1);
+	red.uiText.font = font;
+	red.uiText.transform = Vector2(red.transform.x, red.transform.y + red.size.y);
+
+	green.size = Vector2(64, 8);
+	green.layer = 13;
+	green.tex = -1;
+	green.transform = Vector2(1100, 16);
+	green.color = Color4(0.0, 0.5, 0.0, 1);
+	green.uiText.font = font;
+	green.uiText.transform = Vector2(green.transform.x, green.transform.y + green.size.y);
+	
+	blue.size = Vector2(64, 8);
+	blue.layer = 13;
+	blue.tex = -1;
+	blue.transform = Vector2(1100, 27);
+	blue.color = Color4(0.0, 0.0, 0.5, 1);
+	blue.uiText.font = font;
+	blue.uiText.transform = Vector2(blue.transform.x, blue.transform.y + blue.size.y);
 
 	return true;
 }
 
 void gameLoop() // it runs forever
 {
+	brightness.poll();
+	radius.poll();
+	red.poll();
+	green.poll();
+	blue.poll();
+
 	tileSet.size = Vector2(window.TextureSize[tileSet.tex].x, window.TextureSize[tileSet.tex].y);
 
 	topBar.size = Vector2(window.getSize().x, 48);
@@ -508,30 +559,11 @@ void gameLoop() // it runs forever
 		viewCollision = false;
 		editingPlayer = false;
 
-		if (Event::KeyPressed(SDLK_LCTRL)) // terrible way to do this rn but i don't feel like making ui
-		{
-			lightCursor.radius += Event::MouseWheel() * 4;
-		}
-		if (Event::KeyPressed(SDLK_LSHIFT))
-		{
-			lightCursor.intensity += Event::MouseWheel() / 2;
-		}
-
-		if (Event::KeyPressed(SDLK_q))
-		{
-			lightCursor.r += Event::MouseWheel();
-			std::clamp(lightCursor.r, 0, 1);
-		}
-		if (Event::KeyPressed(SDLK_w))
-		{
-			lightCursor.g += Event::MouseWheel();
-			std::clamp(lightCursor.g, 0, 1);
-		}
-		if (Event::KeyPressed(SDLK_e))
-		{
-			lightCursor.b += Event::MouseWheel();
-			std::clamp(lightCursor.b, 0, 1);
-		}
+		lightCursor.intensity = brightness.value;
+		lightCursor.radius = radius.value * 1000;
+		lightCursor.r = red.value;
+		lightCursor.g = green.value;
+		lightCursor.b = blue.value;
 	}
 	else
 	{
@@ -911,6 +943,12 @@ void render() // honestly i feel like putting the stuff that is at the end of th
 	window.render(playerButton);
 
 	window.render(importButton);
+
+	window.render(brightness);
+	window.render(radius);
+	window.render(red);
+	window.render(green);
+	window.render(blue);
 }
 
 int main(int argc, char* args[])

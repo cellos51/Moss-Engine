@@ -5,11 +5,10 @@
 #include <vector>
 #include <iostream>
 
+#include "global.hpp"
 #include "entity.hpp"
 #include "math.hpp"
 #include "openglwindow.hpp"
-
-const int tileSize = 24;
 
 Vector2 playerSpawnPoint = Vector2(0,0);
 
@@ -78,7 +77,7 @@ Vector2 Level::LoadLevel(std::vector<std::string> data, std::vector<Entity>& p_e
 	        tileParamters.push_back(std::stoi(course));
 	    }
 
-		Entity ent (Vector2(tileParamters[0], tileParamters[1]), texture, Vector2(tileSize,tileSize));
+		Entity ent (Vector2(tileParamters[0], tileParamters[1]), texture, Vector2(TILE_SIZE, TILE_SIZE));
 	    ent.layer = tileParamters[2];
 	    ent.texturePos.x = tileParamters[3];
 	    ent.texturePos.y = tileParamters[4];

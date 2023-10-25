@@ -21,6 +21,7 @@ public:
 	class Button;
 	class TextInput;
 	class Panel;
+	class Slider;
 };
 
 class  ui::Button : public ui
@@ -46,4 +47,19 @@ class  ui::Panel : public ui
 {
 public:
 	using ui::ui;
+};
+
+class  ui::Slider : public ui
+{
+public:
+	Slider();
+	using ui::ui;
+	float min = 0;
+	float max = 1; 
+	float value = 0.5;
+	bool showValue = false;
+	Entity bar = Entity(Vector2(100, 100), Vector2(100, 100)); // i should probably not be using this here but i don't feel like making a whole new class for this shit y'know?
+	void poll();
+private:
+	bool isActive = false;
 };

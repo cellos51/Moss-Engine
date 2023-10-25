@@ -397,6 +397,38 @@ void OpenGLWindow::render(Text& p_text, bool cam) // i think this copys the text
 	}	
 }
 
+void OpenGLWindow::render(ui::Slider& p_ui) // i have no fucking clue if this will work the way i think it will :)
+{
+	glm::mat4 transform = glm::mat4(1.0f);
+
+	transform = glm::scale(transform, glm::vec3((p_ui.size.x) / getSize().x, (p_ui.size.y) / getSize().y, 0));
+	transform = glm::translate(transform, glm::vec3(((((p_ui.transform.x) + p_ui.size.x / 2) - getSize().x / 2)) / (p_ui.size.x / 2), -((((p_ui.transform.y) + p_ui.size.y / 2) - getSize().y / 2)) / (p_ui.size.y / 2), 0));
+
+	positionArray[entityCount] = transform;
+	texCoordArray[entityCount] = glm::vec4(p_ui.texturePos.x / TextureSize[p_ui.tex].x, p_ui.texturePos.y / TextureSize[p_ui.tex].y, TextureSize[p_ui.tex].x / p_ui.texturePos.w, TextureSize[p_ui.tex].y / p_ui.texturePos.h);
+	textureArray[entityCount] = p_ui.tex;
+	layerArray[entityCount] = p_ui.layer;
+	shadowArray[entityCount] = glm::vec4(p_ui.luminosity.r, p_ui.luminosity.g, p_ui.luminosity.b, p_ui.luminosity.a);
+	colorArray[entityCount] = glm::vec4(p_ui.color.r, p_ui.color.g, p_ui.color.b, p_ui.color.a);
+
+	if (TexturesToRender.find(p_ui.layer) == TexturesToRender.end())
+	{
+		//TexturesToRender.push_back(p_ent.tex);
+		std::vector<int> newVector;
+		TexturesToRender.insert(std::pair<unsigned int, std::vector<int>>(p_ui.layer, newVector));
+	}
+
+	if (std::find(TexturesToRender[p_ui.layer].begin(), TexturesToRender[p_ui.layer].end(), p_ui.tex) == TexturesToRender[p_ui.layer].end())
+	{
+		TexturesToRender[p_ui.layer].push_back(p_ui.tex);
+	}
+
+	entityCount++;
+
+	render(p_ui.uiText, false);
+	render(p_ui.bar, false);
+}
+
 void OpenGLWindow::render(ui& p_ui) // i think this copys the texture to the renderer
 {
 	glm::mat4 transform = glm::mat4(1.0f);
@@ -408,8 +440,8 @@ void OpenGLWindow::render(ui& p_ui) // i think this copys the texture to the ren
 	texCoordArray[entityCount] = glm::vec4(p_ui.texturePos.x / TextureSize[p_ui.tex].x, p_ui.texturePos.y / TextureSize[p_ui.tex].y, TextureSize[p_ui.tex].x / p_ui.texturePos.w, TextureSize[p_ui.tex].y / p_ui.texturePos.h);
 	textureArray[entityCount] = p_ui.tex;
 	layerArray[entityCount] = p_ui.layer;
-	shadowArray[entityCount] = glm::vec4(p_ui.luminosity.r, p_ui.luminosity.b, p_ui.luminosity.g, p_ui.luminosity.a);
-	colorArray[entityCount] = glm::vec4(p_ui.color.r, p_ui.color.b, p_ui.color.g, p_ui.color.a);
+	shadowArray[entityCount] = glm::vec4(p_ui.luminosity.r, p_ui.luminosity.g, p_ui.luminosity.b, p_ui.luminosity.a);
+	colorArray[entityCount] = glm::vec4(p_ui.color.r, p_ui.color.g, p_ui.color.b, p_ui.color.a);
 
 	if (TexturesToRender.find(p_ui.layer) == TexturesToRender.end())
 	{

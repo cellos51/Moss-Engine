@@ -11,7 +11,7 @@ uniform sampler2D ourTexture[16];
 
 void main()
 {
-    vec4 texColor;
+    vec4 texColor = vec4(1.0);
 
     gl_FragDepth = 1.0f - (layerId / 100.0f);
 

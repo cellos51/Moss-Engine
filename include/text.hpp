@@ -18,8 +18,8 @@ public:
 	unsigned int font = 3;
 	int fontSize = 15;
 	Vector2 transform = Vector2(50,50);
-	SDL_Color color = {255, 255, 255};
 	//Vector2 size;
+	Color4 luminosity = Color4(0.1, 0.1, 0.1, 0);
 	std::vector<Entity> characters;
 private:
 	std::string message;
