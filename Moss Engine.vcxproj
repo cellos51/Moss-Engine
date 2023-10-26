@@ -137,37 +137,27 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Libraries\glad\src\glad.c" />
-    <ClCompile Include="src\enemy.cpp" />
     <ClCompile Include="src\entity.cpp" />
     <ClCompile Include="src\event.cpp" />
     <ClCompile Include="src\level.cpp" />
     <ClCompile Include="src\light.cpp" />
-    <ClCompile Include="src\livingentity.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\math.cpp" />
-    <ClCompile Include="src\networkmanager.cpp" />
-    <ClCompile Include="src\networkplayer.cpp" />
     <ClCompile Include="src\openglwindow.cpp" />
     <ClCompile Include="src\physicsentity.cpp" />
-    <ClCompile Include="src\player.cpp" />
     <ClCompile Include="src\stb_image.cpp" />
     <ClCompile Include="src\text.cpp" />
     <ClCompile Include="src\ui.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\enemy.hpp" />
     <ClInclude Include="include\entity.hpp" />
     <ClInclude Include="include\event.hpp" />
     <ClInclude Include="include\global.hpp" />
     <ClInclude Include="include\level.hpp" />
     <ClInclude Include="include\light.hpp" />
-    <ClInclude Include="include\livingentity.hpp" />
     <ClInclude Include="include\math.hpp" />
-    <ClInclude Include="include\networkmanager.hpp" />
-    <ClInclude Include="include\networkplayer.hpp" />
     <ClInclude Include="include\openglwindow.hpp" />
     <ClInclude Include="include\physicsentity.hpp" />
-    <ClInclude Include="include\player.hpp" />
     <ClInclude Include="include\shader.hpp" />
     <ClInclude Include="include\stb_image.h" />
     <ClInclude Include="include\text.hpp" />

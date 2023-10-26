@@ -1,7 +1,6 @@
 #include <steam/steam_api.h>
 #include <steam/isteammatchmaking.h>
 #include <steam/isteamfriends.h>
-#include "networkmanager.hpp"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
@@ -20,9 +19,6 @@
 
 #include "global.hpp"
 
-#include "player.hpp" // TODO make it so everytime a new type of entity is creted i don't have to #include it :(
-#include "enemy.hpp"
-
 #include "event.hpp"
 #include "level.hpp"
 #include "ui.hpp"
@@ -30,13 +26,9 @@
 
 // random shit needed to be here to run
 bool gameRunning = true;
-NetworkManager netManager;
 
 // main window
 OpenGLWindow window;
-
-//player stuff
-std::map<unsigned int, LivingEntity*> LivingEnts;
 
 // camra offset used for panning
 Vector2 offsetCam;
@@ -794,6 +786,41 @@ void gameLoop() // it runs forever
 		}
 	}
 
+	if (saveAsButton.onClick())
+	{
+		char filename[MAX_PATH];
+
+		OPENFILENAME ofn;
+		ZeroMemory(&filename, sizeof(filename));
+		ZeroMemory(&ofn, sizeof(ofn));
+		ofn.lStructSize = sizeof(ofn);
+		ofn.hwndOwner = NULL;  // If you have a window to center over, put its HANDLE here
+		ofn.lpstrFilter = "Moss Engine Level Files (*.lvl)\0*.lvl\0";
+		ofn.lpstrFile = filename;
+		ofn.nMaxFile = MAX_PATH;
+		ofn.lpstrTitle = "Save";
+		ofn.lpstrDefExt = "*.lvl\0";
+		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_OVERWRITEPROMPT;
+
+		if (GetSaveFileNameA(&ofn))
+		{
+			std::cout << "You chose the file \"" << filename << "\"\n";
+		}
+
+		std::cout << std::endl << "Saving..." << std::endl;
+
+		if (std::string(filename).length() > 0)
+		{
+			Level::SaveLevel(std::string(filename), level);
+			currentFile = std::string(filename);
+
+			std::cout << std::endl << "Saving complete!" << std::endl;
+		}
+		else
+		{
+			std::cout << std::endl << "Saving Failed! Did you choose a file?" << std::endl;
+		}
+	}
 
 	if (loadButton.onClick())
 	{
@@ -960,7 +987,6 @@ int main(int argc, char* args[])
 	while (gameRunning) // main game loop ran every frame
 	{
 		SteamAPI_RunCallbacks();
-		netManager.ReceiveMessages();
 
 		Time::Tick();
     	Event::PollEvent();
