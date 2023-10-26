@@ -11,6 +11,7 @@ public:
 	Entity(unsigned int p_tex, Vector2 p_size);
 	Entity(Vector2 p_pos, Vector2 p_size);
 	Entity(Vector2 p_size);
+	Entity();
 	bool colUp = true, colDown = true, colLeft = true, colRight = true;
 	void init();
 	unsigned int getTex();

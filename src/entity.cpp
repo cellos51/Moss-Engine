@@ -26,6 +26,11 @@ Entity::Entity(Vector2 p_size) : transform(Vector2(0.0, 0.0)), tex(-1), size(p_s
 	Entity::init();
 }
 
+Entity::Entity() : transform(Vector2(0.0, 0.0)), tex(-1), size(Vector2(32, 32))
+{
+	Entity::init();
+}
+
 void Entity::init()
 {
 	texturePos.x = 0;

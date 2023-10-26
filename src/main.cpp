@@ -42,9 +42,11 @@ std::map<unsigned int, LivingEntity*> LivingEnts;
 Vector2 offsetCam;
 Vector2 offsetMouse;
 
-// literally just walls (for the level) (also why the fuck don't i make a seperete entity derived class for the level??? ahh fuck it)
-std::vector<Entity> walls; 
-std::vector<Light> lights; // original name :skull emoji:
+// literally just walls (for the level) (also why the fuck don't i make a seperete entity derived class for the level??? ahh fuck it) done lmao (oct 26 '23)
+LevelData level;
+
+//std::vector<Entity> walls;
+//std::vector<Light> lights; // original name :skull emoji:
 
 std::vector<Entity> collisionView;
 unsigned int collisionTexture;
@@ -331,15 +333,15 @@ void gameLoop() // it runs forever
 	{
 		activeLayer = 1;
 
-		for (unsigned int i = 0; i < walls.size(); i++)
+		for (unsigned int i = 0; i < level.tiles.size(); i++)
 		{
-			if (walls[i].layer != activeLayer)
+			if (level.tiles[i].layer != activeLayer)
 			{
-				walls[i].color.a = 0.5;
+				level.tiles[i].color.a = 0.5;
 			}
 			else
 			{
-				walls[i].color.a = 1;
+				level.tiles[i].color.a = 1;
 			}
 		}
 	}
@@ -348,15 +350,15 @@ void gameLoop() // it runs forever
 	{
 		activeLayer = 2;
 
-		for (unsigned int i = 0; i < walls.size(); i++)
+		for (unsigned int i = 0; i < level.tiles.size(); i++)
 		{
-			if (walls[i].layer != activeLayer)
+			if (level.tiles[i].layer != activeLayer)
 			{
-				walls[i].color.a = 0.5;
+				level.tiles[i].color.a = 0.5;
 			}
 			else
 			{
-				walls[i].color.a = 1;
+				level.tiles[i].color.a = 1;
 			}
 		}
 	}
@@ -365,15 +367,15 @@ void gameLoop() // it runs forever
 	{
 		activeLayer = 3;
 
-		for (unsigned int i = 0; i < walls.size(); i++)
+		for (unsigned int i = 0; i < level.tiles.size(); i++)
 		{
-			if (walls[i].layer != activeLayer)
+			if (level.tiles[i].layer != activeLayer)
 			{
-				walls[i].color.a = 0.5;
+				level.tiles[i].color.a = 0.5;
 			}
 			else
 			{
-				walls[i].color.a = 1;
+				level.tiles[i].color.a = 1;
 			}
 		}
 	}
@@ -382,15 +384,15 @@ void gameLoop() // it runs forever
 	{
 		activeLayer = 4;
 
-		for (unsigned int i = 0; i < walls.size(); i++)
+		for (unsigned int i = 0; i < level.tiles.size(); i++)
 		{
-			if (walls[i].layer != activeLayer)
+			if (level.tiles[i].layer != activeLayer)
 			{
-				walls[i].color.a = 0.5;
+				level.tiles[i].color.a = 0.5;
 			}
 			else
 			{
-				walls[i].color.a = 1;
+				level.tiles[i].color.a = 1;
 			}
 		}
 	}
@@ -493,7 +495,7 @@ void gameLoop() // it runs forever
 		collisionTile.tex = collisionTexture;
 		collisionTile.layer = 5;
 
-		for (const Entity& wall : walls)
+		for (const Entity& wall : level.tiles)
 		{
 			if (wall.colUp == true || wall.colDown == true || wall.colLeft == true || wall.colRight == true)
 			{
@@ -643,34 +645,34 @@ void gameLoop() // it runs forever
 
 		if (Event::MousePressed(SDL_BUTTON_RIGHT) && viewCollision == false && editingPlayer == false && editingLights == false)
 		{
-			for (unsigned int i = 0; i < walls.size(); i++)
+			for (unsigned int i = 0; i < level.tiles.size(); i++)
 			{
-				if (walls[i].transform.x == x && walls[i].transform.y == y && walls[i].layer == activeLayer)
+				if (level.tiles[i].transform.x == x && level.tiles[i].transform.y == y && level.tiles[i].layer == activeLayer)
 				{
-					walls.erase(walls.begin() + i);
+					level.tiles.erase(level.tiles.begin() + i);
 				}
 			}
 		}
 		else if (Event::MousePressed(SDL_BUTTON_RIGHT) && viewCollision == true)
 		{
-			for (unsigned int i = 0; i < walls.size(); i++)
+			for (unsigned int i = 0; i < level.tiles.size(); i++)
 			{
-				if (walls[i].transform.x == x && walls[i].transform.y == y && walls[i].layer == activeLayer)
+				if (level.tiles[i].transform.x == x && level.tiles[i].transform.y == y && level.tiles[i].layer == activeLayer)
 				{
-					walls[i].colUp = false;
-					walls[i].colDown = false;
-					walls[i].colLeft = false;
-					walls[i].colRight = false;
+					level.tiles[i].colUp = false;
+					level.tiles[i].colDown = false;
+					level.tiles[i].colLeft = false;
+					level.tiles[i].colRight = false;
 				}
 			}
 		}
 		else if (Event::MousePressed(SDL_BUTTON_RIGHT) && editingLights == true)
 		{
-			for (unsigned int i = 0; i < lights.size(); i++)
+			for (unsigned int i = 0; i < level.lights.size(); i++)
 			{
-				if ((Vector2(lights[i].transform.x - x2,lights[i].transform.y - y2).magnitude()) < 30) // this is stupid as fuck but it should probably work?
+				if ((Vector2(level.lights[i].transform.x - x2, level.lights[i].transform.y - y2).magnitude()) < 30) // this is stupid as fuck but it should probably work?
 				{
-					lights.erase(lights.begin() + i);
+					level.lights.erase(level.lights.begin() + i);
 				}
 			}
 		}
@@ -691,7 +693,7 @@ void gameLoop() // it runs forever
 
 			bool obstructed = false;
 
-			for (const Entity& wall : walls)
+			for (const Entity& wall : level.tiles)
 			{
 				if (wall.transform.x == x && wall.transform.y == y && wall.layer == tile.layer)
 				{
@@ -700,19 +702,19 @@ void gameLoop() // it runs forever
 			}
 			if (obstructed == false)
 			{
-				walls.push_back(tile);
+				level.tiles.push_back(tile);
 			}
 		}
 		else if (Event::MousePressed(SDL_BUTTON_LEFT) && viewCollision == true)
 		{
-			for (unsigned int i = 0; i < walls.size(); i++)
+			for (unsigned int i = 0; i < level.tiles.size(); i++)
 			{
-				if (walls[i].transform.x == x && walls[i].transform.y == y && walls[i].layer == activeLayer)
+				if (level.tiles[i].transform.x == x && level.tiles[i].transform.y == y && level.tiles[i].layer == activeLayer)
 				{
-					walls[i].colUp = true;
-					walls[i].colDown = true;
-					walls[i].colLeft = true;
-					walls[i].colRight = true;
+					level.tiles[i].colUp = true;
+					level.tiles[i].colDown = true;
+					level.tiles[i].colLeft = true;
+					level.tiles[i].colRight = true;
 				}
 			}
 		}
@@ -722,7 +724,7 @@ void gameLoop() // it runs forever
 		}
 		else if (Event::MouseDown(SDL_BUTTON_LEFT) && editingLights == true)
 		{
-			lights.push_back(lightCursor);
+			level.lights.push_back(lightCursor);
 		}
 	}
 
@@ -772,7 +774,7 @@ void gameLoop() // it runs forever
 
 			if (std::string(filename).length() > 0)
 			{
-				Level::SaveLevel(std::string(filename), walls, playerSpawn, activeTexture);
+				Level::SaveLevel(std::string(filename), level);
 				currentFile = std::string(filename);
 
 				std::cout << std::endl << "Saving complete!" << std::endl;
@@ -786,7 +788,7 @@ void gameLoop() // it runs forever
 		{
 			std::cout << std::endl << "Saving..." << std::endl;
 
-			Level::SaveLevel(currentFile, walls, playerSpawn, activeTexture);
+			Level::SaveLevel(currentFile, level);
 
 			std::cout << std::endl << "Saving complete!" << std::endl;
 		}
@@ -822,7 +824,8 @@ void gameLoop() // it runs forever
 			//std::string activeTexture = Level::LoadFile(std::string(filename))[0];
 
 			//loadTextures(activeTexture);
-			Level::LoadLevel(Level::LoadFile(std::string(filename)), walls, window);
+			//Level::LoadLevel(Level::LoadFile(std::string(filename)), walls, window);
+			level = Level::Load(std::string(filename));
 
 			currentFile = std::string(filename);
 
@@ -889,12 +892,12 @@ void render() // honestly i feel like putting the stuff that is at the end of th
   	// 	window.render(it->second, true);
   	// }
 
-	for (Light light : lights)
+	for (Light light : level.lights)
 	{
 		window.render(light);
 	}
 
-	for (Entity wall : walls)
+	for (Entity wall : level.tiles)
 	{
 		window.render(wall, true);
 	}

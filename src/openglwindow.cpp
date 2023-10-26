@@ -29,9 +29,9 @@ int textureUnits[16] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
 
 unsigned int newestTexture = 0;
 
-const int maxEntities = 10000;
+const unsigned int maxEntities = 16383; 
 
-const int maxLights = 1000;
+const unsigned int maxLights = 1023;
 
 int entityCount = 0; // begin stuff for entities
 
@@ -670,8 +670,8 @@ void OpenGLWindow::camera(Vector2 pos) // used before exiting the program
 {
 	cameraPos.lerp(cameraPos, pos, lerpAmount * Time::deltaTime());
 
-	cameraPos.x = std::clamp(cameraPos.x, pos.x - clampAmount, pos.x + clampAmount);
-	cameraPos.y = std::clamp(cameraPos.y, pos.y - clampAmount, pos.y + clampAmount);
+	cameraPos.x = SDL_clamp(cameraPos.x, pos.x - clampAmount, pos.x + clampAmount);
+	cameraPos.y = SDL_clamp(cameraPos.y, pos.y - clampAmount, pos.y + clampAmount);
 
 	cameraOffset = Vector2(round(cameraPos.x) - ((getSize().x) / 2)  ,round(cameraPos.y) - ((getSize().y) / 2 ));
 }
