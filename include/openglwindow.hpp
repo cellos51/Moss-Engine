@@ -15,6 +15,7 @@ class OpenGLWindow
 public:
 	void create(const char* p_title, int p_w, int p_h);
 	unsigned int loadTexture(const char* p_filePath);
+	unsigned int replaceTexture(const char* p_filePath, unsigned int texture);
 	void clear();
 	void render(Entity& p_ent, bool cam);
 	void render(Text& p_text, bool cam);

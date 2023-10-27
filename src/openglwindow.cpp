@@ -273,6 +273,48 @@ unsigned int OpenGLWindow::loadTexture(const char* p_filePath) // used load text
 	return texture;
 }
 
+unsigned int OpenGLWindow::replaceTexture(const char* p_filePath, unsigned int texture) // used replace textures >:(
+{
+	int width, height, nrChannels;
+	//unsigned int texture;
+	unsigned char* data;
+
+	stbi_set_flip_vertically_on_load(true);
+
+	data = stbi_load(p_filePath, &width, &height, &nrChannels, 0);
+
+
+	//glGenTextures(1, &texture);
+	glActiveTexture(GL_TEXTURE0 + texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		//glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		return -1;
+	}
+	stbi_image_free(data);
+
+	glActiveTexture(GL_TEXTURE0 + 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	TextureSize.insert(std::pair<unsigned int, Vector2>(texture, Vector2(width, height)));
+
+	std::cout << "TextureID: " << texture << std::endl;
+
+	newestTexture = texture;
+	return texture;
+}
+
 void OpenGLWindow::clear() // clears the renderer
 {
 	entityCount = 0;
