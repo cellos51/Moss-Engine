@@ -51,6 +51,12 @@
     <ClCompile Include="..\Libraries\glad\src\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\editorscene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\stb_image.h">
@@ -90,6 +96,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\scene.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\editorscene.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

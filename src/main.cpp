@@ -12,23 +12,24 @@
 #include <Commdlg.h>
 #include <shlwapi.h>
 
+#include "global.hpp"
+#include "scene.hpp"
 #include "text.hpp"
 #include "math.hpp"
-
 #include "openglwindow.hpp"
-
-#include "global.hpp"
-
 #include "event.hpp"
 #include "level.hpp"
 #include "ui.hpp"
 #include "light.hpp"
 
-// random shit needed to be here to run
+// this controls the game loop
 bool gameRunning = true;
 
 // main window
 OpenGLWindow window;
+
+// main scene
+SceneManager mainScene;
 
 // camra offset used for panning
 Vector2 offsetCam;
@@ -75,10 +76,6 @@ Entity selector(Vector2(0, TILE_SIZE * 2), Vector2(TILE_SIZE, TILE_SIZE));
 Entity cursor(Vector2(TILE_SIZE, TILE_SIZE));
 Light lightCursor;
 Entity playerSpawn(Vector2(TILE_SIZE, TILE_SIZE));
-
-// Vector2 cameraPos;
-
-Mix_Music *music = NULL;
 
 void loadTextures(std::string texPath)
 {
@@ -245,9 +242,6 @@ bool init() // used to initiate things before using
 	saveAsButton.layer = 12;
 	loadButton.layer = 12;
 	importButton.layer = 12;
-
-	music = Mix_LoadMUS("assets/audio/Synchronicity.flac");
-	//Mix_PlayMusic(music, -1);
 
 	window.camera(Vector2(0, 0));
 	font = window.loadTexture("assets/fonts/font.png");
@@ -914,11 +908,6 @@ void gameLoop() // it runs forever
 
 void render() // honestly i feel like putting the stuff that is at the end of the gameloop in here
 {
-  	// for (std::map<int,Entity>::iterator it = LivingEnts.begin(); it != LivingEnts.end(); ++it)
-  	// {
-  	// 	window.render(it->second, true);
-  	// }
-
 	for (Light light : level.lights)
 	{
 		window.render(light);
