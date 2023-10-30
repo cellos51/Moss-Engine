@@ -137,6 +137,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Libraries\glad\src\glad.c" />
+    <ClCompile Include="src\console.cpp" />
     <ClCompile Include="src\editorscene.cpp" />
     <ClCompile Include="src\entity.cpp" />
     <ClCompile Include="src\event.cpp" />
@@ -152,6 +153,7 @@
     <ClCompile Include="src\ui.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\console.hpp" />
     <ClInclude Include="include\editorscene.hpp" />
     <ClInclude Include="include\entity.hpp" />
     <ClInclude Include="include\event.hpp" />

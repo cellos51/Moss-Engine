@@ -10,6 +10,8 @@ bool quit = false;
 
 bool isTextInput = false;
 
+bool textSubmit = false;
+
 float mouseWheel = 0;
 
 std::map<int, bool> mouseMap;
@@ -77,6 +79,12 @@ void Event::PollEvent()
 				else if( event.key.keysym.sym == SDLK_v && SDL_GetModState() & KMOD_CTRL && isTextInput == true ) //Handle paste
 				{
 					text += SDL_GetClipboardText();
+				}
+
+				if (event.key.keysym.sym == SDLK_RETURN && isTextInput == true) //Handle backspace
+				{
+					textSubmit = true;
+					TextInputEnabled(false);	
 				}
 			}
 			break;
@@ -162,6 +170,17 @@ bool Event::TextInputEnabled(bool i)
 bool Event::TextInputEnabled()
 {
 	return isTextInput;
+}
+
+bool Event::TextSubmitted()
+{
+	if (textSubmit)
+	{
+		textSubmit = false;
+		return true;
+	}
+
+	return false;
 }
 
 bool Event::KeyDown(int i)

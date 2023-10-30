@@ -66,7 +66,7 @@ ui::TextInput::TextInput()
 {
 	transform.x = 64;
 	transform.y = 64;
-	color = Color4(255, 255, 255, 0);
+	color = Color4(0.1f, 0.1f, 0.1f, 1.0f);
 	size.x = 64;
 	size.y = 64;
 	uiText.setText("");

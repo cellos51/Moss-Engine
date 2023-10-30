@@ -15,6 +15,7 @@
 #include "entity.hpp"
 #include "text.hpp"
 #include "light.hpp"
+#include "console.hpp"
 
 float zoom = 1;
 Entity OnscreenCamera(Vector2(0,0));
@@ -96,22 +97,22 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
 	int glConsts;
 	
 	glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &glConsts);
-	std::cout << "Max Uniform Block Size:" << glConsts << std::endl;
+	console.log("Max Uniform Block Size: " + std::to_string(glConsts) + "\n");
 	
 	glGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS, &glConsts);
-	std::cout << "Max Vertex Unifrom Components:" << glConsts << std::endl;
+	console.log("Max Vertex Unifrom Components: " + std::to_string(glConsts) + "\n");
 
 	glGetIntegerv(GL_MAX_VERTEX_OUTPUT_COMPONENTS, &glConsts);
-	std::cout << "Max Vertex Output Components:" << glConsts << std::endl;	
+	console.log("Max Vertex Output Components: " + std::to_string(glConsts) + "\n");
 
 	glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, &glConsts);
-	std::cout << "Max Fragment Unifrom Components:" << glConsts << std::endl;
+	console.log("Max Fragment Unifrom Components: " + std::to_string(glConsts) + "\n");
 
 	glGetIntegerv(GL_MAX_UNIFORM_LOCATIONS, &glConsts);
-	std::cout << "Max Unifrom Components:" << glConsts << std::endl;
+	console.log("Max Unifrom Components: " + std::to_string(glConsts) + "\n");
 
 	glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &glConsts);
-	std::cout << "Max Array Texture Layers:" << glConsts << std::endl;
+	console.log("Max Array Texture Layers: " + std::to_string(glConsts) + "\n");
 
 	glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
@@ -159,7 +160,7 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+		console.log("ERROR::FRAMEBUFFER:: Framebuffer is not complete!\n");
 
 	glBindFramebuffer(GL_FRAMEBUFFER, FBOLight);
 
@@ -180,7 +181,7 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);  
 
 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+		console.log("ERROR::FRAMEBUFFER:: Framebuffer is not complete!\n");
 
 	glBindFramebuffer(GL_FRAMEBUFFER, FBOBlur);
 
@@ -228,7 +229,7 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
 
     screenSize = getSize();
 
-    std::cout << "Error check: " << glGetError() << std::endl;
+	console.log("Error check: " + std::to_string(glGetError()) + "\n");
 }
 
 unsigned int OpenGLWindow::loadTexture(const char* p_filePath) // used load textures :P
@@ -267,7 +268,7 @@ unsigned int OpenGLWindow::loadTexture(const char* p_filePath) // used load text
 
 	TextureSize.insert(std::pair<unsigned int,Vector2>(texture, Vector2(width, height)));
 
-	std::cout << "TextureID: " << texture << std::endl;
+	//std::cout << "TextureID: " << texture << std::endl;
 
 	newestTexture = texture;
 	return texture;
@@ -309,7 +310,7 @@ unsigned int OpenGLWindow::replaceTexture(const char* p_filePath, unsigned int t
 
 	TextureSize.insert(std::pair<unsigned int, Vector2>(texture, Vector2(width, height)));
 
-	std::cout << "TextureID: " << texture << std::endl;
+	//std::cout << "TextureID: " << texture << std::endl;
 
 	newestTexture = texture;
 	return texture;

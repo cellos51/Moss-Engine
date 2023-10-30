@@ -4,6 +4,7 @@
 #include <windows.h>
 
 #include "event.hpp"
+#include "console.hpp"
 
 
 EditorScene::EditorScene(OpenGLWindow& window) : window(window) {}
@@ -214,428 +215,475 @@ void EditorScene::update()
 	tileSet.texturePos.h = window.TextureSize[tileSet.tex].y;
 	tileSet.texturePos.w = window.TextureSize[tileSet.tex].x;
 
-	if (layer1.onClick())
+	if (console.enabled == false)
 	{
-		activeLayer = 1;
-
-		for (unsigned int i = 0; i < level.tiles.size(); i++)
+		if (layer1.onClick())
 		{
-			if (level.tiles[i].layer != activeLayer)
+			activeLayer = 1;
+
+			for (unsigned int i = 0; i < level.tiles.size(); i++)
 			{
-				level.tiles[i].color.a = 0.5;
-			}
-			else
-			{
-				level.tiles[i].color.a = 1;
-			}
-		}
-	}
-
-	if (layer2.onClick())
-	{
-		activeLayer = 2;
-
-		for (unsigned int i = 0; i < level.tiles.size(); i++)
-		{
-			if (level.tiles[i].layer != activeLayer)
-			{
-				level.tiles[i].color.a = 0.5;
-			}
-			else
-			{
-				level.tiles[i].color.a = 1;
-			}
-		}
-	}
-
-	if (layer3.onClick())
-	{
-		activeLayer = 3;
-
-		for (unsigned int i = 0; i < level.tiles.size(); i++)
-		{
-			if (level.tiles[i].layer != activeLayer)
-			{
-				level.tiles[i].color.a = 0.5;
-			}
-			else
-			{
-				level.tiles[i].color.a = 1;
-			}
-		}
-	}
-
-	if (layer4.onClick())
-	{
-		activeLayer = 4;
-
-		for (unsigned int i = 0; i < level.tiles.size(); i++)
-		{
-			if (level.tiles[i].layer != activeLayer)
-			{
-				level.tiles[i].color.a = 0.5;
-			}
-			else
-			{
-				level.tiles[i].color.a = 1;
-			}
-		}
-	}
-
-	switch (activeLayer)
-	{
-	case 1:
-		layer1.color.r = 0.5;
-		layer1.color.g = 0.5;
-		layer1.color.b = 0.5;
-
-		layer2.color.r = 1;
-		layer2.color.g = 1;
-		layer2.color.b = 1;
-
-		layer3.color.r = 1;
-		layer3.color.g = 1;
-		layer3.color.b = 1;
-
-		layer4.color.r = 1;
-		layer4.color.g = 1;
-		layer4.color.b = 1;
-		break;
-	case 2:
-		layer1.color.r = 1;
-		layer1.color.g = 1;
-		layer1.color.b = 1;
-
-		layer2.color.r = 0.5;
-		layer2.color.g = 0.5;
-		layer2.color.b = 0.5;
-
-		layer3.color.r = 1;
-		layer3.color.g = 1;
-		layer3.color.b = 1;
-
-		layer4.color.r = 1;
-		layer4.color.g = 1;
-		layer4.color.b = 1;
-		break;
-	case 3:
-		layer1.color.r = 1;
-		layer1.color.g = 1;
-		layer1.color.b = 1;
-
-		layer2.color.r = 1;
-		layer2.color.g = 1;
-		layer2.color.b = 1;
-
-		layer3.color.r = 0.5;
-		layer3.color.g = 0.5;
-		layer3.color.b = 0.5;
-
-		layer4.color.r = 1;
-		layer4.color.g = 1;
-		layer4.color.b = 1;
-		break;
-	case 4:
-		layer1.color.r = 1;
-		layer1.color.g = 1;
-		layer1.color.b = 1;
-
-		layer2.color.r = 1;
-		layer2.color.g = 1;
-		layer2.color.b = 1;
-
-		layer3.color.r = 1;
-		layer3.color.g = 1;
-		layer3.color.b = 1;
-
-		layer4.color.r = 0.5;
-		layer4.color.g = 0.5;
-		layer4.color.b = 0.5;
-		break;
-	}
-
-	if (collisionButton.onClick())
-	{
-		if (viewCollision == false)
-		{
-			viewCollision = true;
-		}
-		else
-		{
-			viewCollision = false;
-		}
-	}
-
-	collisionView.clear();
-
-	if (viewCollision == true)
-	{
-		collisionButton.color.r = 0.5;
-		collisionButton.color.g = 0.5;
-		collisionButton.color.b = 0.5;
-		editingPlayer = false;
-		editingLights = false;
-
-		Entity collisionTile(Vector2(TILE_SIZE, TILE_SIZE));
-		collisionTile.luminosity = Color4(0.1f,0.1f,0.1f,1.0f);
-		collisionTile.tex = collisionTexture;
-		collisionTile.layer = 5;
-
-		for (const Entity& wall : level.tiles)
-		{
-			if (wall.colUp == true || wall.colDown == true || wall.colLeft == true || wall.colRight == true)
-			{
-				if (wall.layer == activeLayer)
+				if (level.tiles[i].layer != activeLayer)
 				{
-					collisionTile.transform = wall.transform;
-					collisionView.push_back(collisionTile);
+					level.tiles[i].color.a = 0.5;
+				}
+				else
+				{
+					level.tiles[i].color.a = 1;
 				}
 			}
 		}
-	}
-	else
-	{
-		collisionButton.color.r = 1;
-		collisionButton.color.g = 1;
-		collisionButton.color.b = 1;
-	}
 
-	if (playerButton.onClick())
-	{
-		if (editingPlayer == false)
+		if (layer2.onClick())
 		{
-			editingPlayer = true;
-		}
-		else
-		{
-			editingPlayer = false;
-		}
-	}
+			activeLayer = 2;
 
-	if (editingPlayer == true)
-	{
-		playerButton.color.r = 0.5;
-		playerButton.color.g = 0.5;
-		playerButton.color.b = 0.5;
-		viewCollision = false;
-		editingLights = false;
-	}
-	else
-	{
-		playerButton.color.r = 1;
-		playerButton.color.g = 1;
-		playerButton.color.b = 1;
-	}
-
-	if (lightsButton.onClick())
-	{
-		if (editingLights == false)
-		{
-			editingLights = true;
-		}
-		else
-		{
-			editingLights = false;
-		}
-	}
-
-	if (editingLights == true)
-	{
-		lightsButton.color.r = 0.5;
-		lightsButton.color.g = 0.5;
-		lightsButton.color.b = 0.5;
-		viewCollision = false;
-		editingPlayer = false;
-
-		lightCursor.intensity = brightness.value;
-		lightCursor.radius = radius.value * 1000;
-		lightCursor.r = red.value;
-		lightCursor.g = green.value;
-		lightCursor.b = blue.value;
-	}
-	else
-	{
-		lightsButton.color.r = 1;
-		lightsButton.color.g = 1;
-		lightsButton.color.b = 1;
-	}
-
-	if (tileSet.onClick())
-	{
-		int x, y;
-		SDL_GetMouseState(&x, &y);
-		x = (x / TILE_SIZE) * TILE_SIZE;
-		y = (y / TILE_SIZE) * TILE_SIZE;
-		selector.transform = Vector2(x, y);
-
-		if (selector.transform.x >= tileSet.size.x - TILE_SIZE)
-		{
-			selector.transform.x = tileSet.size.x - TILE_SIZE;
-		}
-	}
-
-	if (!topBar.touchingMouse() && !sideBar.touchingMouse())
-	{
-		int x, y;
-		SDL_GetMouseState(&x, &y);
-		int x2 = x, y2 = y;
-
-		if (((x + (window.cameraPos.x)) - window.getSize().x / 2) <= 0)
-		{
-			x = x - TILE_SIZE; // this needs to change if we use anything other than 24 x 24 tiles
+			for (unsigned int i = 0; i < level.tiles.size(); i++)
+			{
+				if (level.tiles[i].layer != activeLayer)
+				{
+					level.tiles[i].color.a = 0.5;
+				}
+				else
+				{
+					level.tiles[i].color.a = 1;
+				}
+			}
 		}
 
-		if (((y + (window.cameraPos.y)) - window.getSize().y / 2) <= 0)
+		if (layer3.onClick())
 		{
-			y = y - TILE_SIZE;
+			activeLayer = 3;
+
+			for (unsigned int i = 0; i < level.tiles.size(); i++)
+			{
+				if (level.tiles[i].layer != activeLayer)
+				{
+					level.tiles[i].color.a = 0.5;
+				}
+				else
+				{
+					level.tiles[i].color.a = 1;
+				}
+			}
 		}
 
-		x = (x + (window.cameraPos.x) - window.getSize().x / 2);
-		y = (y + (window.cameraPos.y) - window.getSize().y / 2);
+		if (layer4.onClick())
+		{
+			activeLayer = 4;
 
-		x2 = (x2 + (window.cameraPos.x) - window.getSize().x / 2);
-		y2 = (y2 + (window.cameraPos.y) - window.getSize().y / 2);
+			for (unsigned int i = 0; i < level.tiles.size(); i++)
+			{
+				if (level.tiles[i].layer != activeLayer)
+				{
+					level.tiles[i].color.a = 0.5;
+				}
+				else
+				{
+					level.tiles[i].color.a = 1;
+				}
+			}
+		}
 
-		x = (x / TILE_SIZE) * TILE_SIZE;
-		y = (y / TILE_SIZE) * TILE_SIZE;
+		switch (activeLayer)
+		{
+		case 1:
+			layer1.color.r = 0.5;
+			layer1.color.g = 0.5;
+			layer1.color.b = 0.5;
+
+			layer2.color.r = 1;
+			layer2.color.g = 1;
+			layer2.color.b = 1;
+
+			layer3.color.r = 1;
+			layer3.color.g = 1;
+			layer3.color.b = 1;
+
+			layer4.color.r = 1;
+			layer4.color.g = 1;
+			layer4.color.b = 1;
+			break;
+		case 2:
+			layer1.color.r = 1;
+			layer1.color.g = 1;
+			layer1.color.b = 1;
+
+			layer2.color.r = 0.5;
+			layer2.color.g = 0.5;
+			layer2.color.b = 0.5;
+
+			layer3.color.r = 1;
+			layer3.color.g = 1;
+			layer3.color.b = 1;
+
+			layer4.color.r = 1;
+			layer4.color.g = 1;
+			layer4.color.b = 1;
+			break;
+		case 3:
+			layer1.color.r = 1;
+			layer1.color.g = 1;
+			layer1.color.b = 1;
+
+			layer2.color.r = 1;
+			layer2.color.g = 1;
+			layer2.color.b = 1;
+
+			layer3.color.r = 0.5;
+			layer3.color.g = 0.5;
+			layer3.color.b = 0.5;
+
+			layer4.color.r = 1;
+			layer4.color.g = 1;
+			layer4.color.b = 1;
+			break;
+		case 4:
+			layer1.color.r = 1;
+			layer1.color.g = 1;
+			layer1.color.b = 1;
+
+			layer2.color.r = 1;
+			layer2.color.g = 1;
+			layer2.color.b = 1;
+
+			layer3.color.r = 1;
+			layer3.color.g = 1;
+			layer3.color.b = 1;
+
+			layer4.color.r = 0.5;
+			layer4.color.g = 0.5;
+			layer4.color.b = 0.5;
+			break;
+		}
+
+		if (collisionButton.onClick())
+		{
+			if (viewCollision == false)
+			{
+				viewCollision = true;
+			}
+			else
+			{
+				viewCollision = false;
+			}
+		}
+
+		collisionView.clear();
 
 		if (viewCollision == true)
 		{
-			cursor.color.a = 1;
-			cursor.tex = collisionTexture;
-			cursor.texturePos.x = 0;
-			cursor.texturePos.y = 0;
-			cursor.transform = Vector2(x, y);
-		}
-		else if (editingPlayer == true)
-		{
-			cursor.color.a = 0.5;
-			cursor.tex = playerSpawn.tex;
-			cursor.texturePos.x = 0;
-			cursor.texturePos.y = 0;
-			cursor.transform = Vector2(x, y);
-		}
-		else if (editingLights == true)
-		{
-			lightCursor.layer = activeLayer;
-			lightCursor.transform = Vector2(x2, y2);
-		}
-		else
-		{
-			cursor.color.a = 0.5;
-			cursor.tex = tileSet.tex;
-			cursor.texturePos.x = selector.transform.x;
-			cursor.texturePos.y = -(selector.transform.y - (tileSet.size.y + TILE_SIZE));
-			cursor.transform = Vector2(x, y);
-		}
+			collisionButton.color.r = 0.5;
+			collisionButton.color.g = 0.5;
+			collisionButton.color.b = 0.5;
+			editingPlayer = false;
+			editingLights = false;
 
-		if (Event::MousePressed(SDL_BUTTON_RIGHT) && viewCollision == false && editingPlayer == false && editingLights == false)
-		{
-			for (unsigned int i = 0; i < level.tiles.size(); i++)
-			{
-				if (level.tiles[i].transform.x == x && level.tiles[i].transform.y == y && level.tiles[i].layer == activeLayer)
-				{
-					level.tiles.erase(level.tiles.begin() + i);
-				}
-			}
-		}
-		else if (Event::MousePressed(SDL_BUTTON_RIGHT) && viewCollision == true)
-		{
-			for (unsigned int i = 0; i < level.tiles.size(); i++)
-			{
-				if (level.tiles[i].transform.x == x && level.tiles[i].transform.y == y && level.tiles[i].layer == activeLayer)
-				{
-					level.tiles[i].colUp = false;
-					level.tiles[i].colDown = false;
-					level.tiles[i].colLeft = false;
-					level.tiles[i].colRight = false;
-				}
-			}
-		}
-		else if (Event::MousePressed(SDL_BUTTON_RIGHT) && editingLights == true)
-		{
-			for (unsigned int i = 0; i < level.lights.size(); i++)
-			{
-				if ((Vector2(level.lights[i].transform.x - x2, level.lights[i].transform.y - y2).magnitude()) < 30) // this is stupid as fuck but it should probably work?
-				{
-					level.lights.erase(level.lights.begin() + i);
-				}
-			}
-		}
-
-		if (Event::MousePressed(SDL_BUTTON_LEFT) && viewCollision == false && editingPlayer == false && editingLights == false)
-		{
-			Entity tile(Vector2(TILE_SIZE, TILE_SIZE));
-			tile.tex = tileSet.tex;
-			tile.texturePos.x = selector.transform.x;
-			tile.texturePos.y = -(selector.transform.y - (tileSet.size.y + TILE_SIZE));
-			tile.layer = activeLayer;
-			tile.colUp = false;
-			tile.colDown = false;
-			tile.colLeft = false;
-			tile.colRight = false;
-
-			tile.transform = Vector2(x, y);
-
-			bool obstructed = false;
+			Entity collisionTile(Vector2(TILE_SIZE, TILE_SIZE));
+			collisionTile.luminosity = Color4(0.1f, 0.1f, 0.1f, 1.0f);
+			collisionTile.tex = collisionTexture;
+			collisionTile.layer = 5;
 
 			for (const Entity& wall : level.tiles)
 			{
-				if (wall.transform.x == x && wall.transform.y == y && wall.layer == tile.layer)
+				if (wall.colUp == true || wall.colDown == true || wall.colLeft == true || wall.colRight == true)
 				{
-					obstructed = true;
-				}
-			}
-			if (obstructed == false)
-			{
-				level.tiles.push_back(tile);
-			}
-		}
-		else if (Event::MousePressed(SDL_BUTTON_LEFT) && viewCollision == true)
-		{
-			for (unsigned int i = 0; i < level.tiles.size(); i++)
-			{
-				if (level.tiles[i].transform.x == x && level.tiles[i].transform.y == y && level.tiles[i].layer == activeLayer)
-				{
-					level.tiles[i].colUp = true;
-					level.tiles[i].colDown = true;
-					level.tiles[i].colLeft = true;
-					level.tiles[i].colRight = true;
+					if (wall.layer == activeLayer)
+					{
+						collisionTile.transform = wall.transform;
+						collisionView.push_back(collisionTile);
+					}
 				}
 			}
 		}
-		else if (Event::MousePressed(SDL_BUTTON_LEFT) && editingPlayer == true)
+		else
 		{
-			playerSpawn.transform = Vector2(x, y);
+			collisionButton.color.r = 1;
+			collisionButton.color.g = 1;
+			collisionButton.color.b = 1;
 		}
-		else if (Event::MouseDown(SDL_BUTTON_LEFT) && editingLights == true)
+
+		if (playerButton.onClick())
 		{
-			level.lights.push_back(lightCursor);
+			if (editingPlayer == false)
+			{
+				editingPlayer = true;
+			}
+			else
+			{
+				editingPlayer = false;
+			}
 		}
-	}
 
-	if (Event::MousePressed(SDL_BUTTON_MIDDLE))
-	{
-		int x, y;
-		SDL_GetMouseState(&x, &y);
-		//x = x / window.zoomX;
-		//y = y / window.zoomY;
-		window.camera(Vector2(-x - offsetMouse.x + offsetCam.x, -y - offsetMouse.y + offsetCam.y));
-	}
-	else if (!Event::MousePressed(SDL_BUTTON_MIDDLE))
-	{
-		int x, y;
-		SDL_GetMouseState(&x, &y);
-		//x = x / window.zoomX;
-		//y = y / window.zoomY;
+		if (editingPlayer == true)
+		{
+			playerButton.color.r = 0.5;
+			playerButton.color.g = 0.5;
+			playerButton.color.b = 0.5;
+			viewCollision = false;
+			editingLights = false;
+		}
+		else
+		{
+			playerButton.color.r = 1;
+			playerButton.color.g = 1;
+			playerButton.color.b = 1;
+		}
 
-		offsetMouse = Vector2(-x, -y);
-		offsetCam = window.cameraPos;
-	}
+		if (lightsButton.onClick())
+		{
+			if (editingLights == false)
+			{
+				editingLights = true;
+			}
+			else
+			{
+				editingLights = false;
+			}
+		}
 
-	if (saveButton.onClick())
-	{
-		if (currentFile.length() == 0)
+		if (editingLights == true)
+		{
+			lightsButton.color.r = 0.5;
+			lightsButton.color.g = 0.5;
+			lightsButton.color.b = 0.5;
+			viewCollision = false;
+			editingPlayer = false;
+
+			lightCursor.intensity = brightness.value;
+			lightCursor.radius = radius.value * 1000;
+			lightCursor.r = red.value;
+			lightCursor.g = green.value;
+			lightCursor.b = blue.value;
+		}
+		else
+		{
+			lightsButton.color.r = 1;
+			lightsButton.color.g = 1;
+			lightsButton.color.b = 1;
+		}
+
+		if (tileSet.onClick())
+		{
+			int x, y;
+			SDL_GetMouseState(&x, &y);
+			x = (x / TILE_SIZE) * TILE_SIZE;
+			y = (y / TILE_SIZE) * TILE_SIZE;
+			selector.transform = Vector2(x, y);
+
+			if (selector.transform.x >= tileSet.size.x - TILE_SIZE)
+			{
+				selector.transform.x = tileSet.size.x - TILE_SIZE;
+			}
+		}
+
+		if (!topBar.touchingMouse() && !sideBar.touchingMouse())
+		{
+			int x, y;
+			SDL_GetMouseState(&x, &y);
+			int x2 = x, y2 = y;
+
+			if (((x + (window.cameraPos.x)) - window.getSize().x / 2) <= 0)
+			{
+				x = x - TILE_SIZE; // this needs to change if we use anything other than 24 x 24 tiles
+			}
+
+			if (((y + (window.cameraPos.y)) - window.getSize().y / 2) <= 0)
+			{
+				y = y - TILE_SIZE;
+			}
+
+			x = (x + (window.cameraPos.x) - window.getSize().x / 2);
+			y = (y + (window.cameraPos.y) - window.getSize().y / 2);
+
+			x2 = (x2 + (window.cameraPos.x) - window.getSize().x / 2);
+			y2 = (y2 + (window.cameraPos.y) - window.getSize().y / 2);
+
+			x = (x / TILE_SIZE) * TILE_SIZE;
+			y = (y / TILE_SIZE) * TILE_SIZE;
+
+			if (viewCollision == true)
+			{
+				cursor.color.a = 1;
+				cursor.tex = collisionTexture;
+				cursor.texturePos.x = 0;
+				cursor.texturePos.y = 0;
+				cursor.transform = Vector2(x, y);
+			}
+			else if (editingPlayer == true)
+			{
+				cursor.color.a = 0.5;
+				cursor.tex = playerSpawn.tex;
+				cursor.texturePos.x = 0;
+				cursor.texturePos.y = 0;
+				cursor.transform = Vector2(x, y);
+			}
+			else if (editingLights == true)
+			{
+				lightCursor.layer = activeLayer;
+				lightCursor.transform = Vector2(x2, y2);
+			}
+			else
+			{
+				cursor.color.a = 0.5;
+				cursor.tex = tileSet.tex;
+				cursor.texturePos.x = selector.transform.x;
+				cursor.texturePos.y = -(selector.transform.y - (tileSet.size.y + TILE_SIZE));
+				cursor.transform = Vector2(x, y);
+			}
+
+			if (Event::MousePressed(SDL_BUTTON_RIGHT) && viewCollision == false && editingPlayer == false && editingLights == false)
+			{
+				for (unsigned int i = 0; i < level.tiles.size(); i++)
+				{
+					if (level.tiles[i].transform.x == x && level.tiles[i].transform.y == y && level.tiles[i].layer == activeLayer)
+					{
+						level.tiles.erase(level.tiles.begin() + i);
+					}
+				}
+			}
+			else if (Event::MousePressed(SDL_BUTTON_RIGHT) && viewCollision == true)
+			{
+				for (unsigned int i = 0; i < level.tiles.size(); i++)
+				{
+					if (level.tiles[i].transform.x == x && level.tiles[i].transform.y == y && level.tiles[i].layer == activeLayer)
+					{
+						level.tiles[i].colUp = false;
+						level.tiles[i].colDown = false;
+						level.tiles[i].colLeft = false;
+						level.tiles[i].colRight = false;
+					}
+				}
+			}
+			else if (Event::MousePressed(SDL_BUTTON_RIGHT) && editingLights == true)
+			{
+				for (unsigned int i = 0; i < level.lights.size(); i++)
+				{
+					if ((Vector2(level.lights[i].transform.x - x2, level.lights[i].transform.y - y2).magnitude()) < 30) // this is stupid as fuck but it should probably work?
+					{
+						level.lights.erase(level.lights.begin() + i);
+					}
+				}
+			}
+
+			if (Event::MousePressed(SDL_BUTTON_LEFT) && viewCollision == false && editingPlayer == false && editingLights == false)
+			{
+				Entity tile(Vector2(TILE_SIZE, TILE_SIZE));
+				tile.tex = tileSet.tex;
+				tile.texturePos.x = selector.transform.x;
+				tile.texturePos.y = -(selector.transform.y - (tileSet.size.y + TILE_SIZE));
+				tile.layer = activeLayer;
+				tile.colUp = false;
+				tile.colDown = false;
+				tile.colLeft = false;
+				tile.colRight = false;
+
+				tile.transform = Vector2(x, y);
+
+				bool obstructed = false;
+
+				for (const Entity& wall : level.tiles)
+				{
+					if (wall.transform.x == x && wall.transform.y == y && wall.layer == tile.layer)
+					{
+						obstructed = true;
+					}
+				}
+				if (obstructed == false)
+				{
+					level.tiles.push_back(tile);
+				}
+			}
+			else if (Event::MousePressed(SDL_BUTTON_LEFT) && viewCollision == true)
+			{
+				for (unsigned int i = 0; i < level.tiles.size(); i++)
+				{
+					if (level.tiles[i].transform.x == x && level.tiles[i].transform.y == y && level.tiles[i].layer == activeLayer)
+					{
+						level.tiles[i].colUp = true;
+						level.tiles[i].colDown = true;
+						level.tiles[i].colLeft = true;
+						level.tiles[i].colRight = true;
+					}
+				}
+			}
+			else if (Event::MousePressed(SDL_BUTTON_LEFT) && editingPlayer == true)
+			{
+				playerSpawn.transform = Vector2(x, y);
+			}
+			else if (Event::MouseDown(SDL_BUTTON_LEFT) && editingLights == true)
+			{
+				level.lights.push_back(lightCursor);
+			}
+		}
+
+		if (Event::MousePressed(SDL_BUTTON_MIDDLE))
+		{
+			int x, y;
+			SDL_GetMouseState(&x, &y);
+			//x = x / window.zoomX;
+			//y = y / window.zoomY;
+			window.camera(Vector2(-x - offsetMouse.x + offsetCam.x, -y - offsetMouse.y + offsetCam.y));
+		}
+		else if (!Event::MousePressed(SDL_BUTTON_MIDDLE))
+		{
+			int x, y;
+			SDL_GetMouseState(&x, &y);
+			//x = x / window.zoomX;
+			//y = y / window.zoomY;
+
+			offsetMouse = Vector2(-x, -y);
+			offsetCam = window.cameraPos;
+		}
+
+		if (saveButton.onClick())
+		{
+			if (currentFile.length() == 0)
+			{
+				char filename[MAX_PATH] = { '\0' };
+
+				OPENFILENAME ofn;
+				ZeroMemory(&filename, sizeof(filename));
+				ZeroMemory(&ofn, sizeof(ofn));
+				ofn.lStructSize = sizeof(ofn);
+				ofn.hwndOwner = NULL;  // If you have a window to center over, put its HANDLE here
+				ofn.lpstrFilter = "Moss Engine Level Files (*.lvl)\0*.lvl\0";
+				ofn.lpstrFile = filename;
+				ofn.nMaxFile = MAX_PATH;
+				ofn.lpstrTitle = "Save";
+				ofn.lpstrDefExt = "*.lvl\0";
+				ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_OVERWRITEPROMPT;
+
+				if (GetSaveFileNameA(&ofn))
+				{
+					std::cout << "You chose the file \"" << filename << "\"\n";
+				}
+
+				std::cout << std::endl << "Saving..." << std::endl;
+
+				if (std::string(filename).length() > 0)
+				{
+					Level::SaveLevel(std::string(filename), level);
+					currentFile = std::string(filename);
+
+					std::cout << std::endl << "Saving complete!" << std::endl;
+				}
+				else
+				{
+					std::cout << std::endl << "Saving Failed! Did you choose a file?" << std::endl;
+				}
+			}
+			else
+			{
+				std::cout << std::endl << "Saving..." << std::endl;
+
+				Level::SaveLevel(currentFile, level);
+
+				std::cout << std::endl << "Saving complete!" << std::endl;
+			}
+		}
+
+		if (saveAsButton.onClick())
 		{
 			char filename[MAX_PATH] = { '\0' };
 
@@ -670,144 +718,100 @@ void EditorScene::update()
 				std::cout << std::endl << "Saving Failed! Did you choose a file?" << std::endl;
 			}
 		}
-		else
+
+		if (loadButton.onClick())
 		{
-			std::cout << std::endl << "Saving..." << std::endl;
+			char filename[MAX_PATH] = { '\0' };
 
-			Level::SaveLevel(currentFile, level);
+			OPENFILENAME ofn;
+			ZeroMemory(&filename, sizeof(filename));
+			ZeroMemory(&ofn, sizeof(ofn));
+			ofn.lStructSize = sizeof(ofn);
+			ofn.hwndOwner = NULL;  // If you have a window to center over, put its HANDLE here
+			ofn.lpstrFilter = "Moss Engine Level Files (*.lvl)\0*.lvl\0Any File\0*.*\0";
+			ofn.lpstrFile = filename;
+			ofn.nMaxFile = MAX_PATH;
+			ofn.lpstrTitle = "Open";
+			ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 
-			std::cout << std::endl << "Saving complete!" << std::endl;
-		}
-	}
+			if (GetOpenFileNameA(&ofn))
+			{
+				std::cout << "You chose the file \"" << filename << "\"\n";
+			}
 
-	if (saveAsButton.onClick())
-	{
-		char filename[MAX_PATH] = { '\0' };
+			std::cout << std::endl << "Loading..." << std::endl;
 
-		OPENFILENAME ofn;
-		ZeroMemory(&filename, sizeof(filename));
-		ZeroMemory(&ofn, sizeof(ofn));
-		ofn.lStructSize = sizeof(ofn);
-		ofn.hwndOwner = NULL;  // If you have a window to center over, put its HANDLE here
-		ofn.lpstrFilter = "Moss Engine Level Files (*.lvl)\0*.lvl\0";
-		ofn.lpstrFile = filename;
-		ofn.nMaxFile = MAX_PATH;
-		ofn.lpstrTitle = "Save";
-		ofn.lpstrDefExt = "*.lvl\0";
-		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_OVERWRITEPROMPT;
 
-		if (GetSaveFileNameA(&ofn))
-		{
-			std::cout << "You chose the file \"" << filename << "\"\n";
-		}
+			if (std::strlen(filename) > 0)
+			{
+				//std::string activeTexture = Level::LoadFile(std::string(filename))[0];
 
-		std::cout << std::endl << "Saving..." << std::endl;
+				//Level::LoadLevel(Level::LoadFile(std::string(filename)), walls, window);
+				level = Level::Load(std::string(filename));
 
-		if (std::string(filename).length() > 0)
-		{
-			Level::SaveLevel(std::string(filename), level);
-			currentFile = std::string(filename);
+				currentFile = std::string(filename);
 
-			std::cout << std::endl << "Saving complete!" << std::endl;
-		}
-		else
-		{
-			std::cout << std::endl << "Saving Failed! Did you choose a file?" << std::endl;
-		}
-	}
-
-	if (loadButton.onClick())
-	{
-		char filename[MAX_PATH] = {'\0'};
-
-		OPENFILENAME ofn;
-		ZeroMemory(&filename, sizeof(filename));
-		ZeroMemory(&ofn, sizeof(ofn));
-		ofn.lStructSize = sizeof(ofn);
-		ofn.hwndOwner = NULL;  // If you have a window to center over, put its HANDLE here
-		ofn.lpstrFilter = "Moss Engine Level Files (*.lvl)\0*.lvl\0Any File\0*.*\0";
-		ofn.lpstrFile = filename;
-		ofn.nMaxFile = MAX_PATH;
-		ofn.lpstrTitle = "Open";
-		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
-
-		if (GetOpenFileNameA(&ofn))
-		{
-			std::cout << "You chose the file \"" << filename << "\"\n";
+				std::cout << std::endl << "Loading complete!" << std::endl;
+			}
+			else
+			{
+				std::cout << std::endl << "Loading Failed! Did you choose a file?" << std::endl;
+			}
 		}
 
-		std::cout << std::endl << "Loading..." << std::endl;
-
-
-		if (std::strlen(filename) > 0)
+		if (importButton.onClick())
 		{
-			//std::string activeTexture = Level::LoadFile(std::string(filename))[0];
+			char filename[MAX_PATH] = { '\0' };
 
-			//Level::LoadLevel(Level::LoadFile(std::string(filename)), walls, window);
-			level = Level::Load(std::string(filename));
+			OPENFILENAME ofn;
+			ZeroMemory(&filename, sizeof(filename));
+			ZeroMemory(&ofn, sizeof(ofn));
+			ofn.lStructSize = sizeof(ofn);
+			ofn.hwndOwner = NULL;  // If you have a window to center over, put its HANDLE here
+			ofn.lpstrFilter = "PNG (*.png)\0*.png\0Any File\0*.*\0";
+			ofn.lpstrFile = filename;
+			ofn.nMaxFile = MAX_PATH;
+			ofn.lpstrTitle = "Open";
+			ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 
-			currentFile = std::string(filename);
+			if (GetOpenFileNameA(&ofn))
+			{
+				std::cout << "You chose the file \"" << filename << "\"\n";
+			}
 
-			std::cout << std::endl << "Loading complete!" << std::endl;
-		}
-		else
-		{
-			std::cout << std::endl << "Loading Failed! Did you choose a file?" << std::endl;
-		}
-	}
+			if (std::strlen(filename) > 0)
+			{
+				tileSet.tex = window.replaceTexture(filename, tileSet.tex);
 
-	if (importButton.onClick())
-	{
-		char filename[MAX_PATH] = { '\0' };
-
-		OPENFILENAME ofn;
-		ZeroMemory(&filename, sizeof(filename));
-		ZeroMemory(&ofn, sizeof(ofn));
-		ofn.lStructSize = sizeof(ofn);
-		ofn.hwndOwner = NULL;  // If you have a window to center over, put its HANDLE here
-		ofn.lpstrFilter = "PNG (*.png)\0*.png\0Any File\0*.*\0";
-		ofn.lpstrFile = filename;
-		ofn.nMaxFile = MAX_PATH;
-		ofn.lpstrTitle = "Open";
-		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
-
-		if (GetOpenFileNameA(&ofn))
-		{
-			std::cout << "You chose the file \"" << filename << "\"\n";
+				std::cout << std::endl << "Importing complete!" << std::endl;
+			}
+			else
+			{
+				std::cout << std::endl << "Importing Failed! Did you choose a file?" << std::endl;
+			}
 		}
 
-		if (std::strlen(filename) > 0)
+
+		if (Event::KeyPressed(SDLK_1))
 		{
-			tileSet.tex = window.replaceTexture(filename, tileSet.tex);
-
-			std::cout << std::endl << "Importing complete!" << std::endl;
+			//window.zoom = 0;
+			window.setZoom(1);
 		}
-		else
+		else if (Event::KeyPressed(SDLK_2))
 		{
-			std::cout << std::endl << "Importing Failed! Did you choose a file?" << std::endl;
+			//window.zoom = 0.25;
+			window.setZoom(2);
 		}
-	}
-
-
-	if (Event::KeyPressed(SDLK_1))
-	{
-		//window.zoom = 0;
-		window.setZoom(1);
-	}
-	else if (Event::KeyPressed(SDLK_2))
-	{
-		//window.zoom = 0.25;
-		window.setZoom(2);
-	}
-	else if (Event::KeyPressed(SDLK_3))
-	{
-		//window.zoom = 0.5;
-		window.setZoom(3);
-	}
-	else if (Event::KeyPressed(SDLK_4))
-	{
-		//window.zoom = 0.75;
-		window.setZoom(4);
+		else if (Event::KeyPressed(SDLK_3))
+		{
+			//window.zoom = 0.5;
+			window.setZoom(3);
+		}
+		else if (Event::KeyPressed(SDLK_4))
+		{
+			//window.zoom = 0.75;
+			window.setZoom(4);
+		}
 	}
 }
 

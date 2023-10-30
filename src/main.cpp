@@ -15,6 +15,7 @@
 #include "global.hpp"
 #include "scene.hpp"
 #include "editorscene.hpp"
+#include "console.hpp"
 #include "text.hpp"
 #include "math.hpp"
 #include "openglwindow.hpp"
@@ -41,26 +42,30 @@ bool init() // used to initiate things before using
 
 	if (!SteamAPI_Init())
 	{
-		printf("Fatal Error - Steam must be running to play this game (SteamAPI_Init() failed).\n");
+		console.log("Fatal Error - Steam must be running to play this game (SteamAPI_Init() failed).\n");
 		gameRunning = false;
 	}
 
 	if( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO ) < 0 )
     {
-        printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
+        console.log( "SDL could not initialize! SDL Error: " + std::string(SDL_GetError()) + "\n");
         gameRunning = false;
     }
     if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
 	{
-		printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
+		console.log( "SDL_mixer could not initialize! SDL_mixer Error: " + std::string(Mix_GetError()) + "\n");
 		gameRunning = false;
 	}
 
 	SDL_StopTextInput();
 
 	window.create("Moss Engine (OpenGL)", 1280, 720); // name and size of application window
+	console.log("Window creation and program initialization finished.\n");
+
 
 	mainScene.openScene(std::make_shared<EditorScene>(window));
+
+	console.init(window);
 
 	return true;
 }
@@ -68,11 +73,13 @@ bool init() // used to initiate things before using
 void gameLoop() // it runs forever
 {
 	mainScene.update();
+	console.update(window); // grrr i have to reference window here because i couldn't include a reference variable cause no constructor :(
 }
 
 void render() // honestly i feel like putting the stuff that is at the end of the gameloop in here
 {
 	mainScene.render(window);
+	console.render(window);
 }
 
 int main(int argc, char* args[])

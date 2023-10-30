@@ -14,6 +14,7 @@ namespace Event
 	bool KeyDown(int i);
 	bool TextInputEnabled(bool i);
 	bool TextInputEnabled();
+	bool TextSubmitted();
 	std::string GetInputText();
 	void SetInputText(std::string i);
 }
