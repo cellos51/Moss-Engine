@@ -664,38 +664,56 @@ void OpenGLWindow::display() // used to display information from the renderer to
 	}
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, FBOBlur); // back to default
-
 	glDisable(GL_DEPTH_TEST);
 
-	//first pass
-	framebufferShader.use();
-	framebufferShader.setFloat("zoom", 1.0f);
-	framebufferShader.setInt("blurTexture", FBOTex);
-	framebufferShader.setInt("lightTexture", FBOLightTex);
-	framebufferShader.setFloat("pass", 1.0f);
+	if (console.bloom == true)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, FBOBlur); // back to default
 
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		//first pass
+		framebufferShader.use();
+		framebufferShader.setFloat("zoom", 1.0f);
+		framebufferShader.setInt("blurTexture", FBOTex);
+		framebufferShader.setInt("lightTexture", FBOLightTex);
+		framebufferShader.setFloat("pass", 1.0f);
 
-	glBindTexture(GL_TEXTURE_2D, FBOBlurTex);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, 0);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-	//second pass
-	framebufferShader.setFloat("pass", 2.0f);
-	framebufferShader.setInt("blurTexture", FBOBlurTex);
+		glBindTexture(GL_TEXTURE_2D, FBOBlurTex);
+		glGenerateMipmap(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, 0);
 
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		//second pass
+		framebufferShader.setFloat("pass", 2.0f);
+		framebufferShader.setInt("blurTexture", FBOBlurTex);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-	//third final pass
-	framebufferShader.setFloat("zoom", zoom);
-	framebufferShader.setInt("screenTexture", FBOTex);
-	framebufferShader.setVec4("unlitColor", ambientLight.r, ambientLight.g, ambientLight.b, ambientLight.a);
-	framebufferShader.setFloat("pass", 3.0f);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
 
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		//third final pass
+		framebufferShader.setFloat("zoom", zoom);
+		framebufferShader.setInt("screenTexture", FBOTex);
+		framebufferShader.setVec4("unlitColor", ambientLight.r, ambientLight.g, ambientLight.b, ambientLight.a);
+		framebufferShader.setFloat("pass", 3.0f);
+
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	}
+	else
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
+
+		//4th secret final pass
+		framebufferShader.use();
+		framebufferShader.setFloat("zoom", zoom);
+		framebufferShader.setInt("screenTexture", FBOTex);
+		framebufferShader.setInt("lightTexture", FBOLightTex);
+		framebufferShader.setVec4("unlitColor", ambientLight.r, ambientLight.g, ambientLight.b, ambientLight.a);
+		framebufferShader.setFloat("pass", 4.0f);
+
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	}
 
 	SDL_GL_SwapWindow(window);
 }

@@ -24,9 +24,6 @@
 #include "ui.hpp"
 #include "light.hpp"
 
-// this controls the game loop
-bool gameRunning = true;
-
 // main window
 OpenGLWindow window;
 
@@ -37,24 +34,24 @@ bool init() // used to initiate things before using
 {
 	if (SteamAPI_RestartAppIfNecessary(k_uAppIdInvalid)) // Replace with your App ID
 	{
-		//gameRunning = false;
+		//console.gameRunning = false;
 	}
 
 	if (!SteamAPI_Init())
 	{
 		console.log("Fatal Error - Steam must be running to play this game (SteamAPI_Init() failed).\n");
-		gameRunning = false;
+		console.gameRunning = false;
 	}
 
 	if( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO ) < 0 )
     {
         console.log( "SDL could not initialize! SDL Error: " + std::string(SDL_GetError()) + "\n");
-        gameRunning = false;
+        console.gameRunning = false;
     }
     if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
 	{
 		console.log( "SDL_mixer could not initialize! SDL_mixer Error: " + std::string(Mix_GetError()) + "\n");
-		gameRunning = false;
+		console.gameRunning = false;
 	}
 
 	SDL_StopTextInput();
@@ -85,13 +82,13 @@ void render() // honestly i feel like putting the stuff that is at the end of th
 int main(int argc, char* args[])
 {
 	init();
-	while (gameRunning) // main game loop ran every frame
+	while (console.gameRunning) // main game loop ran every frame
 	{
 		SteamAPI_RunCallbacks();
 
 		Time::Tick();
     	Event::PollEvent();
-    	gameRunning = Event::AppQuit();
+    	console.gameRunning = Event::AppQuit();
 		gameLoop();
 
 		window.clear();

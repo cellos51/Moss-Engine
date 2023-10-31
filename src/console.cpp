@@ -2,6 +2,8 @@
 
 #include "event.hpp"
 
+#include <sstream>
+
 Console console;
 
 Console::Console()
@@ -65,6 +67,7 @@ void Console::update(OpenGLWindow& window)
 		if (Event::TextSubmitted() && input.uiText.getText().length() > 0)
 		{
 			data += input.uiText.getText() + "\n";
+			Console::runCommand(input.uiText.getText());
 			input.uiText.setText("");
 		}
 
@@ -84,5 +87,39 @@ void Console::render(OpenGLWindow& window)
 		window.render(output, false);
 		window.render(input);
 		window.render(panel);
+	}
+}
+
+void Console::runCommand(std::string command)
+{
+	std::stringstream ss(command);
+	std::vector<std::string> v;
+	while (std::getline(ss, command, ' '))
+	{
+		v.push_back(command);
+	}
+
+	if (v[0] == "quit")
+	{
+		console.gameRunning = false;
+	}
+
+	if (v.size() > 1)
+	{
+		if (v[0] == "bloom")
+		{
+			if (v[1] == "true")
+			{
+				bloom = true;
+			}
+			else if (v[1] == "false")
+			{
+				bloom = false;
+			}
+			else
+			{
+				Console::log("Cannot set value bloom to: " + v[1] + '\n');
+			}
+		}
 	}
 }

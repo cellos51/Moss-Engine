@@ -14,7 +14,13 @@ public:
 	void logError(std::string message);
 	void update(OpenGLWindow& window);
 	void render(OpenGLWindow& window);
+
+	// convars
+	bool gameRunning = true;
+	bool bloom = true;
 private:
+	void runCommand(std::string command);
+
 	unsigned int font = -1;
 	unsigned int maxLines = 5;
 	Text output;
