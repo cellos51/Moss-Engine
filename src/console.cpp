@@ -35,12 +35,12 @@ void Console::init(OpenGLWindow& window)
 
 void Console::log(std::string message) // WIP
 {
-	data += message;
+	data += message + '\n';
 }
 
 void Console::log(const char* message) // WIP
 {
-	data += message;
+	data += message + '\n';
 }
 
 
@@ -78,6 +78,11 @@ void Console::update(OpenGLWindow& window)
 
 		panel.size = window.getSize();
 	}
+}
+
+void Console::fixedUpdate(OpenGLWindow& window)
+{
+
 }
 
 void Console::render(OpenGLWindow& window)

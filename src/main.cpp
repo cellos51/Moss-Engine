@@ -30,6 +30,9 @@ OpenGLWindow window;
 // main scene
 SceneManager mainScene;
 
+const double fixedTick = 16.00;
+double fixedTime = 0.0;
+
 bool init() // used to initiate things before using
 {
 	if (SteamAPI_RestartAppIfNecessary(k_uAppIdInvalid)) // Replace with your App ID
@@ -73,6 +76,12 @@ void gameLoop() // it runs forever
 	console.update(window); // grrr i have to reference window here because i couldn't include a reference variable cause no constructor :(
 }
 
+void fixedGameLoop() // it runs forever
+{
+	mainScene.fixedUpdate();
+	console.fixedUpdate(window);
+}
+
 void render() // honestly i feel like putting the stuff that is at the end of the gameloop in here
 {
 	mainScene.render(window);
@@ -90,6 +99,14 @@ int main(int argc, char* args[])
     	Event::PollEvent();
     	console.gameRunning = Event::AppQuit();
 		gameLoop();
+
+		fixedTime += Time::deltaTime();
+
+		while (fixedTime > fixedTick) // mid way to do this but whatevs
+		{
+			fixedGameLoop();
+			fixedTime -= fixedTick;
+		}
 
 		window.clear();
     	render();

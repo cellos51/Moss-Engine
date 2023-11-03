@@ -815,6 +815,11 @@ void EditorScene::update()
 	}
 }
 
+void EditorScene::fixedUpdate()
+{
+
+}
+
 void EditorScene::render(OpenGLWindow& window)
 {
 	for (Light light : level.lights)

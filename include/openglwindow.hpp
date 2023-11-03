@@ -37,7 +37,6 @@ private:
 	//SDL_Renderer* renderer;
 	Vector2 screenSize = Vector2(0,0);
 	
-
 	unsigned int FBOLight;
 	unsigned int FBOLightTex;
 	unsigned int FBOBlurTex;

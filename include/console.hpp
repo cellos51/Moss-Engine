@@ -13,6 +13,7 @@ public:
 	void log(const char* message);
 	void logError(std::string message);
 	void update(OpenGLWindow& window);
+	void fixedUpdate(OpenGLWindow& window);
 	void render(OpenGLWindow& window);
 
 	// convars

@@ -15,8 +15,6 @@ void main()
 {
 	if (pass == 1.0) // first pass
 	{
-		//fragColor = blur(blurTexture);
-		
 		fragColor = texture(blurTexture, TexCoord) * texture(lightTexture, TexCoord);
 	}
 	if (pass == 2.0) // second pass blooM?
@@ -35,7 +33,6 @@ void main()
 	if (pass == 3.0) // third pass
 	{
 		fragColor = (texture(screenTexture, TexCoord) * min(unlitColor + texture(lightTexture, TexCoord), 1.0)) + texture(blurTexture, TexCoord);
-		//fragColor = texture(blurTexture, TexCoord);
 	}
 	if (pass == 4.0) // secret 4th pass without bloom! :O
 	{

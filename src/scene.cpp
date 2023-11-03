@@ -46,6 +46,14 @@ void SceneManager::update()
 	}
 }
 
+void SceneManager::fixedUpdate()
+{
+	if (activeScene)
+	{
+		activeScene->fixedUpdate();
+	}
+}
+
 void SceneManager::render(OpenGLWindow& window)
 {
 	if (activeScene)
