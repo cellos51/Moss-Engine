@@ -35,12 +35,12 @@ void Console::init(OpenGLWindow& window)
 
 void Console::log(std::string message) // WIP
 {
-	data += message + '\n';
+	data += message;
 }
 
 void Console::log(const char* message) // WIP
 {
-	data += message + '\n';
+	data += message;
 }
 
 

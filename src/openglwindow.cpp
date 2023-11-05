@@ -724,9 +724,6 @@ void OpenGLWindow::quit() // used before exiting the program
 	SDL_Quit();
 }
 
-int clampAmount = 5;
-float lerpAmount = 0.005;
-
 void OpenGLWindow::camera(Vector2 pos) // used before exiting the program
 {
 	cameraPos.lerp(cameraPos, pos, lerpAmount * Time::deltaTime());

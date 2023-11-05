@@ -148,6 +148,8 @@ void PhysicsEntity::physics(bool p_phys)
 {
 	if (p_phys == true)
 	{
+		OnGround = false;
+
 		velocity.x += gravity.x / 16 * Time::deltaTime();
 		velocity.y += gravity.y / 16 * Time::deltaTime();
 		transform = (Vector2(transform.x + (velocity.x / 16 * Time::deltaTime()), transform.y + (velocity.y / 16 * Time::deltaTime())));

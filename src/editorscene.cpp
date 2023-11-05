@@ -609,7 +609,8 @@ void EditorScene::update()
 			}
 			else if (Event::MousePressed(SDL_BUTTON_LEFT) && editingPlayer == true)
 			{
-				playerSpawn.transform = Vector2(x, y);
+				level.spawn = Vector2(x, y);
+				playerSpawn.transform = level.spawn;
 			}
 			else if (Event::MouseDown(SDL_BUTTON_LEFT) && editingLights == true)
 			{
@@ -736,27 +737,23 @@ void EditorScene::update()
 
 			if (GetOpenFileNameA(&ofn))
 			{
-				std::cout << "You chose the file \"" << filename << "\"\n";
+				console.log("You chose the file " + std::string(filename) + "\n");
 			}
-
-			std::cout << std::endl << "Loading..." << std::endl;
-
 
 			if (std::strlen(filename) > 0)
 			{
-				//std::string activeTexture = Level::LoadFile(std::string(filename))[0];
-
-				//Level::LoadLevel(Level::LoadFile(std::string(filename)), walls, window);
 				level = Level::Load(std::string(filename));
 
 				currentFile = std::string(filename);
 
-				std::cout << std::endl << "Loading complete!" << std::endl;
+				console.log("Level loaded.\n");
 			}
 			else
 			{
-				std::cout << std::endl << "Loading Failed! Did you choose a file?" << std::endl;
+				console.log("Loading Failed! Did you choose a file?\n");
 			}
+
+			playerSpawn.transform = level.spawn;
 		}
 
 		if (importButton.onClick())

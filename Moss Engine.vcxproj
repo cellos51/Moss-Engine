@@ -141,6 +141,7 @@
     <ClCompile Include="src\editorscene.cpp" />
     <ClCompile Include="src\entity.cpp" />
     <ClCompile Include="src\event.cpp" />
+    <ClCompile Include="src\gamescene.cpp" />
     <ClCompile Include="src\level.cpp" />
     <ClCompile Include="src\light.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -158,13 +159,14 @@
     <ClInclude Include="include\editorscene.hpp" />
     <ClInclude Include="include\entity.hpp" />
     <ClInclude Include="include\event.hpp" />
+    <ClInclude Include="include\gamescene.hpp" />
     <ClInclude Include="include\global.hpp" />
     <ClInclude Include="include\level.hpp" />
     <ClInclude Include="include\light.hpp" />
     <ClInclude Include="include\math.hpp" />
     <ClInclude Include="include\openglwindow.hpp" />
     <ClInclude Include="include\physicsentity.hpp" />
-    <ClInclude Include="include\player.h" />
+    <ClInclude Include="include\player.hpp" />
     <ClInclude Include="include\scene.hpp" />
     <ClInclude Include="include\shader.hpp" />
     <ClInclude Include="include\stb_image.h" />

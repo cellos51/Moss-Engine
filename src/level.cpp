@@ -30,6 +30,8 @@ LevelData Level::Load(std::string path) // new shit incoming
 		inFile.read((char*)&lightSize, sizeof(lightSize));
 		data.lights.resize(lightSize);
 		inFile.read((char*)&data.lights[0], data.lights.size() * sizeof(Light));
+
+		inFile.read((char*)&data.spawn, sizeof(Vector2));
 	}
 	inFile.close();
 
@@ -81,6 +83,8 @@ void Level::SaveLevel(std::string path, LevelData& data)
 		typename std::vector<Light>::size_type lightSize = data.lights.size();
 		outFile.write((char*)&lightSize, sizeof(lightSize));
 		outFile.write((char*)&data.lights[0], data.lights.size() * sizeof(Light));
+
+		outFile.write((char*)&data.spawn, sizeof(Vector2));
 
         //outFile << levelData;
     }

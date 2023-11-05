@@ -15,6 +15,7 @@
 #include "global.hpp"
 #include "scene.hpp"
 #include "editorscene.hpp"
+#include "gamescene.hpp"
 #include "console.hpp"
 #include "text.hpp"
 #include "math.hpp"
@@ -63,7 +64,7 @@ bool init() // used to initiate things before using
 	console.log("Window creation and program initialization finished.\n");
 
 
-	mainScene.openScene(std::make_shared<EditorScene>(window));
+	mainScene.openScene(std::make_shared<GameScene>(window));
 
 	console.init(window);
 

@@ -63,6 +63,9 @@
     <ClCompile Include="src\player.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\gamescene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\stb_image.h">
@@ -113,7 +116,10 @@
     <ClInclude Include="include\console.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\player.h">
+    <ClInclude Include="include\player.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gamescene.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
