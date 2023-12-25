@@ -116,6 +116,7 @@ int main(int argc, char* args[])
 	mainScene.closeScene();
 	
 	window.quit(); // run when user asks to exit program
+	Mix_CloseAudio();
 	Mix_Quit();
 	SDL_Quit();
 	SteamAPI_Shutdown();

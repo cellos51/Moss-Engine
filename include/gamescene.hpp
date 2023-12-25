@@ -21,7 +21,7 @@ private:
 	OpenGLWindow& window;
 
 	LevelData level;
-	Player player = Player(Vector2(24, 48));
+	Player player = Player();
 	Light playerLight;
 
 };

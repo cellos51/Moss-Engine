@@ -20,15 +20,6 @@ void GameScene::onStart()
 
 	player.tex = window.loadTexture("assets/textures/player.png");
 	player.transform = level.spawn;
-	player.luminosity = Color4(0.2f, 0.2f, 0.2f, 0.0f);
-	player.layer = 2;
-	player.texturePos.w = 64;
-	player.texturePos.h = 64;
-	player.offset.w = 64;
-	player.offset.h = 64;
-
-	player.offset.x -= (player.offset.w - player.size.x) / 2;
-	player.offset.y -= player.offset.h - player.size.y;
 
 	window.camera(Vector2(player.transform.x + player.size.x / 2, player.transform.y + player.size.y / 2));
 	window.setZoom(3);
