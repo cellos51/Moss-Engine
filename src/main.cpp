@@ -63,7 +63,6 @@ bool init() // used to initiate things before using
 	window.create("Moss Engine (OpenGL)", 1280, 720); // name and size of application window
 	console.log("Window creation and program initialization finished.\n");
 
-
 	mainScene.openScene(std::make_shared<GameScene>(window));
 
 	console.init(window);

@@ -30,7 +30,7 @@ public:
 	Vector2 cameraPos = Vector2(0,0);
 	Color4 ambientLight = Color4(0.5f, 0.5f, 0.5f,1);
 	std::map<unsigned int, Vector2> TextureSize;
-	int clampAmount = 0;
+	Vector2 clampAmount = Vector2(0,0);
 	float lerpAmount = 0;
 private:
 	Vector2 cameraOffset = Vector2(0,0);

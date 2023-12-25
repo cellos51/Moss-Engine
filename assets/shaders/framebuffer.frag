@@ -10,7 +10,6 @@ uniform sampler2D lightTexture;
 uniform vec4 unlitColor;
 uniform float pass;
 
-
 void main() 
 {
 	if (pass == 1.0) // first pass
@@ -36,8 +35,6 @@ void main()
 	}
 	if (pass == 4.0) // secret 4th pass without bloom! :O
 	{
-		fragColor = (texture(screenTexture, TexCoord) * min(unlitColor + texture(lightTexture, TexCoord), 1.0));
+		//fragColor = (texture(screenTexture, TexCoord) * min(unlitColor + texture(lightTexture, TexCoord), 1.0));
 	}
-    
-	
 } // i be blastin' radiohead when making all this shit :P (in rainbows rn) 8/14/23

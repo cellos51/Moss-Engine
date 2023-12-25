@@ -337,6 +337,7 @@ void OpenGLWindow::clear() // clears the renderer
 
 		glBindTexture(GL_TEXTURE_2D, FBOBlurTex);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, getSize().x, getSize().y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		glGenerateMipmap(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		glBindRenderbuffer(GL_RENDERBUFFER, RBO);  
@@ -644,7 +645,6 @@ void OpenGLWindow::display() // used to display information from the renderer to
 		glStencilOp( GL_KEEP, GL_KEEP, GL_KEEP );
 		glStencilFunc( GL_NOTEQUAL, 1, 0xFF );
 
-
 		lightShader.use();
 
 		lightShader.setInt("layerId", lightLayerArray[i]);
@@ -659,8 +659,6 @@ void OpenGLWindow::display() // used to display information from the renderer to
 
 		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 		glStencilFunc(GL_ALWAYS, 1, 0xFF);
-
-		
 	}
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -728,8 +726,8 @@ void OpenGLWindow::camera(Vector2 pos) // used before exiting the program
 {
 	cameraPos.lerp(cameraPos, pos, lerpAmount * Time::deltaTime());
 
-	cameraPos.x = SDL_clamp(cameraPos.x, pos.x - clampAmount, pos.x + clampAmount);
-	cameraPos.y = SDL_clamp(cameraPos.y, pos.y - clampAmount, pos.y + clampAmount);
+	cameraPos.x = SDL_clamp(cameraPos.x, pos.x - clampAmount.x, pos.x + clampAmount.x);
+	cameraPos.y = SDL_clamp(cameraPos.y, pos.y - clampAmount.y, pos.y + clampAmount.y);
 
 	cameraOffset = Vector2(round(cameraPos.x) - ((getSize().x) / 2)  ,round(cameraPos.y) - ((getSize().y) / 2 ));
 }

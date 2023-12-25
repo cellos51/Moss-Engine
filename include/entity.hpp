@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 
 #include "math.hpp"
+#include "vector"
 
 class Entity // use this if you'd like an static non-moving entity
 {
@@ -26,4 +27,6 @@ public:
 	SDL_Rect texturePos;
 	Color4 luminosity = Color4(0.0f, 0.0f, 0.0f, 1.0f);
 	Color4 color = Color4(1.0f, 1.0f, 1.0f, 1.0f);
+
+	std::vector<Entity> children;
 };
