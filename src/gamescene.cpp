@@ -23,7 +23,7 @@ void GameScene::onStart()
 
 	window.camera(Vector2(player.transform.x + player.size.x / 2, player.transform.y + player.size.y / 2));
 	window.setZoom(3);
-	window.clampAmount = Vector2(10,100);
+	window.clampAmount = Vector2(10,50);
 	window.lerpAmount = 0.005;
 }
 

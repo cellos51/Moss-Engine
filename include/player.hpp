@@ -15,15 +15,17 @@ public:
 	float airSpeed = 0.01f;
 	float jumpForce = 7.0f;
 	float coyoteTime = 100.0f; // time in ms
+	float jumpBuffer = 180.0f; // time in ms
 	bool resetAnimation = false;
 private: // most of this shit if for sound effects and animations
 	float airTime = 0.0f;
+	float jumpTime = 0.0f;
 	float elapsedTime = 0.0f;
 	float cachedVelocity = 0.0f;
 	bool stepped = false;
 	bool hitGround = false;
-	Mix_Chunk* footStep[4] = { NULL };
-	Mix_Chunk* landing = NULL;
-	Mix_Chunk* jump = NULL;
+	Mix_Chunk* footStep[5] = { NULL };
+	Mix_Chunk* landing[3] = { NULL };
+	Mix_Chunk* jump[2] = { NULL };
 };
 

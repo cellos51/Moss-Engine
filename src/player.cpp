@@ -23,8 +23,12 @@ Player::Player()
 	footStep[1] = Mix_LoadWAV("assets/audio/walk2.wav");
 	footStep[2] = Mix_LoadWAV("assets/audio/walk3.wav");
 	footStep[3] = Mix_LoadWAV("assets/audio/walk4.wav");
-	landing = Mix_LoadWAV("assets/audio/land.wav");
-	jump = Mix_LoadWAV("assets/audio/jump.wav");
+	footStep[4] = Mix_LoadWAV("assets/audio/walk5.wav");
+	landing[0] = Mix_LoadWAV("assets/audio/land1.wav");
+	landing[1] = Mix_LoadWAV("assets/audio/land2.wav");
+	landing[2] = Mix_LoadWAV("assets/audio/land3.wav");
+	jump[0] = Mix_LoadWAV("assets/audio/jump1.wav");
+	jump[1] = Mix_LoadWAV("assets/audio/jump2.wav");
 }
 
 Player::~Player()
@@ -33,8 +37,12 @@ Player::~Player()
 	Mix_FreeChunk(footStep[1]);
 	Mix_FreeChunk(footStep[2]);
 	Mix_FreeChunk(footStep[3]);
-	Mix_FreeChunk(landing);
-	Mix_FreeChunk(jump);
+	Mix_FreeChunk(footStep[4]);
+	Mix_FreeChunk(landing[0]);
+	Mix_FreeChunk(landing[1]);
+	Mix_FreeChunk(landing[2]);
+	Mix_FreeChunk(jump[0]);
+	Mix_FreeChunk(jump[1]);
 }
 
 void Player::update()
@@ -70,7 +78,7 @@ void Player::update()
 	{
 		moveDir += speed;
 
-		if (velocity.x < 0)
+		if (velocity.x < 0 && OnGround == true)
 		{
 			dragX = 0.3f;
 		}
@@ -80,17 +88,27 @@ void Player::update()
 	{
 		moveDir -= speed;
 
-		if (velocity.x > 0)
+		if (velocity.x > 0 && OnGround == true)
 		{
 			dragX = 0.3f;
 		}
 	}
 
-	if (Event::KeyDown(SDLK_SPACE) && airTime > 0)
+
+	if (Event::KeyDown(SDLK_SPACE))
+	{
+		jumpTime = jumpBuffer;
+	}
+	else
+	{
+		jumpTime -= (jumpTime > 0) ? Time::deltaTime() : 0.0f;
+	}
+
+	if (jumpTime > 0 && airTime > 0)
 	{
 		airTime = 0;
 		velocity.y -= jumpForce;
-		Mix_PlayChannel(5, jump, 0);
+		Mix_PlayChannel(5, jump[rand() % 2], 0);
 	}
 	else if (!Event::KeyPressed(SDLK_SPACE) && !OnGround && velocity.y < 0)
 	{
@@ -116,7 +134,7 @@ void Player::update()
 		if (hitGround == false)
 		{
 			Mix_Volume(5, cachedVelocity * 2);
-			Mix_PlayChannel(5, landing, 0);
+			Mix_PlayChannel(5, landing[rand() % 3], 0);
 			hitGround = true;
 		}
 
@@ -148,7 +166,7 @@ void Player::update()
 				if (stepped == false)
 				{
 					stepped = true;
-					int channel = rand() % 4;
+					int channel = rand() % 5;
 					Mix_Volume(channel, std::abs(velocity.x) * 2);
 					Mix_PlayChannel(channel, footStep[channel], 0);
 				}
