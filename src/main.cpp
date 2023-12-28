@@ -47,7 +47,7 @@ static bool init() // used to initiate things before using
 		console.gameRunning = false;
 	}
 
-	if( SDL_Init( SDL_INIT_AUDIO ) < 0 )
+	if( SDL_Init( SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER ) < 0 )
     {
         console.log( "SDL could not initialize! SDL Error: " + std::string(SDL_GetError()) + "\n");
         console.gameRunning = false;
@@ -58,6 +58,7 @@ static bool init() // used to initiate things before using
 		console.gameRunning = false;
 	}
 
+	SDL_JoystickEventState(SDL_ENABLE);
 	SDL_StopTextInput();
 
 	window.create("Moss Engine (OpenGL)", 1280, 720); // name and size of application window
@@ -66,6 +67,8 @@ static bool init() // used to initiate things before using
 	mainScene.openScene(std::make_shared<GameScene>(window));
 
 	console.init(window);
+
+	Event::AppStart();
 
 	return true;
 }

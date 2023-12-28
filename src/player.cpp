@@ -2,6 +2,7 @@
 
 #include "event.hpp"
 #include "Windows.h"
+#include "console.hpp"
 
 #include <cmath>
 
@@ -51,6 +52,15 @@ Player::~Player()
 
 void Player::update()
 {
+	bool jumpButton = Event::KeyPressed(SDLK_SPACE) || Event::ButtonPressed(SDL_CONTROLLER_BUTTON_A);
+	bool jumpButtonDown = Event::KeyDown(SDLK_SPACE) || Event::ButtonDown(SDL_CONTROLLER_BUTTON_A);
+
+	float moveAxis = 0;
+	moveAxis += (Event::KeyPressed(SDLK_a) == true) ? 1.0f : 0.0f;
+	moveAxis += (Event::KeyPressed(SDLK_d) == true) ? -1.0f : 0.0f;
+	moveAxis = (Event::JoyAxis(SDL_CONTROLLER_AXIS_LEFTX) != 0.0f) ? Event::JoyAxis(SDL_CONTROLLER_AXIS_LEFTX) : moveAxis;
+
+
 	// movement
 
 	float moveDir = 0.0f;
@@ -67,7 +77,7 @@ void Player::update()
 		speed = groundSpeed;
 		dragX = 0.04f;
 
-		if (!Event::KeyPressed(SDLK_a) && !(Event::KeyPressed(SDLK_d)))
+		if (moveAxis == 0.0f)
 		{
 			dragX = 0.3f;
 		}
@@ -81,9 +91,9 @@ void Player::update()
 	}
 
 
-	if (Event::KeyPressed(SDLK_d))
+	if (moveAxis < 0)
 	{
-		moveDir += speed;
+		moveDir += speed * -moveAxis;
 
 		if (velocity.x < 0 && OnGround == true) // this lets you stop on a DIME (not really a dime but you get the idea)
 		{
@@ -91,9 +101,9 @@ void Player::update()
 		}
 	}
 
-	if (Event::KeyPressed(SDLK_a))
+	if (moveAxis > 0)
 	{
-		moveDir -= speed;
+		moveDir -= speed * moveAxis;
 
 		if (velocity.x > 0 && OnGround == true)
 		{
@@ -133,7 +143,7 @@ void Player::update()
 	}
 	
 
-	if (Event::KeyDown(SDLK_SPACE))
+	if (jumpButtonDown == true)
 	{
 		jumpTime = jumpBuffer;
 	}
@@ -172,7 +182,7 @@ void Player::update()
 		airTime = 0.0f;
 		jumpTime = 0.0f;
 	}
-	else if (!Event::KeyPressed(SDLK_SPACE) && !OnGround && velocity.y < 0)
+	else if (jumpButton == false && !OnGround && velocity.y < 0)
 	{
 		velocity.y = std::lerp(velocity.y, 0.0f, Time::deltaTime() * 0.05);
 	}
