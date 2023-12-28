@@ -20,12 +20,15 @@ public:
 private: // most of this shit if for sound effects and animations
 	float airTime = 0.0f;
 	float jumpTime = 0.0f;
+	float walljumpTimeLeft = 0.0f;
+	float walljumpTimeRight = 0.0f;
 	float elapsedTime = 0.0f;
-	float cachedVelocity = 0.0f;
+	Vector2 cachedVelocity = Vector2(0.0f, 0.0f);
 	bool stepped = false;
 	bool hitGround = false;
 	Mix_Chunk* footStep[5] = { NULL };
 	Mix_Chunk* landing[3] = { NULL };
 	Mix_Chunk* jump[2] = { NULL };
+	Mix_Chunk* slide = NULL;
 };
 

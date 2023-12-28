@@ -29,6 +29,9 @@ Player::Player()
 	landing[2] = Mix_LoadWAV("assets/audio/land3.wav");
 	jump[0] = Mix_LoadWAV("assets/audio/jump1.wav");
 	jump[1] = Mix_LoadWAV("assets/audio/jump2.wav");
+	slide = Mix_LoadWAV("assets/audio/sliding.wav");
+	Mix_PlayChannel(6, slide, -1);
+	Mix_Volume(6, 0);
 }
 
 Player::~Player()
@@ -43,6 +46,7 @@ Player::~Player()
 	Mix_FreeChunk(landing[2]);
 	Mix_FreeChunk(jump[0]);
 	Mix_FreeChunk(jump[1]);
+	Mix_FreeChunk(slide);
 }
 
 void Player::update()
@@ -55,6 +59,9 @@ void Player::update()
 
 	if (OnGround == true)
 	{
+		walljumpTimeLeft = 0.0f;
+		walljumpTimeRight = 0.0f;
+
 		airTime = coyoteTime;
 
 		speed = groundSpeed;
@@ -78,7 +85,7 @@ void Player::update()
 	{
 		moveDir += speed;
 
-		if (velocity.x < 0 && OnGround == true)
+		if (velocity.x < 0 && OnGround == true) // this lets you stop on a DIME (not really a dime but you get the idea)
 		{
 			dragX = 0.3f;
 		}
@@ -94,6 +101,37 @@ void Player::update()
 		}
 	}
 
+	// jumping and wall jumping
+
+	dragY = 0.01f;
+	cachedVelocity.x -= (cachedVelocity.x > 0) ? Time::deltaTime() / 100 : 0.0f;
+	walljumpTimeLeft -= (walljumpTimeLeft > 0) ? Time::deltaTime() : 0.0f;
+	walljumpTimeRight -= (walljumpTimeRight > 0) ? Time::deltaTime() : 0.0f;
+
+	if (((leftTouch == true && moveDir < 0.0f) || (rightTouch == true && moveDir > 0.0f)) && OnGround == false)
+	{
+		if (velocity.y > 0.0f)
+		{
+			dragY = 0.1f;
+		}
+
+		Mix_Volume(6, std::abs(velocity.y) * 20);
+
+		if (leftTouch == true)
+		{
+			walljumpTimeLeft = coyoteTime;
+		}
+		else if (rightTouch == true)
+		{
+			walljumpTimeRight = coyoteTime;
+		}
+	}
+	else
+	{
+		Mix_Volume(6, 0);
+		cachedVelocity.x = std::abs(velocity.x);
+	}
+	
 
 	if (Event::KeyDown(SDLK_SPACE))
 	{
@@ -104,16 +142,41 @@ void Player::update()
 		jumpTime -= (jumpTime > 0) ? Time::deltaTime() : 0.0f;
 	}
 
-	if (jumpTime > 0 && airTime > 0)
+	if (jumpTime > 0 && (airTime > 0 || walljumpTimeLeft > 0 || walljumpTimeRight > 0))
 	{
-		airTime = 0;
-		velocity.y -= jumpForce;
-		Mix_PlayChannel(5, jump[rand() % 2], 0);
+		if (walljumpTimeLeft > 0 && walljumpTimeLeft > walljumpTimeRight)
+		{
+			velocity.x += 5 + cachedVelocity.x / 2;
+			velocity.y -= jumpForce;
+
+			Mix_Volume(5, 15);
+			Mix_PlayChannel(5, jump[rand() % 2], 0);
+		}
+		else if (walljumpTimeRight > 0 && walljumpTimeRight > walljumpTimeLeft)
+		{
+			velocity.x -= 5 + cachedVelocity.x / 2;
+			velocity.y -= jumpForce;
+
+			Mix_Volume(5, 15);
+			Mix_PlayChannel(5, jump[rand() % 2], 0);
+		}
+		else if (airTime > 0)
+		{
+			velocity.y -= jumpForce;
+
+			Mix_Volume(5, 15);
+			Mix_PlayChannel(5, jump[rand() % 2], 0);
+		}
+		walljumpTimeLeft = 0.0f;
+		walljumpTimeRight = 0.0f;
+		airTime = 0.0f;
+		jumpTime = 0.0f;
 	}
 	else if (!Event::KeyPressed(SDLK_SPACE) && !OnGround && velocity.y < 0)
 	{
 		velocity.y = std::lerp(velocity.y, 0.0f, Time::deltaTime() * 0.05);
 	}
+	// end of jumping
 
 	velocity.x += moveDir * Time::deltaTime();
 
@@ -133,7 +196,7 @@ void Player::update()
 	{
 		if (hitGround == false)
 		{
-			Mix_Volume(5, cachedVelocity * 2);
+			Mix_Volume(5, cachedVelocity.y * 2);
 			Mix_PlayChannel(5, landing[rand() % 3], 0);
 			hitGround = true;
 		}
@@ -160,7 +223,6 @@ void Player::update()
 			texturePos.x = (mirror + int(elapsedTime) % 12) * 64;
 			texturePos.y = 0;
 
-
 			if (texturePos.x == 5 * 64 || texturePos.x == 10 * 64)
 			{
 				if (stepped == false)
@@ -179,12 +241,24 @@ void Player::update()
 	}
 	else
 	{
-		cachedVelocity = velocity.y;
+		cachedVelocity.y = velocity.y;
 
 		hitGround = false;
 
 		texturePos.y = 64;
-		if (velocity.y < 0)
+		if (walljumpTimeLeft == coyoteTime || walljumpTimeRight == coyoteTime)
+		{
+			rotation = 0.0f;
+			if (velocity.y < 0)
+			{
+				texturePos.x = (mirror + 10) * 64;
+			}
+			else
+			{
+				texturePos.x = (mirror + 11) * 64;
+			}		
+		}
+		else if (velocity.y < 0 )
 		{
 			texturePos.x = (mirror + 8) * 64;
 			rotation = std::lerp(rotation, -velocity.x, Time::deltaTime() * 0.005);
@@ -197,7 +271,7 @@ void Player::update()
 		resetAnimation = true;
 	}
 
-	//rotation = std::lerp(rotation, -velocity.x, Time::deltaTime() * 0.05); // cool veloctiy based rotation but it doesn't look too good with pixel art
+	//rotation = std::lerp(rotation, -velocity.x, Time::deltaTime() * 0.05); // cool velocity based rotation but it doesn't look too good with pixel art
 
 	Player::physics(phys);
 }

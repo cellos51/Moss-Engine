@@ -22,5 +22,8 @@ public:
 	{
 		PhysicsEntity::physics(phys);
 	}
+	bool leftTouch = false;
+	bool rightTouch = false;
+	bool topTouch = false;
 	bool OnGround = false;
 };

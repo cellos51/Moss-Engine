@@ -48,6 +48,7 @@ void PhysicsEntity::getCol(Entity& p_ent) // ok the collision *was* fucky as hel
 			}
 			else if (boxNum.y > 0 && fabs(boxNum.y) > fabs(boxNum.x) && p_ent.colDown == true)
 			{
+				topTouch = true;
 				transform.y = (p_ent.transform.y + p_ent.size.y);
 				//velocity.y = (-velocity.y * bounciness) / 16 * Time::deltaTime();
 
@@ -79,6 +80,8 @@ void PhysicsEntity::getCol(Entity& p_ent) // ok the collision *was* fucky as hel
 			}
 			else if (boxNum.x > 0 && fabs(boxNum.x) > fabs(boxNum.y) && p_ent.colRight == true)
 			{
+				leftTouch = true;
+
 				transform.x = (p_ent.transform.x + p_ent.size.x);
 				//velocity.x = (-velocity.x * bounciness) / 16 * Time::deltaTime();
 
@@ -110,6 +113,8 @@ void PhysicsEntity::getCol(Entity& p_ent) // ok the collision *was* fucky as hel
 			}
 			else if (boxNum.x < 0 && fabs(boxNum.x) > fabs(boxNum.y) && p_ent.colLeft == true)
 			{
+				rightTouch = true;
+
 				transform.x = (p_ent.transform.x - size.x);
 				//velocity.x = (velocity.x * -bounciness) / 16 * Time::deltaTime();
 
@@ -148,7 +153,11 @@ void PhysicsEntity::physics(bool p_phys)
 {
 	if (p_phys == true)
 	{
+		leftTouch = false;
+		rightTouch = false;
+		topTouch = false;
 		OnGround = false;
+		
 
 		velocity.x += gravity.x / 16 * Time::deltaTime();
 		velocity.y += gravity.y / 16 * Time::deltaTime();

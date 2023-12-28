@@ -34,7 +34,7 @@ SceneManager mainScene;
 const double fixedTick = 16.00;
 double fixedTime = 0.0;
 
-bool init() // used to initiate things before using
+static bool init() // used to initiate things before using
 {
 	if (SteamAPI_RestartAppIfNecessary(k_uAppIdInvalid)) // Replace with your App ID
 	{
@@ -47,7 +47,7 @@ bool init() // used to initiate things before using
 		console.gameRunning = false;
 	}
 
-	if( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO ) < 0 )
+	if( SDL_Init( SDL_INIT_AUDIO ) < 0 )
     {
         console.log( "SDL could not initialize! SDL Error: " + std::string(SDL_GetError()) + "\n");
         console.gameRunning = false;
@@ -70,19 +70,19 @@ bool init() // used to initiate things before using
 	return true;
 }
 
-void gameLoop() // it runs forever
+static void gameLoop() // it runs forever
 {
 	mainScene.update();
 	console.update(window); // grrr i have to reference window here because i couldn't include a reference variable cause no constructor :(
 }
 
-void fixedGameLoop() // it runs forever
+static void fixedGameLoop() // it runs forever
 {
 	mainScene.fixedUpdate();
 	console.fixedUpdate(window);
 }
 
-void render() // honestly i feel like putting the stuff that is at the end of the gameloop in here
+static void render() // honestly i feel like putting the stuff that is at the end of the gameloop in here
 {
 	mainScene.render(window);
 	console.render(window);
