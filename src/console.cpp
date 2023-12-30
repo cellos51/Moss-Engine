@@ -1,6 +1,7 @@
 #include "console.hpp"
 
 #include "event.hpp"
+#include "networking.hpp"
 
 #include <sstream>
 
@@ -108,6 +109,10 @@ void Console::runCommand(std::string command)
 	{
 		console.gameRunning = false;
 	}
+	else if (v[0] == "message")
+	{
+		steamSocket.messageServer();
+	}
 
 	if (v.size() > 1)
 	{
@@ -125,6 +130,14 @@ void Console::runCommand(std::string command)
 			{
 				Console::log("Cannot set value bloom to: " + v[1] + '\n');
 			}
+		}
+		else if (v[0] == "host")
+		{
+			steamSocket.hostIP(v[1]);
+		}
+		else if (v[0] == "connect")
+		{
+			steamSocket.connectIP(v[1]);
 		}
 	}
 }

@@ -1,6 +1,4 @@
 #include <steam/steam_api.h>
-#include <steam/isteammatchmaking.h>
-#include <steam/isteamfriends.h>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
@@ -8,6 +6,7 @@
 #include <vector>
 #include <iostream>
 #include <map>
+#include "networking.hpp"
 #include <windows.h>
 #include <Commdlg.h>
 #include <shlwapi.h>
@@ -58,7 +57,6 @@ static bool init() // used to initiate things before using
 		console.gameRunning = false;
 	}
 
-	SDL_JoystickEventState(SDL_ENABLE);
 	SDL_StopTextInput();
 
 	window.create("Moss Engine (OpenGL)", 1280, 720); // name and size of application window
@@ -73,7 +71,7 @@ static bool init() // used to initiate things before using
 	return true;
 }
 
-static void gameLoop() // it runs forever
+static void gameLoop() // it runs forever	
 {
 	mainScene.update();
 	console.update(window); // grrr i have to reference window here because i couldn't include a reference variable cause no constructor :(
@@ -83,6 +81,7 @@ static void fixedGameLoop() // it runs forever
 {
 	mainScene.fixedUpdate();
 	console.fixedUpdate(window);
+	steamSocket.receiveMessages();
 }
 
 static void render() // honestly i feel like putting the stuff that is at the end of the gameloop in here
