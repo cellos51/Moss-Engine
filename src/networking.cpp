@@ -42,18 +42,20 @@ void SteamSocket::connectIP(std::string IPAddress)
 	SDL_Delay(300); // this needs to be here for some reason
 }
 
-void SteamSocket::messageServer()
+// general 
+
+void SteamSocket::disconnect()
 {
-	std::string message = "the quick brown message jumps over the lazy packet";
+	SteamNetworkingSockets()->CloseListenSocket(listenSocket); // server
+	SteamNetworkingSockets()->CloseConnection(netConnection, 0, "disconnect function called", false); // client
+	peers.clear();
+}
 
-	uint32_t dataSize = message.length();
-	uint8_t* data = new uint8_t[dataSize];
-
-	memcpy(data, message.data(), dataSize);
-
+void SteamSocket::sendMessage(HSteamNetConnection peer, uint8_t* data, uint32_t dataSize, int sendFlags)
+{
 	int64 debugNumber;
 
-	EResult result = SteamNetworkingSockets()->SendMessageToConnection(peers[0], data, dataSize, k_nSteamNetworkingSend_Reliable, &debugNumber);
+	EResult result = SteamNetworkingSockets()->SendMessageToConnection(peer, data, dataSize, sendFlags, &debugNumber);
 
 	//console.log(std::to_string(debugNumber) + "\n");
 	//console.log(std::to_string(k_EResultLimitExceeded) + "\n");
@@ -75,55 +77,19 @@ void SteamSocket::messageServer()
 	case k_EResultLimitExceeded:
 		console.log("limit exceeded \n");
 		break;
-	default:
-		console.log("message sent \n");
-		break;
 	}
 }
 
-// general 
-
-void SteamSocket::disconnect()
+int SteamSocket::receiveMessages(HSteamNetConnection peer, SteamNetworkingMessage_t** messages, int maxMessages)
 {
-	SteamNetworkingSockets()->CloseListenSocket(listenSocket); // server
-	SteamNetworkingSockets()->CloseConnection(netConnection, 0, "disconnect function called", false); // client
-	peers.clear();
+		return SteamNetworkingSockets()->ReceiveMessagesOnConnection(peer, messages, maxMessages);
 }
-
-void SteamSocket::receiveMessages()
-{
-	if (peers.size() > 0)
-	{
-		int receivedMessages = SteamNetworkingSockets()->ReceiveMessagesOnConnection(peers[0], messages, 8);
-
-		if (receivedMessages > 0)
-		{
-			console.log("message got \n");
-
-			for (int i = 0; i < receivedMessages; i++)
-			{
-				const uint8_t* messageData = static_cast<const uint8_t*>(messages[i]->GetData());
-				uint32_t messageSize = messages[i]->GetSize();
-				
-				// wip
-
-				std::string message(messageData, messageData + messageSize);
-
-				console.log(message + "\n");
-
-				messages[i]->Release();
-			}
-		}
-	}
-}
-
-
 
 // callbacks
 
 void SteamSocket::SteamNetConnectionStatusChangedCallback(SteamNetConnectionStatusChangedCallback_t* pCallback)
 {
-	console.log("connection status changed!" + std::to_string(pCallback->m_info.m_eState) + "\n"); 
+	console.log("connection status changed!" + std::to_string(pCallback->m_info.m_eState) + "\n");
 
 	if (std::find(peers.begin(), peers.end(), pCallback->m_hConn) == peers.end()) // if first contact with new connection
 	{
@@ -135,19 +101,19 @@ void SteamSocket::SteamNetConnectionStatusChangedCallback(SteamNetConnectionStat
 			EResult result = SteamNetworkingSockets()->AcceptConnection(pCallback->m_hConn);
 
 			switch (result)
-			{ 
-				case k_EResultInvalidParam:
-					console.log("invalid param \n");
-					break;
-				case k_EResultInvalidState:
-					console.log("invalid state \n");
-					break;
-				case k_EResultOK:
-					console.log("connection accepted fine \n");
-					break;
-				default:
-					console.log("idk the error. here is a number ig: " + std::to_string(result) + "\n");
-					break;
+			{
+			case k_EResultInvalidParam:
+				console.log("invalid param \n");
+				break;
+			case k_EResultInvalidState:
+				console.log("invalid state \n");
+				break;
+			case k_EResultOK:
+				console.log("connection accepted fine \n");
+				break;
+			default:
+				console.log("idk the error. here is a number ig: " + std::to_string(result) + "\n");
+				break;
 			}
 		}
 	}

@@ -24,5 +24,6 @@ private:
 	Player player = Player();
 	Light playerLight;
 
+	Entity networkTest;
 };
 

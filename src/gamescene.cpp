@@ -2,6 +2,8 @@
 
 #include "console.hpp"
 #include "event.hpp"
+#include "networking.hpp"
+
 
 GameScene::GameScene(OpenGLWindow& window) : window(window)
 {
@@ -20,6 +22,15 @@ void GameScene::onStart()
 
 	player.tex = window.loadTexture("assets/textures/player.png");
 	player.transform = level.spawn;
+
+	networkTest.tex = player.tex;
+	networkTest.offset = player.offset;
+	networkTest.size = player.size;
+	networkTest.texturePos = player.texturePos;
+	networkTest.transform = level.spawn;
+	networkTest.layer = player.layer;
+	networkTest.luminosity = player.luminosity;
+
 
 	window.camera(Vector2(player.transform.x + player.size.x / 2, player.transform.y + player.size.y / 2));
 	window.setZoom(3);
@@ -70,6 +81,36 @@ void GameScene::fixedUpdate()
 			window.setZoom(4);
 		}
 	}
+	uint32_t dataSize = sizeof(player.transform);
+	std::unique_ptr<uint8_t[]> data(new uint8_t[dataSize]);
+
+	memcpy(data.get(), &player.transform, dataSize);
+
+	for (auto peer : steamSocket.peers)
+	{
+		steamSocket.sendMessage(peer, data.get(), dataSize, k_nSteamNetworkingSend_UnreliableNoDelay);
+	}
+
+	for (auto peer : steamSocket.peers)
+	{
+		SteamNetworkingMessage_t* messages[8];
+
+		int receivedMessages = steamSocket.receiveMessages(peer, messages, 8);
+
+		for (int i = 0; i < receivedMessages; i++)
+		{
+			const uint8_t* data = static_cast<const uint8_t*>(messages[i]->GetData());
+			uint32_t dataSize = messages[i]->GetSize();
+
+			if (dataSize == sizeof(Vector2))
+			{
+				memcpy(&networkTest.transform, data, sizeof(Vector2));
+			}
+
+			messages[i]->Release();
+		}
+	}
+	
 }
 
 void GameScene::render(OpenGLWindow& window)
@@ -86,4 +127,6 @@ void GameScene::render(OpenGLWindow& window)
 
 	window.render(player, true);
 	window.render(playerLight);
+
+	window.render(networkTest, true);
 }

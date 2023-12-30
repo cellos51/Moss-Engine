@@ -19,14 +19,14 @@ public:
 	HSteamListenSocket listenSocket = 0;
 	// client
 	void connectIP(std::string IPAddress);
-	void messageServer();
 	HSteamNetConnection  netConnection = 0;
 	// general
 	void disconnect();
-	void receiveMessages();
+	void sendMessage(HSteamNetConnection peer, uint8_t* data, uint32_t dataSize, int sendFlags);
+	int receiveMessages(HSteamNetConnection peer, SteamNetworkingMessage_t** messages, int maxMessages);
 	std::vector<HSteamNetConnection> peers;
 private:
-	SteamNetworkingMessage_t* messages[8] = {};
+	//SteamNetworkingMessage_t* messages[MAX_MESSAGES] = {};
 
 	STEAM_CALLBACK(SteamSocket, SteamNetConnectionStatusChangedCallback, SteamNetConnectionStatusChangedCallback_t);
 };

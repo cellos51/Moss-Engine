@@ -109,10 +109,6 @@ void Console::runCommand(std::string command)
 	{
 		console.gameRunning = false;
 	}
-	else if (v[0] == "message")
-	{
-		steamSocket.messageServer();
-	}
 
 	if (v.size() > 1)
 	{

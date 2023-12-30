@@ -81,7 +81,6 @@ static void fixedGameLoop() // it runs forever
 {
 	mainScene.fixedUpdate();
 	console.fixedUpdate(window);
-	steamSocket.receiveMessages();
 }
 
 static void render() // honestly i feel like putting the stuff that is at the end of the gameloop in here
