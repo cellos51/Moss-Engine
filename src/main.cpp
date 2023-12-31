@@ -30,7 +30,7 @@ OpenGLWindow window;
 // main scene
 SceneManager mainScene;
 
-const double fixedTick = 16.00;
+const double fixedTick = 1000.0 / 60.0;
 double fixedTime = 0.0;
 
 static bool init() // used to initiate things before using
@@ -43,7 +43,7 @@ static bool init() // used to initiate things before using
 	if (!SteamAPI_Init())
 	{
 		console.log("Fatal Error - Steam must be running to play this game (SteamAPI_Init() failed).\n");
-		console.gameRunning = false;
+		//console.gameRunning = false;
 	}
 
 	if( SDL_Init( SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER ) < 0 )

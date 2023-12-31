@@ -60,7 +60,7 @@ Color4::Color4(float p_r, float p_g, float p_b, float p_a) : r(p_r), g(p_g), b(p
 
 Uint64 NOW = SDL_GetPerformanceCounter();
 Uint64 LAST = 0;
-int minfps = 60;
+double minfps = 60.0;
 double delta = 0.0001;
 
 void Time::Tick()

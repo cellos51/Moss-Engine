@@ -90,8 +90,10 @@ void GameScene::fixedUpdate()
 
 	for (auto peer : steamSocket.peers) // receiving messages
 	{
-		SteamNetworkingMessage_t* messages[8];
-		int receivedMessages = steamSocket.receiveMessages(peer, messages, 8);
+		const int maxMessages = 8;
+
+		SteamNetworkingMessage_t* messages[maxMessages];
+		int receivedMessages = steamSocket.receiveMessages(peer, messages, maxMessages);
 
 		for (int i = 0; i < receivedMessages; i++)
 		{

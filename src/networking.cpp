@@ -22,8 +22,11 @@ void SteamSocket::hostIP(std::string IPAddress)
 	console.log("server created on " + IPAddress + "\n");
 
 	SteamNetworkingIPAddr hostAddress;
-	hostAddress.SetIPv4(ntohl(inet_addr(IPAddress.c_str())), 25565);
-	listenSocket = SteamNetworkingSockets()->CreateListenSocketIP(hostAddress, 0, 0);
+	hostAddress.SetIPv4(ntohl(inet_addr(IPAddress.c_str())), 7777);
+
+	SteamNetworkingConfigValue_t config{ k_ESteamNetworkingConfig_IP_AllowWithoutAuth, k_ESteamNetworkingConfig_Int32, 1 };
+
+	listenSocket = SteamNetworkingSockets()->CreateListenSocketIP(hostAddress, 1, &config);
 }
 
 // client stuff
@@ -35,9 +38,11 @@ void SteamSocket::connectIP(std::string IPAddress)
 	console.log("connecting to " + IPAddress + "\n");
 
 	SteamNetworkingIPAddr hostAddress;
-	hostAddress.SetIPv4(ntohl(inet_addr(IPAddress.c_str())), 25565);
+	hostAddress.SetIPv4(ntohl(inet_addr(IPAddress.c_str())), 7777);
 
-	netConnection = SteamNetworkingSockets()->ConnectByIPAddress(hostAddress, 0, 0);
+	SteamNetworkingConfigValue_t config{ k_ESteamNetworkingConfig_IP_AllowWithoutAuth, k_ESteamNetworkingConfig_Int32, 1 };
+
+	netConnection = SteamNetworkingSockets()->ConnectByIPAddress(hostAddress, 1, &config);
 
 	SDL_Delay(300); // this needs to be here for some reason
 }
@@ -49,6 +54,8 @@ void SteamSocket::disconnect()
 	SteamNetworkingSockets()->CloseListenSocket(listenSocket); // server
 	SteamNetworkingSockets()->CloseConnection(netConnection, 0, "disconnect function called", false); // client
 	peers.clear();
+
+
 }
 
 void SteamSocket::sendMessage(HSteamNetConnection peer, const uint8_t* data, uint32_t dataSize, int sendFlags)
