@@ -120,6 +120,7 @@ int main(int argc, char* args[])
 	Mix_CloseAudio();
 	Mix_Quit();
 	SDL_Quit();
+	steamSocket.disconnect();
 	SteamAPI_Shutdown();
 	return 0;
 }

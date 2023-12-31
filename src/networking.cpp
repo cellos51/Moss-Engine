@@ -10,7 +10,7 @@ SteamSocket::SteamSocket()
 
 SteamSocket::~SteamSocket()
 {
-
+	//disconnect();
 }
 
 // server stuff
@@ -51,7 +51,7 @@ void SteamSocket::disconnect()
 	peers.clear();
 }
 
-void SteamSocket::sendMessage(HSteamNetConnection peer, uint8_t* data, uint32_t dataSize, int sendFlags)
+void SteamSocket::sendMessage(HSteamNetConnection peer, const uint8_t* data, uint32_t dataSize, int sendFlags)
 {
 	int64 debugNumber;
 

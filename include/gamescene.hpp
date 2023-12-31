@@ -24,6 +24,6 @@ private:
 	Player player = Player();
 	Light playerLight;
 
-	Entity networkTest;
+	std::map<unsigned long int, Entity> networkPlayers; // this is super temporary
 };
 
