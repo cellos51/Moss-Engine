@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include <steam/steam_api.h>
 
 #include <SDL2/SDL.h>

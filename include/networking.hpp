@@ -10,9 +10,10 @@
 #include <steam/isteamnetworkingsockets.h>
 #include <steam/isteammatchmaking.h>
 #include <steam/isteamfriends.h>
-#include <steam/isteamgameserver.h>
 
 #define MAX_PLAYERS 4
+
+#define PORT 27015
 
 enum PacketType : uint8_t
 {
@@ -46,7 +47,7 @@ public:
 	int receiveMessages(HSteamNetConnection peer, SteamNetworkingMessage_t** messages, int maxMessages);
 	std::vector<HSteamNetConnection> peers;
 private:
-	uint16 port = 27105;
+	SteamNetworkingConfigValue_t connectionConfig;
 	uint64 lobbyID = 0;
 	//SteamNetworkingMessage_t* messages[MAX_MESSAGES] = {};
 

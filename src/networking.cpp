@@ -13,9 +13,10 @@ SteamSocket::~SteamSocket()
 	//disconnect();
 }
 
-void init()
+void SteamSocket::init()
 {
 	SteamNetworkingUtils()->InitRelayNetworkAccess();
+	connectionConfig.SetInt32(k_ESteamNetworkingConfig_IP_AllowWithoutAuth, 1);
 }
 
 // server stuff
@@ -25,15 +26,13 @@ void SteamSocket::hostIP(std::string IPAddress)
 	disconnect();
 
 	SteamNetworkingIPAddr hostAddress; hostAddress.Clear();
-	hostAddress.SetIPv4(ntohl(inet_addr(IPAddress.c_str())), port);
+	hostAddress.SetIPv4(ntohl(inet_addr(IPAddress.c_str())), PORT);
 	
 	console.log("server created \n");
 
-	SteamNetworkingConfigValue_t config{ k_ESteamNetworkingConfig_IP_AllowWithoutAuth, k_ESteamNetworkingConfig_Int32, 1 };
-
 	SteamMatchmaking()->CreateLobby(k_ELobbyTypeFriendsOnly, MAX_PLAYERS);
 
-	listenSocket = SteamNetworkingSockets()->CreateListenSocketIP(hostAddress, 1, &config);
+	listenSocket = SteamNetworkingSockets()->CreateListenSocketIP(hostAddress, 1, &connectionConfig);
 
 	SteamMatchmaking()->SetLobbyGameServer(lobbyID, hostAddress.GetIPv4(), hostAddress.m_port, k_steamIDNil);
 }
@@ -42,16 +41,11 @@ void SteamSocket::hostP2P()
 {
 	disconnect();
 
-	SteamNetworkingIPAddr hostAddress; hostAddress.Clear();
-	hostAddress.SetIPv4(0, port);
-
 	console.log("peer to peer server created \n");
-
-	SteamNetworkingConfigValue_t config{ k_ESteamNetworkingConfig_IP_AllowWithoutAuth, k_ESteamNetworkingConfig_Int32, 1 };
 
 	SteamMatchmaking()->CreateLobby(k_ELobbyTypeFriendsOnly, MAX_PLAYERS);
 
-	listenSocket = SteamNetworkingSockets()->CreateListenSocketP2P(0, 1, &config);
+	listenSocket = SteamNetworkingSockets()->CreateListenSocketP2P(0, 1, &connectionConfig);
 }
 
 // client stuff
@@ -63,11 +57,9 @@ void SteamSocket::connectIP(std::string IPAddress)
 	console.log("connecting to " + IPAddress + "\n");
 
 	SteamNetworkingIPAddr hostAddress; hostAddress.Clear();
-	hostAddress.SetIPv4(ntohl(inet_addr(IPAddress.c_str())), port);
+	hostAddress.SetIPv4(ntohl(inet_addr(IPAddress.c_str())), PORT);
 
-	SteamNetworkingConfigValue_t config{ k_ESteamNetworkingConfig_IP_AllowWithoutAuth, k_ESteamNetworkingConfig_Int32, 1 };
-
-	netConnection = SteamNetworkingSockets()->ConnectByIPAddress(hostAddress, 1, &config);
+	netConnection = SteamNetworkingSockets()->ConnectByIPAddress(hostAddress, 1, &connectionConfig);
 
 	SDL_Delay(300); // this needs to be here for some reason
 }
@@ -76,11 +68,9 @@ void SteamSocket::connectP2P(SteamNetworkingIdentity identity)
 {
 	disconnect();
 
-	console.log("connecting to some steam user (i didn't add a way to check yet) \n");
+	console.log("connecting to some steam user \n");
 
-	SteamNetworkingConfigValue_t config{ k_ESteamNetworkingConfig_IP_AllowWithoutAuth, k_ESteamNetworkingConfig_Int32, 1 };
-
-	netConnection = SteamNetworkingSockets()->ConnectP2P(identity, 0, 1, &config);
+	netConnection = SteamNetworkingSockets()->ConnectP2P(identity, 0, 1, &connectionConfig);
 
 	SDL_Delay(300); // this needs to be here for some reason
 }
