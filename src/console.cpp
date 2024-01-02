@@ -5,6 +5,9 @@
 
 #include <sstream>
 
+#include "gamescene.hpp"
+#include "editorscene.hpp"
+
 Console console;
 
 Console::Console()
@@ -105,10 +108,6 @@ void Console::runCommand(std::string command)
 		v.push_back(command);
 	}
 
-	if (v[0] == "quit")
-	{
-		console.gameRunning = false;
-	}
 
 	if (v.size() > 1)
 	{
@@ -127,13 +126,39 @@ void Console::runCommand(std::string command)
 				Console::log("Cannot set value bloom to: " + v[1] + '\n');
 			}
 		}
+		else if (v[0] == "connect")
+		{
+			steamSocket.connectIP(v[1]);
+		}
 		else if (v[0] == "host")
 		{
 			steamSocket.hostIP(v[1]);
 		}
-		else if (v[0] == "connect")
+		else if (v[0] == "scene")
 		{
-			steamSocket.connectIP(v[1]);
+			if (v[1] == "game")
+			{
+				activeScene.openScene(std::make_shared<GameScene>(window));
+			}
+			else if (v[1] == "editor")
+			{
+				activeScene.openScene(std::make_shared<EditorScene>(window));
+			}
+		}
+	}
+	else
+	{
+		if (v[0] == "quit")
+		{
+			console.gameRunning = false;
+		}
+		else if (v[0] == "host")
+		{
+			steamSocket.hostP2P();
+		}
+		else if (v[0] == "disconnect")
+		{
+			steamSocket.disconnect();
 		}
 	}
 }

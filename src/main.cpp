@@ -24,12 +24,6 @@
 #include "ui.hpp"
 #include "light.hpp"
 
-// main window
-OpenGLWindow window;
-
-// main scene
-SceneManager mainScene;
-
 const double fixedTick = 1000.0 / 60.0;
 double fixedTime = 0.0;
 
@@ -45,6 +39,8 @@ static bool init() // used to initiate things before using
 		console.log("Fatal Error - Steam must be running to play this game (SteamAPI_Init() failed).\n");
 		//console.gameRunning = false;
 	}
+
+	steamSocket.init();
 
 	if( SDL_Init( SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER ) < 0 )
     {
@@ -62,7 +58,7 @@ static bool init() // used to initiate things before using
 	window.create("Moss Engine (OpenGL)", 1280, 720); // name and size of application window
 	console.log("Window creation and program initialization finished.\n");
 
-	mainScene.openScene(std::make_shared<GameScene>(window));
+	activeScene.openScene(std::make_shared<GameScene>(window));
 
 	console.init(window);
 
@@ -73,19 +69,19 @@ static bool init() // used to initiate things before using
 
 static void gameLoop() // it runs forever	
 {
-	mainScene.update();
+	activeScene.update();
 	console.update(window); // grrr i have to reference window here because i couldn't include a reference variable cause no constructor :(
 }
 
 static void fixedGameLoop() // it runs forever
 {
-	mainScene.fixedUpdate();
+	activeScene.fixedUpdate();
 	console.fixedUpdate(window);
 }
 
 static void render() // honestly i feel like putting the stuff that is at the end of the gameloop in here
 {
-	mainScene.render(window);
+	activeScene.render(window);
 	console.render(window);
 }
 
@@ -113,14 +109,14 @@ int main(int argc, char* args[])
     	render();
     	window.display();
 	}
+	steamSocket.disconnect();
 
-	mainScene.closeScene();
+	activeScene.closeScene();
 	
 	window.quit(); // run when user asks to exit program
 	Mix_CloseAudio();
 	Mix_Quit();
 	SDL_Quit();
-	steamSocket.disconnect();
 	SteamAPI_Shutdown();
 	return 0;
 }

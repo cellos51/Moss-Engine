@@ -27,3 +27,5 @@ public:
 private:
 	std::shared_ptr<Scene> activeScene;
 };
+
+extern SceneManager activeScene;

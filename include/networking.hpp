@@ -3,10 +3,16 @@
 #include <stddef.h>
 #include <WinSock2.h>
 #include <string>
-#include <steam/steam_api.h>
-#include <steam/isteamnetworkingsockets.h>
 #include <vector>
 #include <algorithm>
+
+#include <steam/steam_api.h>
+#include <steam/isteamnetworkingsockets.h>
+#include <steam/isteammatchmaking.h>
+#include <steam/isteamfriends.h>
+#include <steam/isteamgameserver.h>
+
+#define MAX_PLAYERS 4
 
 enum PacketType : uint8_t
 {
@@ -24,12 +30,15 @@ class SteamSocket
 public:
 	SteamSocket();
 	~SteamSocket();
+	void init();
 
 	// server
 	void hostIP(std::string IPAddress);
+	void hostP2P();
 	HSteamListenSocket listenSocket = 0;
 	// client
 	void connectIP(std::string IPAddress);
+	void connectP2P(SteamNetworkingIdentity identity);
 	HSteamNetConnection  netConnection = 0;
 	// general
 	void disconnect();
@@ -37,9 +46,13 @@ public:
 	int receiveMessages(HSteamNetConnection peer, SteamNetworkingMessage_t** messages, int maxMessages);
 	std::vector<HSteamNetConnection> peers;
 private:
+	uint16 port = 27105;
+	uint64 lobbyID = 0;
 	//SteamNetworkingMessage_t* messages[MAX_MESSAGES] = {};
 
 	STEAM_CALLBACK(SteamSocket, SteamNetConnectionStatusChangedCallback, SteamNetConnectionStatusChangedCallback_t);
+	STEAM_CALLBACK(SteamSocket, GameLobbyJoinRequested, GameLobbyJoinRequested_t);
+	STEAM_CALLBACK(SteamSocket, LobbyEnter, LobbyEnter_t);
 };
 
 extern SteamSocket steamSocket;

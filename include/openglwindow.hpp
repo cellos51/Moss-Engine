@@ -48,3 +48,5 @@ private:
 	unsigned int FBOBlur;
 	unsigned int FBO, VAO, VBO, EBO, IVBO[7];
 };
+
+extern OpenGLWindow window;

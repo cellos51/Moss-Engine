@@ -17,6 +17,8 @@
 #include "light.hpp"
 #include "console.hpp"
 
+OpenGLWindow window;
+
 float zoom = 1;
 Entity OnscreenCamera(Vector2(0,0));
 

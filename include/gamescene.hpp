@@ -7,6 +7,7 @@
 #include "math.hpp"
 #include "level.hpp"
 #include "player.hpp"
+#include "unordered_map"
 
 class GameScene : public Scene
 {
@@ -24,6 +25,6 @@ private:
 	Player player = Player();
 	Light playerLight;
 
-	std::map<unsigned long int, Entity> networkPlayers; // this is super temporary
+	std::unordered_map<unsigned long int, NetPlayer> networkPlayers;
 };
 

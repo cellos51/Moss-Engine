@@ -1,5 +1,7 @@
 #include "scene.hpp"
 
+SceneManager activeScene;
+
 SceneManager::SceneManager() : activeScene(nullptr)
 {
 

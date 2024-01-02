@@ -25,7 +25,7 @@ void GameScene::onStart()
 	player.transform = level.spawn;
 
 	window.camera(Vector2(player.transform.x + player.size.x / 2, player.transform.y + player.size.y / 2));
-	window.setZoom(3);
+	window.setZoom(1);
 	window.clampAmount = Vector2(10,50);
 	window.lerpAmount = 0.005;
 }
@@ -38,6 +38,11 @@ void GameScene::onEnd()
 void GameScene::update()
 {
 	player.update();
+
+	for (auto& [key, value] : networkPlayers)
+	{
+		value.update();
+	}
 
 	for (auto& ent : level.tiles)
 	{
@@ -75,21 +80,21 @@ void GameScene::fixedUpdate()
 	}
 
 	// network shit
+
+	PlayerData playerData{player.transform, player.velocity, player.OnGround, player.onWall()};
+
 	Packet packet { steamSocket.netConnection, PLAYER_DATA };
 
-	uint32_t dataSize = sizeof(Vector2) + sizeof(Packet);
+	uint32_t dataSize = sizeof(PlayerData) + sizeof(Packet);
 	std::unique_ptr<uint8_t[]> data(new uint8_t[dataSize]);
 
 	memcpy(data.get(), &packet, sizeof(Packet)); // copy packet data into message
-	memcpy(data.get() + sizeof(Packet), &player.transform, sizeof(Vector2)); // copy player data into message
-
-	for (auto peer : steamSocket.peers) // sending messages
-	{
-		steamSocket.sendMessage(peer, data.get(), dataSize, k_nSteamNetworkingSend_UnreliableNoDelay);
-	}
+	memcpy(data.get() + sizeof(Packet), &playerData, sizeof(PlayerData)); // copy player data into message
 
 	for (auto peer : steamSocket.peers) // receiving messages
 	{
+		steamSocket.sendMessage(peer, data.get(), dataSize, k_nSteamNetworkingSend_UnreliableNoDelay);
+
 		const int maxMessages = 8;
 
 		SteamNetworkingMessage_t* messages[maxMessages];
@@ -106,23 +111,25 @@ void GameScene::fixedUpdate()
 
 			if (networkPlayers.find(receivedPacket.peerID) == networkPlayers.end()) // add new player to our list if we don't know who it's from yet (id 0 is always from server)
 			{
-				Entity networkPlayer;
+				NetPlayer networkPlayer;
 
 				networkPlayer.tex = player.tex;
-				networkPlayer.offset = player.offset;
-				networkPlayer.size = player.size;
-				networkPlayer.texturePos = player.texturePos;
 				networkPlayer.transform = level.spawn;
-				networkPlayer.layer = player.layer;
-				networkPlayer.luminosity = player.luminosity;
 
-				networkPlayers.insert(std::pair<unsigned long int, Entity>(receivedPacket.peerID, networkPlayer));
+				networkPlayers.insert(std::pair<unsigned long int, NetPlayer>(receivedPacket.peerID, networkPlayer));
 			}
 
 			switch (receivedPacket.packetType)
 			{
 			case PLAYER_DATA:
-				memcpy(&networkPlayers[receivedPacket.peerID].transform, receivedData + sizeof(Packet), sizeof(Vector2));
+				PlayerData receivedPlayerData{};
+
+				memcpy(&receivedPlayerData, receivedData + sizeof(Packet), sizeof(PlayerData));
+
+				networkPlayers[receivedPacket.peerID].targetPos = receivedPlayerData.position;
+				networkPlayers[receivedPacket.peerID].velocity = receivedPlayerData.velocity;
+				networkPlayers[receivedPacket.peerID].OnGround = receivedPlayerData.onGround;
+				networkPlayers[receivedPacket.peerID].walljumping = receivedPlayerData.walljumping;
 				break;
 			}
 
