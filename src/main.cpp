@@ -1,14 +1,15 @@
 #include <stddef.h>
+#include <WinSock2.h>
 #include <steam/steam_api.h>
+#include "networking.hpp"
 
+#include <windows.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 #include <glad/glad.h>
 #include <vector>
 #include <iostream>
 #include <map>
-#include "networking.hpp"
-#include <windows.h>
 #include <Commdlg.h>
 #include <shlwapi.h>
 

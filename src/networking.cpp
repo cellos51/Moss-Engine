@@ -189,11 +189,6 @@ void SteamSocket::GameLobbyJoinRequested(GameLobbyJoinRequested_t* pCallback)
 	if (pCallback->m_steamIDLobby.IsValid())
 	{
 		SteamMatchmaking()->JoinLobby(pCallback->m_steamIDLobby);
-
-		SteamNetworkingIdentity identity;
-		identity.SetSteamID(SteamMatchmaking()->GetLobbyOwner(SteamMatchmaking()->GetLobbyOwner(lobbyID)));
-
-		connectP2P(identity);
 	}
 }
 
@@ -202,4 +197,12 @@ void SteamSocket::LobbyEnter(LobbyEnter_t* pCallback)
 	lobbyID = pCallback->m_ulSteamIDLobby;
 
 	console.log("joined lobby \n");
+
+	if (listenSocket == 0) // check if we're not hosting. we enter a lobby when we make a server so we need to check
+	{
+		SteamNetworkingIdentity identity;
+		identity.SetSteamID(SteamMatchmaking()->GetLobbyOwner(lobbyID));
+
+		connectP2P(identity);
+	}
 }

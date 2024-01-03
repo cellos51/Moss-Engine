@@ -2,14 +2,15 @@
 
 #include <stddef.h>
 #include <WinSock2.h>
-#include <string>
-#include <vector>
-#include <algorithm>
-
 #include <steam/steam_api.h>
 #include <steam/isteamnetworkingsockets.h>
 #include <steam/isteammatchmaking.h>
 #include <steam/isteamfriends.h>
+
+#include <string>
+#include <vector>
+#include <algorithm>
+
 
 #define MAX_PLAYERS 4
 
