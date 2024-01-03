@@ -13,7 +13,6 @@
 #include <Commdlg.h>
 #include <shlwapi.h>
 
-#include "global.hpp"
 #include "scene.hpp"
 #include "editorscene.hpp"
 #include "gamescene.hpp"
@@ -62,7 +61,7 @@ static bool init() // used to initiate things before using
 
 	activeScene.openScene(std::make_shared<GameScene>(window));
 
-	console.init(window);
+	console.init();
 
 	Event::AppStart();
 
@@ -72,13 +71,13 @@ static bool init() // used to initiate things before using
 static void gameLoop() // it runs forever	
 {
 	activeScene.update();
-	console.update(window); // grrr i have to reference window here because i couldn't include a reference variable cause no constructor :(
+	console.update(); // grrr i have to reference window here because i couldn't include a reference variable cause no constructor :(
 }
 
 static void fixedGameLoop() // it runs forever
 {
 	activeScene.fixedUpdate();
-	console.fixedUpdate(window);
+	console.fixedUpdate();
 }
 
 static void render() // honestly i feel like putting the stuff that is at the end of the gameloop in here

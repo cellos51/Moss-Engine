@@ -161,7 +161,6 @@
     <ClInclude Include="include\entity.hpp" />
     <ClInclude Include="include\event.hpp" />
     <ClInclude Include="include\gamescene.hpp" />
-    <ClInclude Include="include\global.hpp" />
     <ClInclude Include="include\level.hpp" />
     <ClInclude Include="include\light.hpp" />
     <ClInclude Include="include\math.hpp" />

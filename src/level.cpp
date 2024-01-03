@@ -5,7 +5,6 @@
 #include <vector>
 #include <iostream>
 
-#include "global.hpp"
 #include "entity.hpp"
 #include "math.hpp"
 #include "openglwindow.hpp"

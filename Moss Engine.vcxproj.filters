@@ -80,9 +80,6 @@
     <ClInclude Include="include\event.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\global.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\level.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

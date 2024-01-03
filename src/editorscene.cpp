@@ -205,13 +205,13 @@ void EditorScene::update()
 	topBar.texturePos.w = 44;
 	topBar.texturePos.h = 11;
 
-	sideBar.size = Vector2(tileSet.size.x + TILE_SIZE, window.getSize().y);
+	sideBar.size = Vector2(tileSet.size.x + tileSize, window.getSize().y);
 	sideBar.texturePos.x = 123;
 	sideBar.texturePos.y = 2;
 	sideBar.texturePos.w = 44;
 	sideBar.texturePos.h = 11;
 
-	tileSet.transform = Vector2(0, TILE_SIZE * 2);
+	tileSet.transform = Vector2(0, tileSize * 2);
 	tileSet.texturePos.h = window.TextureSize[tileSet.tex].y;
 	tileSet.texturePos.w = window.TextureSize[tileSet.tex].x;
 
@@ -379,7 +379,7 @@ void EditorScene::update()
 			editingPlayer = false;
 			editingLights = false;
 
-			Entity collisionTile(Vector2(TILE_SIZE, TILE_SIZE));
+			Entity collisionTile(Vector2(tileSize, tileSize));
 			collisionTile.luminosity = Color4(0.1f, 0.1f, 0.1f, 1.0f);
 			collisionTile.tex = collisionTexture;
 			collisionTile.layer = 5;
@@ -467,13 +467,13 @@ void EditorScene::update()
 		{
 			int x, y;
 			SDL_GetMouseState(&x, &y);
-			x = (x / TILE_SIZE) * TILE_SIZE;
-			y = (y / TILE_SIZE) * TILE_SIZE;
+			x = (x / tileSize) * tileSize;
+			y = (y / tileSize) * tileSize;
 			selector.transform = Vector2(x, y);
 
-			if (selector.transform.x >= tileSet.size.x - TILE_SIZE)
+			if (selector.transform.x >= tileSet.size.x - tileSize)
 			{
-				selector.transform.x = tileSet.size.x - TILE_SIZE;
+				selector.transform.x = tileSet.size.x - tileSize;
 			}
 		}
 
@@ -485,12 +485,12 @@ void EditorScene::update()
 
 			if (((x + (window.cameraPos.x)) - window.getSize().x / 2) <= 0)
 			{
-				x = x - TILE_SIZE; // this needs to change if we use anything other than 24 x 24 tiles
+				x = x - tileSize; // this needs to change if we use anything other than 24 x 24 tiles
 			}
 
 			if (((y + (window.cameraPos.y)) - window.getSize().y / 2) <= 0)
 			{
-				y = y - TILE_SIZE;
+				y = y - tileSize;
 			}
 
 			x = (x + (window.cameraPos.x) - window.getSize().x / 2);
@@ -499,8 +499,8 @@ void EditorScene::update()
 			x2 = (x2 + (window.cameraPos.x) - window.getSize().x / 2);
 			y2 = (y2 + (window.cameraPos.y) - window.getSize().y / 2);
 
-			x = (x / TILE_SIZE) * TILE_SIZE;
-			y = (y / TILE_SIZE) * TILE_SIZE;
+			x = (x / tileSize) * tileSize;
+			y = (y / tileSize) * tileSize;
 
 			if (viewCollision == true)
 			{
@@ -528,7 +528,7 @@ void EditorScene::update()
 				cursor.color.a = 0.5;
 				cursor.tex = tileSet.tex;
 				cursor.texturePos.x = selector.transform.x;
-				cursor.texturePos.y = -(selector.transform.y - (tileSet.size.y + TILE_SIZE));
+				cursor.texturePos.y = -(selector.transform.y - (tileSet.size.y + tileSize));
 				cursor.transform = Vector2(x, y);
 			}
 
@@ -568,10 +568,10 @@ void EditorScene::update()
 
 			if (Event::MousePressed(SDL_BUTTON_LEFT) && viewCollision == false && editingPlayer == false && editingLights == false)
 			{
-				Entity tile(Vector2(TILE_SIZE, TILE_SIZE));
+				Entity tile(Vector2(tileSize, tileSize));
 				tile.tex = tileSet.tex;
 				tile.texturePos.x = selector.transform.x;
-				tile.texturePos.y = -(selector.transform.y - (tileSet.size.y + TILE_SIZE));
+				tile.texturePos.y = -(selector.transform.y - (tileSet.size.y + tileSize));
 				tile.layer = activeLayer;
 				tile.colUp = false;
 				tile.colDown = false;

@@ -8,12 +8,12 @@ public:
 	Console();
 	~Console();
 	bool enabled = false;
-	void init(OpenGLWindow& window);
+	void init();
 	void log(std::string message);
 	void log(const char* message);
 	void logError(std::string message);
-	void update(OpenGLWindow& window);
-	void fixedUpdate(OpenGLWindow& window);
+	void update();
+	void fixedUpdate();
 	void render(OpenGLWindow& window);
 
 	// convars

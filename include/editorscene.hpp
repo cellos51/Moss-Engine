@@ -2,7 +2,6 @@
 
 #include "scene.hpp"
 
-#include "global.hpp"
 #include "openglwindow.hpp"
 #include "entity.hpp"
 #include "math.hpp"
@@ -18,6 +17,7 @@ public:
 	void fixedUpdate() override;
 	void render(OpenGLWindow& window) override;
 private:
+	const int tileSize = 32;
 	OpenGLWindow& window;
 
 	// camra offset used for panning
@@ -57,9 +57,9 @@ private:
 	unsigned int activeLayer = 1;
 	std::string currentFile;
 
-	Entity selector = Entity(Vector2(0, TILE_SIZE * 2), Vector2(TILE_SIZE, TILE_SIZE));
-	Entity cursor = Entity(Vector2(TILE_SIZE, TILE_SIZE));
+	Entity selector = Entity(Vector2(0, tileSize * 2), Vector2(tileSize, tileSize));
+	Entity cursor = Entity(Vector2(tileSize, tileSize));
 	Light lightCursor;
-	Entity playerSpawn = Entity(Vector2(TILE_SIZE, TILE_SIZE));
+	Entity playerSpawn = Entity(Vector2(tileSize, tileSize));
 };
 

@@ -20,7 +20,7 @@ Console::~Console()
 
 }
 
-void Console::init(OpenGLWindow& window)
+void Console::init()
 {
 	font = window.loadTexture("assets/fonts/font.png");
 	output.font = font;
@@ -53,7 +53,7 @@ void Console::logError(std::string message) // WIP
 
 }
 
-void Console::update(OpenGLWindow& window)
+void Console::update()
 {
 	if (Event::KeyDown(SDLK_BACKQUOTE))
 	{
@@ -84,7 +84,7 @@ void Console::update(OpenGLWindow& window)
 	}
 }
 
-void Console::fixedUpdate(OpenGLWindow& window)
+void Console::fixedUpdate()
 {
 
 }
