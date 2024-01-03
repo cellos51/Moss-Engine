@@ -53,7 +53,6 @@ private:
 	ui::Slider green;
 	ui::Slider blue;
 
-	unsigned int font = 0;
 	unsigned int activeLayer = 1;
 	std::string currentFile;
 

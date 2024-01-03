@@ -61,9 +61,22 @@ static bool init() // used to initiate things before using
 
 	activeScene.openScene(std::make_shared<GameScene>(window));
 
+	// bandaid solution
+
+	window.loadTexture("assets/textures/tile_01.png");
+	window.loadTexture("assets/textures/playerstart.png");
+	window.loadTexture("assets/textures/selector.png");
+	window.loadTexture("assets/textures/buttons.png");
+	window.loadTexture("assets/textures/collision.png");
+	window.loadTexture("assets/textures/player.png");
+
+	// end of bandaid solution
+
 	console.init();
 
 	Event::AppStart();
+
+
 
 	return true;
 }
@@ -110,9 +123,9 @@ int main(int argc, char* args[])
     	render();
     	window.display();
 	}
-	steamSocket.disconnect();
-
 	activeScene.closeScene();
+
+	steamSocket.disconnect();
 	
 	window.quit(); // run when user asks to exit program
 	Mix_CloseAudio();

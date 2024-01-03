@@ -13,7 +13,6 @@ GameScene::GameScene(OpenGLWindow& window) : window(window)
 
 void GameScene::onStart()
 {
-	window.loadTexture("assets/textures/tile_01.png");
 	level = level = Level::Load("assets/levels/level.lvl");
 
 	playerLight.layer = 2;
@@ -21,7 +20,7 @@ void GameScene::onStart()
 	playerLight.g = 0.8f;
 	playerLight.b = 0.8f;
 
-	player.tex = window.loadTexture("assets/textures/player.png");
+	player.tex = 9;
 	player.transform = level.spawn;
 
 	window.camera(Vector2(player.transform.x + player.size.x / 2, player.transform.y + player.size.y / 2));

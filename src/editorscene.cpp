@@ -11,11 +11,11 @@ EditorScene::EditorScene(OpenGLWindow& window) : window(window) {}
 
 void EditorScene::onStart()
 {
-	tileSet.tex = window.loadTexture("assets/textures/tile_01.png");
-	playerSpawn.tex = window.loadTexture("assets/textures/playerstart.png");
+	tileSet.tex = 4;
+	playerSpawn.tex = 5;
 	cursor.tex = tileSet.tex;
-	selector.tex = window.loadTexture("assets/textures/selector.png");
-	topBar.tex = window.loadTexture("assets/textures/buttons.png");
+	selector.tex = 6;
+	topBar.tex = 7;
 	sideBar.tex = topBar.tex;
 	layer1.tex = topBar.tex;
 	layer2.tex = topBar.tex;
@@ -28,7 +28,7 @@ void EditorScene::onStart()
 	loadButton.tex = topBar.tex;
 	playerButton.tex = topBar.tex;
 	importButton.tex = topBar.tex;
-	collisionTexture = window.loadTexture("assets/textures/collision.png");
+	collisionTexture = 8;
 
 	topBar.size = Vector2(window.getSize().x, 48);
 	topBar.texturePos.x = 123;
@@ -141,14 +141,12 @@ void EditorScene::onStart()
 	importButton.layer = 12;
 
 	window.camera(Vector2(0, 0));
-	font = window.loadTexture("assets/fonts/font.png");
 
 	brightness.size = Vector2(64, 16);
 	brightness.layer = 13;
 	brightness.tex = -1;
 	brightness.transform = Vector2(1000, 5);
 	brightness.color = Color4(0.0, 0.0, 0.0, 1);
-	brightness.uiText.font = font;
 	brightness.uiText.transform = Vector2(brightness.transform.x, brightness.transform.y + brightness.size.y);
 
 	radius.size = Vector2(64, 16);
@@ -156,7 +154,6 @@ void EditorScene::onStart()
 	radius.tex = -1;
 	radius.transform = Vector2(1000, 22);
 	radius.color = Color4(0.5, 0.5, 0.5, 1);
-	radius.uiText.font = font;
 	radius.uiText.transform = Vector2(radius.transform.x, radius.transform.y + radius.size.y);
 
 	red.size = Vector2(64, 8);
@@ -164,7 +161,6 @@ void EditorScene::onStart()
 	red.tex = -1;
 	red.transform = Vector2(1100, 5);
 	red.color = Color4(0.5, 0.0, 0.0, 1);
-	red.uiText.font = font;
 	red.uiText.transform = Vector2(red.transform.x, red.transform.y + red.size.y);
 
 	green.size = Vector2(64, 8);
@@ -172,7 +168,6 @@ void EditorScene::onStart()
 	green.tex = -1;
 	green.transform = Vector2(1100, 16);
 	green.color = Color4(0.0, 0.5, 0.0, 1);
-	green.uiText.font = font;
 	green.uiText.transform = Vector2(green.transform.x, green.transform.y + green.size.y);
 
 	blue.size = Vector2(64, 8);
@@ -180,7 +175,6 @@ void EditorScene::onStart()
 	blue.tex = -1;
 	blue.transform = Vector2(1100, 27);
 	blue.color = Color4(0.0, 0.0, 0.5, 1);
-	blue.uiText.font = font;
 	blue.uiText.transform = Vector2(blue.transform.x, blue.transform.y + blue.size.y);
 }
 
