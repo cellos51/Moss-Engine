@@ -710,7 +710,7 @@ void OpenGLWindow::display() // used to display information from the renderer to
 		framebufferShader.setInt("screenTexture", FBOTex);
 		framebufferShader.setInt("lightTexture", FBOLightTex);
 		framebufferShader.setVec4("unlitColor", ambientLight.r, ambientLight.g, ambientLight.b, ambientLight.a);
-		framebufferShader.setFloat("pass", 4.0f);
+		framebufferShader.setFloat("pass", 3.0f);
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	}

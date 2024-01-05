@@ -4,11 +4,20 @@ out vec4 fragColor;
 
 in vec2 TexCoord;
 
+in float zoomFrag;
+
 uniform sampler2D screenTexture;
 uniform sampler2D blurTexture;
 uniform sampler2D lightTexture;
 uniform vec4 unlitColor;
 uniform float pass;
+
+const highp float NOISE_GRANULARITY = 2.0 /256.0;
+
+highp float random(highp vec2 coords) 
+{
+   return fract(sin(dot(coords.xy, vec2(12.9898,78.233))) * 43758.5453);
+}
 
 void main() 
 {
@@ -32,9 +41,14 @@ void main()
 	if (pass == 3.0) // third pass
 	{
 		fragColor = (texture(screenTexture, TexCoord) * min(unlitColor + texture(lightTexture, TexCoord), 1.0)) + texture(blurTexture, TexCoord);
-	}
-	if (pass == 4.0) // secret 4th pass without bloom! :O
-	{
-		fragColor = (texture(screenTexture, TexCoord) * min(unlitColor + texture(lightTexture, TexCoord), 1.0));
+
+		
+		float radius = 0.7 / zoomFrag;
+		float softness = 0.5 / zoomFrag;
+
+		float vignette = (-smoothstep(radius, radius - softness, distance(TexCoord, vec2(0.5))) + 1) / 4;
+		vignette -= mix(-NOISE_GRANULARITY, NOISE_GRANULARITY, random(TexCoord)); // goofy ahh vignette 
+
+		fragColor -= vignette;
 	}
 } // i be blastin' radiohead when making all this shit :P (in rainbows rn) 8/14/23

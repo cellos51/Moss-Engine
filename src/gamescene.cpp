@@ -13,7 +13,7 @@ GameScene::GameScene(OpenGLWindow& window) : window(window)
 
 void GameScene::onStart()
 {
-	level = level = Level::Load("assets/levels/level.lvl");
+	level = Level::Load("assets/levels/level.lvl");
 
 	playerLight.layer = 2;
 	playerLight.intensity = 0.1f;
