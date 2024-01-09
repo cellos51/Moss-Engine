@@ -176,6 +176,32 @@ void EditorScene::onStart()
 	blue.transform = Vector2(1100, 27);
 	blue.color = Color4(0.0, 0.0, 0.5, 1);
 	blue.uiText.transform = Vector2(blue.transform.x, blue.transform.y + blue.size.y);
+
+	rotation.size = Vector2(64, 8);
+	rotation.layer = 13;
+	rotation.tex = -1;
+	rotation.transform = Vector2(1200, 5);
+	rotation.color = Color4(0.0, 0.0, 0.1, 1);
+	rotation.uiText.transform = Vector2(rotation.transform.x, rotation.transform.y + rotation.size.y);
+	rotation.value = 0.0;
+
+	shape.size = Vector2(64, 8);
+	shape.layer = 13;
+	shape.tex = -1;
+	shape.transform = Vector2(1200, 16);
+	shape.color = Color4(0.5, 0.5, 0.6, 1);
+	shape.uiText.transform = Vector2(shape.transform.x, shape.transform.y + shape.size.y);
+	shape.value = 1.0;
+
+	width.size = Vector2(64, 8);
+	width.layer = 13;
+	width.tex = -1;
+	width.transform = Vector2(1200, 27);
+	width.color = Color4(0.5, 0.5, 0.6, 1);
+	width.uiText.transform = Vector2(shape.transform.x, shape.transform.y + shape.size.y);
+	width.value = 1.0;
+
+	window.clampAmount = Vector2(0, 0);
 }
 
 void EditorScene::onEnd()
@@ -190,6 +216,9 @@ void EditorScene::update()
 	red.poll();
 	green.poll();
 	blue.poll();
+	rotation.poll();
+	shape.poll();
+	width.poll();
 
 	tileSet.size = Vector2(window.TextureSize[tileSet.tex].x, window.TextureSize[tileSet.tex].y);
 
@@ -445,10 +474,13 @@ void EditorScene::update()
 			editingPlayer = false;
 
 			lightCursor.intensity = brightness.value;
-			lightCursor.radius = radius.value * 1000;
+			lightCursor.radius = radius.value * 1024;
 			lightCursor.r = red.value;
 			lightCursor.g = green.value;
 			lightCursor.b = blue.value;
+			lightCursor.rotation = rotation.value * 360;
+			lightCursor.shape.y = width.value;
+			lightCursor.shape.x = shape.value;
 		}
 		else
 		{
@@ -633,6 +665,11 @@ void EditorScene::update()
 
 		if (saveButton.onClick())
 		{
+			for (unsigned int i = 0; i < level.tiles.size(); i++)
+			{
+				level.tiles[i].color.a = 1;
+			}
+
 			if (currentFile.length() == 0)
 			{
 				char filename[MAX_PATH] = { '\0' };
@@ -680,6 +717,11 @@ void EditorScene::update()
 
 		if (saveAsButton.onClick())
 		{
+			for (unsigned int i = 0; i < level.tiles.size(); i++)
+			{
+				level.tiles[i].color.a = 1;
+			}
+
 			char filename[MAX_PATH] = { '\0' };
 
 			OPENFILENAME ofn;
@@ -873,4 +915,7 @@ void EditorScene::render(OpenGLWindow& window)
 	window.render(red);
 	window.render(green);
 	window.render(blue);
+	window.render(rotation);
+	window.render(shape);
+	window.render(width);
 }

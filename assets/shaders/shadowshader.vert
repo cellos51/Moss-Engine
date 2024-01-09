@@ -28,7 +28,7 @@ void main()
 
         lightPos = (lightMatrix * vec4(1.0f, 1.0f, 1.0f, 1.0f)).xy;
 
-        if (gl_VertexID == 1 || gl_VertexID == 0) // this shit is slow as hell and needs to be remade 💀
+        if (gl_VertexID == 1 || gl_VertexID == 0) //  this shit is slow as hell and needs to be remade 💀
         {
             if ((iPosOffset * vec4(aPos.x, aPos.y, aPos.z,  1.0f)).x >= lightPos.x && (iPosOffset * vec4(aPos.x, 1.0f, aPos.z,  1.0f)).y >= lightPos.y || (iPosOffset * vec4(-aPos.x, aPos.y, aPos.z,  1.0f)).x > lightPos.x)
             {

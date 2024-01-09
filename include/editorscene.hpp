@@ -52,6 +52,10 @@ private:
 	ui::Slider red;
 	ui::Slider green;
 	ui::Slider blue;
+	ui::Slider rotation;
+	ui::Slider shape;
+	ui::Slider width;
+
 
 	unsigned int activeLayer = 1;
 	std::string currentFile;

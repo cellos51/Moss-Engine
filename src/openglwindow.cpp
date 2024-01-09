@@ -56,6 +56,8 @@ glm::vec4 lightColorArray[maxLights];
 
 glm::mat4 lightPositionArray[maxLights];
 
+glm::vec2 lightShapeArray[maxLights];
+
 glm::mat4 shadowPositionArray[maxLights];
 
 unsigned int lightLayerArray[maxLights];
@@ -508,16 +510,22 @@ void OpenGLWindow::render(ui& p_ui) // i think this copys the texture to the ren
 
 void OpenGLWindow::render(Light& p_light) // i think this copys the texture to the renderer
 {
-	if (lightCount < maxLights)
+	Entity intersect(Vector2(p_light.radius, p_light.radius));
+	intersect.transform = Vector2(p_light.transform.x - p_light.radius / 2, p_light.transform.y - p_light.radius / 2);
+
+	if (intersect.intersecting(OnscreenCamera) == true && lightCount < maxLights)
 	{
 		glm::mat4 transform = glm::mat4(1.0f);
 
 		transform = glm::scale(transform, glm::vec3((p_light.radius) / getSize().x, (p_light.radius) / getSize().y, 0));  
 		transform = glm::translate(transform, glm::vec3(((round(p_light.transform.x) - getSize().x / 2) - cameraOffset.x) / (p_light.radius / 2), -((round(p_light.transform.y) - getSize().y / 2) - cameraOffset.y) / (p_light.radius / 2), 0)); 
+		transform = glm::rotate(transform, std::rad2deg(p_light.rotation), glm::vec3(0.0f, 0.0f, 1.0f));
 
 		lightColorArray[lightCount] = glm::vec4(p_light.r, p_light.g, p_light.b, p_light.intensity);
 		lightPositionArray[lightCount] = transform;
 		lightLayerArray[lightCount] = p_light.layer;
+		lightShapeArray[lightCount].x = p_light.shape.x;
+		lightShapeArray[lightCount].y = p_light.shape.y;
 
 		transform = glm::mat4(1.0f);
 
@@ -538,7 +546,7 @@ void OpenGLWindow::display() // used to display information from the renderer to
 
 	glBindVertexArray(VAO);
 
-	glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
+	//glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
 
 	//glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
  	
@@ -650,6 +658,8 @@ void OpenGLWindow::display() // used to display information from the renderer to
 		lightShader.use();
 
 		lightShader.setInt("layerId", lightLayerArray[i]);
+
+		lightShader.setVec2("shape", lightShapeArray[i]);
 
 		lightShader.setMat4("lightPos", lightPositionArray[i]);
 

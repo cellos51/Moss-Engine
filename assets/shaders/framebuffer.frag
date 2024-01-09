@@ -44,10 +44,15 @@ void main()
 
 		
 		float radius = 0.7 / zoomFrag;
-		float softness = 0.5 / zoomFrag;
+		float softness = 0.3 / zoomFrag;
 
-		float vignette = (-smoothstep(radius, radius - softness, distance(TexCoord, vec2(0.5))) + 1) / 4;
-		vignette -= mix(-NOISE_GRANULARITY, NOISE_GRANULARITY, random(TexCoord)); // goofy ahh vignette 
+		float vignette = (-smoothstep(radius, radius - softness, distance(TexCoord, vec2(0.5))) + 1) / 6;
+		vignette -= mix(-NOISE_GRANULARITY, NOISE_GRANULARITY, random(gl_FragCoord.xy)); // goofy ahh vignette 
+
+		if (vignette <= 0.001)
+		{
+			vignette = 0.0;
+		}
 
 		fragColor -= vignette;
 	}
