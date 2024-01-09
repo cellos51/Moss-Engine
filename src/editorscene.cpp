@@ -19,8 +19,6 @@ void EditorScene::onStart()
 	sideBar.tex = topBar.tex;
 	layer1.tex = topBar.tex;
 	layer2.tex = topBar.tex;
-	layer3.tex = topBar.tex;
-	layer4.tex = topBar.tex;
 	collisionButton.tex = topBar.tex;
 	lightsButton.tex = topBar.tex;
 	saveButton.tex = topBar.tex;
@@ -44,33 +42,30 @@ void EditorScene::onStart()
 	//sideBar.texturePos.h = 11;
 	sideBar.transform = Vector2(0, 0);
 
+	layer.tex = -1;
+	layer.uiText.font = 10;
+	layer.uiText.transform = Vector2(layer.transform.x - layer.size.x / 1.25, layer.transform.y - layer.size.y / 1.25);
+	layer.size = Vector2(26, 26);
+	layer.texturePos.x = 36;
+	layer.texturePos.y = 43;
+	layer.texturePos.w = 13;
+	layer.texturePos.h = 13;
+	layer.color = Color4(0.5, 0.5, 0.6, 1);
+	layer.transform = Vector2(13, 13);
+
 	layer1.size = Vector2(26, 26);
 	layer1.texturePos.x = 36;
 	layer1.texturePos.y = 43;
 	layer1.texturePos.w = 13;
 	layer1.texturePos.h = 13;
-	layer1.transform = Vector2(13, 13);
+	layer1.transform = Vector2(52, 13);
 
 	layer2.size = Vector2(26, 26);
 	layer2.texturePos.x = 36;
 	layer2.texturePos.y = 29;
 	layer2.texturePos.w = 13;
 	layer2.texturePos.h = 13;
-	layer2.transform = Vector2(52, 13);
-
-	layer3.size = Vector2(26, 26);
-	layer3.texturePos.x = 36;
-	layer3.texturePos.y = 15;
-	layer3.texturePos.w = 13;
-	layer3.texturePos.h = 13;
-	layer3.transform = Vector2(91, 13);
-
-	layer4.size = Vector2(26, 26);
-	layer4.texturePos.x = 36;
-	layer4.texturePos.y = 1;
-	layer4.texturePos.w = 13;
-	layer4.texturePos.h = 13;
-	layer4.transform = Vector2(130, 13);
+	layer2.transform = Vector2(91, 13);
 
 	collisionButton.size = Vector2(118, 26);
 	collisionButton.texturePos.x = 50;
@@ -128,10 +123,9 @@ void EditorScene::onStart()
 	tileSet.layer = 10;
 	selector.layer = 11;
 	topBar.layer = 11;
+	layer.layer = 12;
 	layer1.layer = 12;
 	layer2.layer = 12;
-	layer3.layer = 12;
-	layer4.layer = 12;
 	collisionButton.layer = 12;
 	playerButton.layer = 12;
 	lightsButton.layer = 12;
@@ -211,6 +205,7 @@ void EditorScene::onEnd()
 
 void EditorScene::update()
 {
+	layer.startTextInput();
 	brightness.poll();
 	radius.poll();
 	red.poll();
@@ -242,7 +237,13 @@ void EditorScene::update()
 	{
 		if (layer1.onClick())
 		{
-			activeLayer = 1;
+			viewLayer = true;
+
+			if (layer.uiText.getText().size() > 0 && std::isdigit(layer.uiText.getText()[0]))
+			{
+				activeLayer = std::stoi(layer.uiText.getText());
+			}
+			
 
 			for (unsigned int i = 0; i < level.tiles.size(); i++)
 			{
@@ -259,58 +260,16 @@ void EditorScene::update()
 
 		if (layer2.onClick())
 		{
-			activeLayer = 2;
+			viewLayer = false;
 
 			for (unsigned int i = 0; i < level.tiles.size(); i++)
 			{
-				if (level.tiles[i].layer != activeLayer)
-				{
-					level.tiles[i].color.a = 0.5;
-				}
-				else
-				{
-					level.tiles[i].color.a = 1;
-				}
+				level.tiles[i].color.a = 1;
 			}
 		}
 
-		if (layer3.onClick())
+		if (viewLayer == true)
 		{
-			activeLayer = 3;
-
-			for (unsigned int i = 0; i < level.tiles.size(); i++)
-			{
-				if (level.tiles[i].layer != activeLayer)
-				{
-					level.tiles[i].color.a = 0.5;
-				}
-				else
-				{
-					level.tiles[i].color.a = 1;
-				}
-			}
-		}
-
-		if (layer4.onClick())
-		{
-			activeLayer = 4;
-
-			for (unsigned int i = 0; i < level.tiles.size(); i++)
-			{
-				if (level.tiles[i].layer != activeLayer)
-				{
-					level.tiles[i].color.a = 0.5;
-				}
-				else
-				{
-					level.tiles[i].color.a = 1;
-				}
-			}
-		}
-
-		switch (activeLayer)
-		{
-		case 1:
 			layer1.color.r = 0.5;
 			layer1.color.g = 0.5;
 			layer1.color.b = 0.5;
@@ -318,16 +277,9 @@ void EditorScene::update()
 			layer2.color.r = 1;
 			layer2.color.g = 1;
 			layer2.color.b = 1;
-
-			layer3.color.r = 1;
-			layer3.color.g = 1;
-			layer3.color.b = 1;
-
-			layer4.color.r = 1;
-			layer4.color.g = 1;
-			layer4.color.b = 1;
-			break;
-		case 2:
+		}
+		else
+		{
 			layer1.color.r = 1;
 			layer1.color.g = 1;
 			layer1.color.b = 1;
@@ -335,49 +287,6 @@ void EditorScene::update()
 			layer2.color.r = 0.5;
 			layer2.color.g = 0.5;
 			layer2.color.b = 0.5;
-
-			layer3.color.r = 1;
-			layer3.color.g = 1;
-			layer3.color.b = 1;
-
-			layer4.color.r = 1;
-			layer4.color.g = 1;
-			layer4.color.b = 1;
-			break;
-		case 3:
-			layer1.color.r = 1;
-			layer1.color.g = 1;
-			layer1.color.b = 1;
-
-			layer2.color.r = 1;
-			layer2.color.g = 1;
-			layer2.color.b = 1;
-
-			layer3.color.r = 0.5;
-			layer3.color.g = 0.5;
-			layer3.color.b = 0.5;
-
-			layer4.color.r = 1;
-			layer4.color.g = 1;
-			layer4.color.b = 1;
-			break;
-		case 4:
-			layer1.color.r = 1;
-			layer1.color.g = 1;
-			layer1.color.b = 1;
-
-			layer2.color.r = 1;
-			layer2.color.g = 1;
-			layer2.color.b = 1;
-
-			layer3.color.r = 1;
-			layer3.color.g = 1;
-			layer3.color.b = 1;
-
-			layer4.color.r = 0.5;
-			layer4.color.g = 0.5;
-			layer4.color.b = 0.5;
-			break;
 		}
 
 		if (collisionButton.onClick())
@@ -891,10 +800,9 @@ void EditorScene::render(OpenGLWindow& window)
 
 	window.render(selector, false);
 
+	window.render(layer);
 	window.render(layer1);
 	window.render(layer2);
-	window.render(layer3);
-	window.render(layer4);
 
 	window.render(collisionButton);
 

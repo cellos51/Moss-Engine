@@ -32,14 +32,14 @@ private:
 	bool viewCollision = false;
 	bool editingPlayer = false;
 	bool editingLights = false;
+	bool viewLayer = false;
 
 	ui::Button tileSet;
 	ui::Panel topBar;
 	ui::Panel sideBar;
+	ui::TextInput layer;
 	ui::Button layer1;
 	ui::Button layer2;
-	ui::Button layer3;
-	ui::Button layer4;
 	ui::Button collisionButton;
 	ui::Button playerButton;
 	ui::Button lightsButton;
