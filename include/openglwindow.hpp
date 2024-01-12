@@ -3,6 +3,9 @@
 #include <SDL2/SDL.h>
 #include <glad/glad.h>
 #include <map>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "entity.hpp"
 #include "ui.hpp"
@@ -50,3 +53,22 @@ private:
 };
 
 extern OpenGLWindow window;
+
+struct EntityGPUData
+{
+	glm::mat4 transform;
+	glm::vec4 textureCoordinates;
+	glm::vec4 luminosity;
+	glm::vec4 color;
+	unsigned int textureIndex;
+	unsigned int layerIndex;
+};
+
+struct LightGPUData
+{
+	glm::mat4 transform;
+	glm::mat4 emissionCenter;
+	glm::vec4 color;
+	glm::vec2 shape;
+	unsigned int layerIndex;
+};

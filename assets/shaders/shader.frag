@@ -34,7 +34,7 @@ void main()
         case 14: texColor = texture(ourTexture[14], TexCoord); break;
         case 15: texColor = texture(ourTexture[15], TexCoord); break;
     }
-    
+
     if(texColor.a < 0.1)
     {
         discard;

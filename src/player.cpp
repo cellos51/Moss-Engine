@@ -10,7 +10,7 @@ Player::Player()
 {
 	size = Vector2(24, 48);
 
-	luminosity = Color4(0.2f, 0.2f, 0.2f, 0.0f);
+	luminosity = Color4(0.01f, 0.01f, 0.01f, 0.0f);
 	layer = 2;
 	texturePos.w = 64;
 	texturePos.h = 64;
