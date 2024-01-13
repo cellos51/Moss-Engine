@@ -31,7 +31,7 @@ public:
 	void setZoom(float x);
 	Vector2 getSize();
 	Vector2 cameraPos = Vector2(0,0);
-	Color4 ambientLight = Color4(0.5f, 0.5f, 0.5f,1);
+	Color4 ambientLight = Color4(0.35f, 0.33f, 0.5f,1);
 	std::map<unsigned int, Vector2> TextureSize;
 	Vector2 clampAmount = Vector2(0,0);
 	float lerpAmount = 0;
@@ -49,7 +49,7 @@ private:
 	unsigned int RBO;
 	unsigned int FBOTex;
 	unsigned int FBOBlur;
-	unsigned int FBO, VAO, VBO, EBO, IVBO[7];
+	unsigned int FBO, VAO, VBO, EBO, IVBO[8];
 };
 
 extern OpenGLWindow window;
@@ -62,6 +62,7 @@ struct EntityGPUData
 	glm::vec4 color;
 	unsigned int textureIndex;
 	unsigned int layerIndex;
+	unsigned int shaderIndex;
 };
 
 struct LightGPUData

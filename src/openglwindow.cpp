@@ -124,7 +124,7 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
-    glGenBuffers(7, IVBO); 
+    glGenBuffers(8, IVBO); 
 
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 
@@ -370,6 +370,7 @@ void OpenGLWindow::render(Entity& p_ent, bool cam) // i think this copies the te
 		entityData[entityCount].layerIndex = p_ent.layer;
 		entityData[entityCount].luminosity = glm::vec4(p_ent.luminosity.r,p_ent.luminosity.g,p_ent.luminosity.b,p_ent.luminosity.a);
 		entityData[entityCount].color = glm::vec4(p_ent.color.r, p_ent.color.g, p_ent.color.b, p_ent.color.a);
+		entityData[entityCount].shaderIndex = p_ent.shader;
 
 		if (TexturesToRender.find(p_ent.layer) == TexturesToRender.end())
 		{
@@ -399,6 +400,7 @@ void OpenGLWindow::render(Entity& p_ent, bool cam) // i think this copies the te
 		entityData[entityCount].layerIndex = p_ent.layer;
 		entityData[entityCount].luminosity = glm::vec4(p_ent.luminosity.r, p_ent.luminosity.g, p_ent.luminosity.b, p_ent.luminosity.a);
 		entityData[entityCount].color = glm::vec4(p_ent.color.r, p_ent.color.g, p_ent.color.b, p_ent.color.a);
+		entityData[entityCount].shaderIndex = p_ent.shader;
 
 		if (TexturesToRender.find(p_ent.layer) == TexturesToRender.end())
 		{
@@ -440,6 +442,7 @@ void OpenGLWindow::render(ui::Slider& p_ui) // i have no fucking clue if this wi
 	entityData[entityCount].layerIndex = p_ui.layer;
 	entityData[entityCount].luminosity = glm::vec4(p_ui.luminosity.r, p_ui.luminosity.g, p_ui.luminosity.b, p_ui.luminosity.a);
 	entityData[entityCount].color = glm::vec4(p_ui.color.r, p_ui.color.g, p_ui.color.b, p_ui.color.a);
+	entityData[entityCount].shaderIndex = 0; // for now ui will use default shader
 
 	if (TexturesToRender.find(p_ui.layer) == TexturesToRender.end())
 	{
@@ -472,6 +475,7 @@ void OpenGLWindow::render(ui& p_ui) // i think this copys the texture to the ren
 	entityData[entityCount].layerIndex = p_ui.layer;
 	entityData[entityCount].luminosity = glm::vec4(p_ui.luminosity.r, p_ui.luminosity.g, p_ui.luminosity.b, p_ui.luminosity.a);
 	entityData[entityCount].color = glm::vec4(p_ui.color.r, p_ui.color.g, p_ui.color.b, p_ui.color.a);
+	entityData[entityCount].shaderIndex = 0; // for now ui will use default shader
 
 	if (TexturesToRender.find(p_ui.layer) == TexturesToRender.end())
 	{
@@ -563,7 +567,6 @@ void OpenGLWindow::display() // used to display information from the renderer to
 
 	glEnableVertexAttribArray(8);
     glVertexAttribPointer(8, 1, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
-    //glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 
     glVertexAttribDivisor(8, 1);
 
@@ -594,12 +597,22 @@ void OpenGLWindow::display() // used to display information from the renderer to
 
 	glVertexAttribDivisor(11, 1);
 
+	// shader type buffer
+	glBindBuffer(GL_ARRAY_BUFFER, IVBO[6]);
+	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].shaderIndex, GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(12);
+	glVertexAttribPointer(12, 1, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
+
+	glVertexAttribDivisor(12, 1);
+
     // unbind buffers
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	defaultShader.use();
 
 	defaultShader.setIntArray("ourTexture", 16, textureUnits);  
+	defaultShader.setFloat("time", SDL_GetTicks());
 
 	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
 

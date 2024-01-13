@@ -2,7 +2,7 @@
 
 out vec4 FragColor;
 
-in vec4 ourColor;
+in vec4 color;
 in vec2 TexCoord;
 flat in uint texId;
 flat in float layerId;
@@ -40,5 +40,5 @@ void main()
         discard;
     }
 
-    FragColor = texColor * ourColor;
+    FragColor = texColor * color;
 }

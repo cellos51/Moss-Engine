@@ -21,6 +21,7 @@ public:
 	Vector2 transform;
 	unsigned int tex;
 	unsigned int layer;
+	unsigned int shader = 0;
 	Vector2 size;
 	float rotation = 0.0f;
 	SDL_Rect offset;

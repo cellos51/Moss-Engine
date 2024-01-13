@@ -10,35 +10,44 @@ layout (location = 8) in int iTexID;
 layout (location = 9) in int iLayerID;
 //layout (location = 10) in int iShadow;
 layout (location = 11) in vec4 iColor;
+layout (location = 12) in int iShader;
 
-//uniform vec4 ambientLight;
 
-out vec4 ourColor;
+uniform float time;
+
+out vec4 color;
 out vec2 TexCoord;
 flat out uint texId;
 flat out float layerId;
 
-//vec2 testThing = vec2(0f, 0f);
+vec2 testThing = vec2(0.5, 0.5);
+
+
 
 void main()
 {
     texId = iTexID;
     layerId = iLayerID;
+    color = vec4(aColor, 1.0f) * iColor;
+    TexCoord = vec2((aTexCoord.x / iTexOffset.z) + iTexOffset.x, (aTexCoord.y / iTexOffset.w) + iTexOffset.y);
     gl_Position = iPosOffset * vec4(aPos.xy, 1 - iLayerID, 1.0f); 
 
-    // if (iLayerID > 1)
-    // {
-    //    float amount = clamp(1 - length((gl_Position.xy - testThing) * 3), 0.1f, 5.0f) * 2; //cool lighting stuff idk
-    //     ourColor = vec4(amount, amount, amount, 1.0f); 
-    // }
-    // else
-    // {
-    //    ourColor = vec4(aColor - 0.1f, 1.0f); 
-    // }  
+    if (iShader == 1 && (gl_VertexID == 0 || gl_VertexID == 3))
+    {
+        float deformPoint = (1 - clamp((gl_Position.x * gl_Position.x * 256), 0.0, 1.0)) * (1 - clamp((gl_Position.y * gl_Position.y * 256), 0.0, 1.0)); // walk on grass, grass go down. (this makes me angry)
 
-    //ourColor = vec4(aColor, 1.0f) * ambientLight;
+        float timeOffset = time + ((gl_Position.x + gl_Position.y) * 2000);
 
-    ourColor = vec4(aColor, 1.0f) * iColor;
+        vec2 positionOffset = vec2((sin(timeOffset / 800) / 2), (sin(timeOffset / 1000) / 4) - deformPoint);
 
-    TexCoord = vec2((aTexCoord.x / iTexOffset.z) + iTexOffset.x, (aTexCoord.y / iTexOffset.w) + iTexOffset.y);
+
+        gl_Position = iPosOffset * vec4(aPos.xy + positionOffset, 1 - iLayerID, 1.0f);    
+        color = vec4(aColor, 1.0f) * vec4(0.5f, 0.5f, 0.0f, 0.0f) * (sin(timeOffset / 800) + 1);
+    }
+    else if (iShader == 2)
+    {
+        float timeOffset = time + ((gl_Position.x * 25000) + (gl_Position.y * 500));
+
+        gl_Position = iPosOffset * vec4(aPos.xy + vec2(sin(timeOffset / 500) / 8, sin(timeOffset / 1000) / 8), 1 - iLayerID, 1.0f); 
+    }
 }

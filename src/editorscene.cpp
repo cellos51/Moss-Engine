@@ -526,6 +526,15 @@ void EditorScene::update()
 				}
 				if (obstructed == false)
 				{
+					if (tile.texturePos.x == 64 && tile.texturePos.y == 96) // if tile grass (for waving shader)
+					{
+						tile.shader = 1;
+					}
+					else if (tile.texturePos.x == 0 && (tile.texturePos.y == 0 || tile.texturePos.y == 32) )
+					{
+						tile.shader = 2;
+					}
+
 					level.tiles.push_back(tile);
 				}
 			}
