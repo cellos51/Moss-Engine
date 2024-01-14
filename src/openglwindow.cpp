@@ -26,7 +26,6 @@ Shader framebufferShader("assets/shaders/framebuffer.vert", "assets/shaders/fram
 Shader defaultShader("assets/shaders/shader.vert", "assets/shaders/shader.frag");
 Shader shadowShader("assets/shaders/shadowshader.vert", "assets/shaders/shadowshader.frag");
 Shader lightShader("assets/shaders/lightshader.vert", "assets/shaders/lightshader.frag");
-Shader luminosityShader("assets/shaders/luminosity.vert", "assets/shaders/luminosity.frag");
 
 int textureUnits[16] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
 
@@ -78,7 +77,6 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
 	defaultShader.compile();
 	shadowShader.compile();
 	lightShader.compile();
-	luminosityShader.compile();
 
 	int glConsts;
 	
@@ -124,7 +122,7 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
-    glGenBuffers(8, IVBO); 
+    glGenBuffers(1, &IVBO); 
 
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 
@@ -222,65 +220,55 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
 	glVertexAttribIPointer(3, 1, GL_UNSIGNED_BYTE, GL_FALSE, (void*)(8 * sizeof(bool)));
 	glEnableVertexAttribArray(3);  
 
-	// position buffer
-	glBindBuffer(GL_ARRAY_BUFFER, IVBO[0]);
+	// position
+	glBindBuffer(GL_ARRAY_BUFFER, IVBO);
 	glEnableVertexAttribArray(3);
 	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
 	glEnableVertexAttribArray(4);
 	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)(sizeof(glm::vec4)));
 	glEnableVertexAttribArray(5);
-	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)(2 * sizeof(glm::vec4)));
+	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)(sizeof(glm::vec4) * 2));
 	glEnableVertexAttribArray(6);
-	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)(3 * sizeof(glm::vec4)));
+	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)(sizeof(glm::vec4) * 3));
 	glVertexAttribDivisor(3, 1);
 	glVertexAttribDivisor(4, 1);
 	glVertexAttribDivisor(5, 1);
 	glVertexAttribDivisor(6, 1);
 
-	// texture position buffer
-	glBindBuffer(GL_ARRAY_BUFFER, IVBO[1]);
+	// texture
 	glEnableVertexAttribArray(7);
-	glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
+	glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)(sizeof(glm::vec4) * 4));
 	glVertexAttribDivisor(7, 1);
 
-	// texture buffer
-	glBindBuffer(GL_ARRAY_BUFFER, IVBO[2]);
+	// luminosity
 	glEnableVertexAttribArray(8);
-	glVertexAttribPointer(8, 1, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
+	glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)(sizeof(glm::vec4) * 5));
 	glVertexAttribDivisor(8, 1);
 
-	// layer buffer
-	glBindBuffer(GL_ARRAY_BUFFER, IVBO[3]);
+	// color
 	glEnableVertexAttribArray(9);
-	glVertexAttribPointer(9, 1, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
+	glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)(sizeof(glm::vec4) * 6));
 	glVertexAttribDivisor(9, 1);
 
-	// luminosity buffer
-	glBindBuffer(GL_ARRAY_BUFFER, IVBO[4]);
+	// position
 	glEnableVertexAttribArray(10);
-	glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
+	glVertexAttribPointer(10, 2, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)(sizeof(glm::vec4) * 7));
 	glVertexAttribDivisor(10, 1);
 
-	// color buffer
-	glBindBuffer(GL_ARRAY_BUFFER, IVBO[5]);
+	// textureIndex
 	glEnableVertexAttribArray(11);
-	glVertexAttribPointer(11, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
+	glVertexAttribPointer(11, 1, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)((sizeof(glm::vec4) * 7) + sizeof(glm::vec2)));
 	glVertexAttribDivisor(11, 1);
 
-	// shader type buffer
-	glBindBuffer(GL_ARRAY_BUFFER, IVBO[6]);
+	// layerIndex
 	glEnableVertexAttribArray(12);
-	glVertexAttribPointer(12, 1, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
+	glVertexAttribPointer(12, 1, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)((sizeof(glm::vec4) * 7) + sizeof(glm::vec2) + sizeof(unsigned int)));
 	glVertexAttribDivisor(12, 1);
 
-	// global position buffer
-	glBindBuffer(GL_ARRAY_BUFFER, IVBO[7]);
+	// shaderIndex
 	glEnableVertexAttribArray(13);
-	glVertexAttribPointer(13, 2, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
+	glVertexAttribPointer(13, 1, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)((sizeof(glm::vec4) * 7) + sizeof(glm::vec2) + (sizeof(unsigned int) * 2)));
 	glVertexAttribDivisor(13, 1);
-
-	// unbind buffers
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     screenSize = getSize();
 
@@ -601,40 +589,7 @@ void OpenGLWindow::display() // used to display information from the renderer to
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 	glEnable(GL_DEPTH_TEST);
  	
- 	// position buffer
-	glBindBuffer(GL_ARRAY_BUFFER, IVBO[0]);
-	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].transform, GL_STREAM_DRAW);
-
-    // texture position buffer
-    glBindBuffer(GL_ARRAY_BUFFER, IVBO[1]);
-	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].textureCoordinates, GL_STREAM_DRAW);
-
-    // texture buffer
-    glBindBuffer(GL_ARRAY_BUFFER, IVBO[2]);
-	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].textureIndex, GL_STREAM_DRAW);
-
-    // layer buffer
-    glBindBuffer(GL_ARRAY_BUFFER, IVBO[3]);
-    glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].layerIndex, GL_STREAM_DRAW);
-
-    // luminosity buffer
-    glBindBuffer(GL_ARRAY_BUFFER, IVBO[4]);
-	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].luminosity, GL_STREAM_DRAW);
-
-	// color buffer
-	glBindBuffer(GL_ARRAY_BUFFER, IVBO[5]);
-	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].color, GL_STREAM_DRAW);
-
-	// shader type buffer
-	glBindBuffer(GL_ARRAY_BUFFER, IVBO[6]);
-	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].shaderIndex, GL_STREAM_DRAW);
-
-	// global position buffer
-	glBindBuffer(GL_ARRAY_BUFFER, IVBO[7]);
-	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].position, GL_STREAM_DRAW);
-
-    // unbind buffers
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0], GL_STREAM_DRAW);
 
 	defaultShader.use();
 

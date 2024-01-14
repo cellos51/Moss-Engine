@@ -50,7 +50,7 @@ private:
 	unsigned int RBO;
 	unsigned int FBOTex;
 	unsigned int FBOBlur;
-	unsigned int FBO, VAO, VBO, EBO, IVBO[8];
+	unsigned int FBO, VAO, VBO, EBO, IVBO;
 };
 
 extern OpenGLWindow window;

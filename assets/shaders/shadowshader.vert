@@ -4,11 +4,14 @@ layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aColor;
 layout (location = 2) in vec2 aTexCoord;
 
-layout (location = 3) in mat4 iPosOffset;
-layout (location = 7) in vec4 iTexOffset;
-layout (location = 8) in int iTexID;
-layout (location = 9) in int iLayerID;
-layout (location = 10) in vec4 iShadow;
+layout (location = 3) in mat4 iTransform;
+layout (location = 7) in vec4 iTextureCoordinates;
+layout (location = 8) in vec4 iLuminosity;
+layout (location = 9) in vec4 iColor;
+layout (location = 10) in vec2 iPosition;
+layout (location = 11) in int iTextureIndex;
+layout (location = 12) in int iLayerIndex;
+layout (location = 13) in int iShaderIndex;
 
 uniform mat4 lightMatrix;
 uniform int currentLayer;
@@ -22,7 +25,7 @@ vec2 posL = vec2(0,0);
 
 void main()
 {
-    if(iLayerID == currentLayer && iShadow.w > 0)
+    if(iLayerIndex == currentLayer && iLuminosity.w > 0)
     {
         draw = 0;
 
@@ -30,7 +33,7 @@ void main()
 
         if (gl_VertexID == 1 || gl_VertexID == 0) //  this shit is slow as hell and needs to be remade 💀
         {
-            if ((iPosOffset * vec4(aPos.x, aPos.y, aPos.z,  1.0f)).x >= lightPos.x && (iPosOffset * vec4(aPos.x, 1.0f, aPos.z,  1.0f)).y >= lightPos.y || (iPosOffset * vec4(-aPos.x, aPos.y, aPos.z,  1.0f)).x > lightPos.x)
+            if ((iTransform * vec4(aPos.x, aPos.y, aPos.z,  1.0f)).x >= lightPos.x && (iTransform * vec4(aPos.x, 1.0f, aPos.z,  1.0f)).y >= lightPos.y || (iTransform * vec4(-aPos.x, aPos.y, aPos.z,  1.0f)).x > lightPos.x)
             {
                 posR.y = -1.0f;
             }
@@ -39,7 +42,7 @@ void main()
                 posR.y = 1.0f;
             }
 
-            if ((iPosOffset * vec4(aPos.x, posR.y, aPos.z,  1.0f)).y >= lightPos.y)
+            if ((iTransform * vec4(aPos.x, posR.y, aPos.z,  1.0f)).y >= lightPos.y)
             {
                 posR.x = 1.0f;
             }
@@ -50,7 +53,7 @@ void main()
         }
         else if (gl_VertexID == 2 || gl_VertexID == 3)
         {
-            if ((iPosOffset * vec4(aPos.x, aPos.y, aPos.z,  1.0f)).x <= lightPos.x  && (iPosOffset * vec4(aPos.x, 1.0f, aPos.z,  1.0f)).y >= lightPos.y || (iPosOffset * vec4(-aPos.x, aPos.y, aPos.z,  1.0f)).x < lightPos.x)
+            if ((iTransform * vec4(aPos.x, aPos.y, aPos.z,  1.0f)).x <= lightPos.x  && (iTransform * vec4(aPos.x, 1.0f, aPos.z,  1.0f)).y >= lightPos.y || (iTransform * vec4(-aPos.x, aPos.y, aPos.z,  1.0f)).x < lightPos.x)
             {
                 posL.y = -1.0f;
             }
@@ -59,7 +62,7 @@ void main()
                 posL.y = 1.0f;
             }
 
-            if ((iPosOffset * vec4(aPos.x, posL.y, aPos.z,  1.0f)).y <= lightPos.y)
+            if ((iTransform * vec4(aPos.x, posL.y, aPos.z,  1.0f)).y <= lightPos.y)
             {
                 posL.x = 1.0f;
             }
@@ -71,19 +74,19 @@ void main()
 
         if (gl_VertexID == 0)
         {
-            gl_Position = vec4((iPosOffset * vec4(posR.x, posR.y, aPos.z,  1.0f)).xy - lightPos, 0, 0);
+            gl_Position = vec4((iTransform * vec4(posR.x, posR.y, aPos.z,  1.0f)).xy - lightPos, 0, 0);
         }
         else if (gl_VertexID == 3)
         {
-            gl_Position = vec4((iPosOffset * vec4(posL.x, posL.y, aPos.z,  1.0f)).xy - lightPos, 0, 0);
+            gl_Position = vec4((iTransform * vec4(posL.x, posL.y, aPos.z,  1.0f)).xy - lightPos, 0, 0);
         }
         else if (gl_VertexID == 1)
         {
-            gl_Position = iPosOffset * vec4(posR.x, posR.y, aPos.z,  1.0f);
+            gl_Position = iTransform * vec4(posR.x, posR.y, aPos.z,  1.0f);
         }
         else if (gl_VertexID == 2)
         {
-            gl_Position = iPosOffset * vec4(posL.x, posL.y, aPos.z,  1.0f);
+            gl_Position = iTransform * vec4(posL.x, posL.y, aPos.z,  1.0f);
         }
     }
     else
