@@ -128,6 +128,9 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
 
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 
+	GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+	glDrawBuffers(2, drawBuffers);
+
     glActiveTexture(GL_TEXTURE0 + FBOTex);
     glBindTexture(GL_TEXTURE_2D, FBOTex);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -136,6 +139,15 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, p_w, p_h, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, FBOTex, 0); 
+
+	glActiveTexture(GL_TEXTURE1 + FBOLightTex);
+	glBindTexture(GL_TEXTURE_2D, FBOLightTex);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, p_w, p_h, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, FBOLightTex, 0);
 	
 	glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -210,8 +222,65 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
 	glVertexAttribIPointer(3, 1, GL_UNSIGNED_BYTE, GL_FALSE, (void*)(8 * sizeof(bool)));
 	glEnableVertexAttribArray(3);  
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0); 
-    glBindVertexArray(0);
+	// position buffer
+	glBindBuffer(GL_ARRAY_BUFFER, IVBO[0]);
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)(sizeof(glm::vec4)));
+	glEnableVertexAttribArray(5);
+	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)(2 * sizeof(glm::vec4)));
+	glEnableVertexAttribArray(6);
+	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)(3 * sizeof(glm::vec4)));
+	glVertexAttribDivisor(3, 1);
+	glVertexAttribDivisor(4, 1);
+	glVertexAttribDivisor(5, 1);
+	glVertexAttribDivisor(6, 1);
+
+	// texture position buffer
+	glBindBuffer(GL_ARRAY_BUFFER, IVBO[1]);
+	glEnableVertexAttribArray(7);
+	glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
+	glVertexAttribDivisor(7, 1);
+
+	// texture buffer
+	glBindBuffer(GL_ARRAY_BUFFER, IVBO[2]);
+	glEnableVertexAttribArray(8);
+	glVertexAttribPointer(8, 1, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
+	glVertexAttribDivisor(8, 1);
+
+	// layer buffer
+	glBindBuffer(GL_ARRAY_BUFFER, IVBO[3]);
+	glEnableVertexAttribArray(9);
+	glVertexAttribPointer(9, 1, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
+	glVertexAttribDivisor(9, 1);
+
+	// luminosity buffer
+	glBindBuffer(GL_ARRAY_BUFFER, IVBO[4]);
+	glEnableVertexAttribArray(10);
+	glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
+	glVertexAttribDivisor(10, 1);
+
+	// color buffer
+	glBindBuffer(GL_ARRAY_BUFFER, IVBO[5]);
+	glEnableVertexAttribArray(11);
+	glVertexAttribPointer(11, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
+	glVertexAttribDivisor(11, 1);
+
+	// shader type buffer
+	glBindBuffer(GL_ARRAY_BUFFER, IVBO[6]);
+	glEnableVertexAttribArray(12);
+	glVertexAttribPointer(12, 1, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
+	glVertexAttribDivisor(12, 1);
+
+	// global position buffer
+	glBindBuffer(GL_ARRAY_BUFFER, IVBO[7]);
+	glEnableVertexAttribArray(13);
+	glVertexAttribPointer(13, 2, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
+	glVertexAttribDivisor(13, 1);
+
+	// unbind buffers
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     screenSize = getSize();
 
@@ -531,77 +600,38 @@ void OpenGLWindow::display() // used to display information from the renderer to
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 	glEnable(GL_DEPTH_TEST);
-
-	glBindVertexArray(VAO);
-
-	//glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
-
-	//glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
  	
  	// position buffer
 	glBindBuffer(GL_ARRAY_BUFFER, IVBO[0]);
-	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].transform, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
-    glEnableVertexAttribArray(4);
-   	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)(sizeof(glm::vec4)));
-    glEnableVertexAttribArray(5);
-    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)(2 * sizeof(glm::vec4)));
-    glEnableVertexAttribArray(6);
-    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)(3 * sizeof(glm::vec4)));
-    glVertexAttribDivisor(3, 1);
-    glVertexAttribDivisor(4, 1);
-    glVertexAttribDivisor(5, 1);
-    glVertexAttribDivisor(6, 1);
+	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].transform, GL_STREAM_DRAW);
 
     // texture position buffer
     glBindBuffer(GL_ARRAY_BUFFER, IVBO[1]);
-	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].textureCoordinates, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(7);
-    glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
-    glVertexAttribDivisor(7, 1);
+	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].textureCoordinates, GL_STREAM_DRAW);
 
     // texture buffer
     glBindBuffer(GL_ARRAY_BUFFER, IVBO[2]);
-	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].textureIndex, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(8);
-    glVertexAttribPointer(8, 1, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
-    glVertexAttribDivisor(8, 1);
+	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].textureIndex, GL_STREAM_DRAW);
 
     // layer buffer
     glBindBuffer(GL_ARRAY_BUFFER, IVBO[3]);
-    glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].layerIndex, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(9);
-    glVertexAttribPointer(9, 1, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
-    glVertexAttribDivisor(9, 1);
+    glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].layerIndex, GL_STREAM_DRAW);
 
     // luminosity buffer
     glBindBuffer(GL_ARRAY_BUFFER, IVBO[4]);
-	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].luminosity, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(10);
-    glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
-    glVertexAttribDivisor(10, 1);
+	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].luminosity, GL_STREAM_DRAW);
 
 	// color buffer
 	glBindBuffer(GL_ARRAY_BUFFER, IVBO[5]);
-	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].color, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(11);
-	glVertexAttribPointer(11, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
-	glVertexAttribDivisor(11, 1);
+	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].color, GL_STREAM_DRAW);
 
 	// shader type buffer
 	glBindBuffer(GL_ARRAY_BUFFER, IVBO[6]);
-	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].shaderIndex, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(12);
-	glVertexAttribPointer(12, 1, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
-	glVertexAttribDivisor(12, 1);
+	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].shaderIndex, GL_STREAM_DRAW);
 
 	// global position buffer
 	glBindBuffer(GL_ARRAY_BUFFER, IVBO[7]);
-	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].position, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(13);
-	glVertexAttribPointer(13, 2, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
-	glVertexAttribDivisor(13, 1);
+	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].position, GL_STREAM_DRAW);
 
     // unbind buffers
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -615,17 +645,10 @@ void OpenGLWindow::display() // used to display information from the renderer to
 	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, FBOLight);
-	luminosityShader.use();
-	luminosityShader.setIntArray("ourTexture", 16, textureUnits); 
-	glClear(GL_DEPTH_BUFFER_BIT);
-
-	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
-
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 	for (int i = 0; i < lightCount; i++)
 	{
-		//glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 		glDepthMask(GL_FALSE);
 
 		glClear(GL_STENCIL_BUFFER_BIT);
@@ -634,32 +657,23 @@ void OpenGLWindow::display() // used to display information from the renderer to
 		glStencilFunc( GL_ALWAYS, 1, 0xFF );
 
 		shadowShader.use();
-
 		shadowShader.setMat4("lightMatrix", lightData[i].emissionCenter);
-
 		shadowShader.setInt("currentLayer", lightData[i].layerIndex);
 
 		glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
-
-		//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
 		glStencilOp( GL_KEEP, GL_KEEP, GL_KEEP );
 		glStencilFunc( GL_NOTEQUAL, 1, 0xFF );
 
 		lightShader.use();
-
 		lightShader.setInt("layerId", lightData[i].layerIndex);
-
 		lightShader.setVec2("shape", lightData[i].shape);
-
 		lightShader.setMat4("lightPos", lightData[i].transform);
-
 		lightShader.setVec4("lightColor", lightData[i].color);
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		glDepthMask(GL_TRUE);
-
 		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 		glStencilFunc(GL_ALWAYS, 1, 0xFF);
 	}

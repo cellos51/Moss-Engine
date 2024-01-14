@@ -1,8 +1,10 @@
 #version 460 core
 
-out vec4 FragColor;
+layout(location = 0) out vec4 FragColor;
+layout(location = 1) out vec4 LumenColor;
 
 in vec4 color;
+in vec3 lumen;
 in vec2 TexCoord;
 flat in uint texId;
 flat in float layerId;
@@ -41,4 +43,5 @@ void main()
     }
 
     FragColor = texColor * color;
+    LumenColor = vec4(lumen, 1.0f) * texColor;
 }

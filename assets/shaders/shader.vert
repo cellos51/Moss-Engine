@@ -8,7 +8,7 @@ layout (location = 3) in mat4 iPosOffset;
 layout (location = 7) in vec4 iTexOffset;
 layout (location = 8) in int iTexID;
 layout (location = 9) in int iLayerID;
-//layout (location = 10) in int iShadow;
+layout (location = 10) in vec4 iLumenocity;
 layout (location = 11) in vec4 iColor;
 layout (location = 12) in int iShader;
 layout (location = 13) in vec2 iPosition;
@@ -16,6 +16,7 @@ layout (location = 13) in vec2 iPosition;
 uniform float time;
 
 out vec4 color;
+out vec3 lumen;
 out vec2 TexCoord;
 flat out uint texId;
 flat out float layerId;
@@ -27,6 +28,7 @@ void main()
     texId = iTexID;
     layerId = iLayerID;
     color = vec4(aColor, 1.0f) * iColor;
+    lumen = iLumenocity.xyz;
     TexCoord = vec2((aTexCoord.x / iTexOffset.z) + iTexOffset.x, (aTexCoord.y / iTexOffset.w) + iTexOffset.y);
     gl_Position = iPosOffset * vec4(aPos.xy, 1 - iLayerID, 1.0f); 
 
