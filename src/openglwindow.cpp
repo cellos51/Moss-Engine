@@ -38,7 +38,7 @@ int entityCount = 0;
 
 EntityGPUData entityData[maxEntities];
 
-const unsigned int maxLights = 1023; // begin stuff for lights
+const unsigned int maxLights = 1024; // begin stuff for lights
 
 int lightCount = 0; 
 
@@ -365,6 +365,7 @@ void OpenGLWindow::render(Entity& p_ent, bool cam) // i think this copies the te
 		transform = glm::rotate(transform, std::rad2deg(p_ent.rotation), glm::vec3(0.0f, 0.0f, 1.0f));
 
 		entityData[entityCount].transform = transform;
+		entityData[entityCount].position = glm::vec2(p_ent.transform.x, p_ent.transform.y);
 		entityData[entityCount].textureCoordinates = glm::vec4(p_ent.texturePos.x / TextureSize[p_ent.tex].x,p_ent.texturePos.y / TextureSize[p_ent.tex].y, TextureSize[p_ent.tex].x / p_ent.texturePos.w, TextureSize[p_ent.tex].y / p_ent.texturePos.h);
 		entityData[entityCount].textureIndex = p_ent.tex;
 		entityData[entityCount].layerIndex = p_ent.layer;
@@ -395,6 +396,7 @@ void OpenGLWindow::render(Entity& p_ent, bool cam) // i think this copies the te
 		transform = glm::rotate(transform, std::rad2deg(p_ent.rotation), glm::vec3(0.0f, 0.0f, 1.0f));
 
 		entityData[entityCount].transform = transform;
+		entityData[entityCount].position = glm::vec2(p_ent.transform.x, p_ent.transform.y);
 		entityData[entityCount].textureCoordinates = glm::vec4(p_ent.texturePos.x / TextureSize[p_ent.tex].x, p_ent.texturePos.y / TextureSize[p_ent.tex].y, TextureSize[p_ent.tex].x / p_ent.texturePos.w, TextureSize[p_ent.tex].y / p_ent.texturePos.h);
 		entityData[entityCount].textureIndex = p_ent.tex;
 		entityData[entityCount].layerIndex = p_ent.layer;
@@ -437,6 +439,7 @@ void OpenGLWindow::render(ui::Slider& p_ui) // i have no fucking clue if this wi
 	transform = glm::translate(transform, glm::vec3(((((p_ui.transform.x) + p_ui.size.x / 2) - getSize().x / 2)) / (p_ui.size.x / 2), -((((p_ui.transform.y) + p_ui.size.y / 2) - getSize().y / 2)) / (p_ui.size.y / 2), 0));
 
 	entityData[entityCount].transform = transform;
+	entityData[entityCount].position = glm::vec2(p_ui.transform.x, p_ui.transform.y);
 	entityData[entityCount].textureCoordinates = glm::vec4(p_ui.texturePos.x / TextureSize[p_ui.tex].x, p_ui.texturePos.y / TextureSize[p_ui.tex].y, TextureSize[p_ui.tex].x / p_ui.texturePos.w, TextureSize[p_ui.tex].y / p_ui.texturePos.h);
 	entityData[entityCount].textureIndex = p_ui.tex;
 	entityData[entityCount].layerIndex = p_ui.layer;
@@ -470,6 +473,7 @@ void OpenGLWindow::render(ui& p_ui) // i think this copys the texture to the ren
 	transform = glm::translate(transform, glm::vec3(((((p_ui.transform.x) + p_ui.size.x / 2) - getSize().x / 2)) / (p_ui.size.x / 2), -((((p_ui.transform.y) + p_ui.size.y / 2) - getSize().y / 2)) / (p_ui.size.y / 2), 0)); 
 
 	entityData[entityCount].transform = transform;
+	entityData[entityCount].position = glm::vec2(p_ui.transform.x, p_ui.transform.y);
 	entityData[entityCount].textureCoordinates = glm::vec4(p_ui.texturePos.x / TextureSize[p_ui.tex].x, p_ui.texturePos.y / TextureSize[p_ui.tex].y, TextureSize[p_ui.tex].x / p_ui.texturePos.w, TextureSize[p_ui.tex].y / p_ui.texturePos.h);
 	entityData[entityCount].textureIndex = p_ui.tex;
 	entityData[entityCount].layerIndex = p_ui.layer;
@@ -537,7 +541,6 @@ void OpenGLWindow::display() // used to display information from the renderer to
  	// position buffer
 	glBindBuffer(GL_ARRAY_BUFFER, IVBO[0]);
 	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].transform, GL_STATIC_DRAW);
-
 	glEnableVertexAttribArray(3);
     glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
     glEnableVertexAttribArray(4);
@@ -546,7 +549,6 @@ void OpenGLWindow::display() // used to display information from the renderer to
     glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)(2 * sizeof(glm::vec4)));
     glEnableVertexAttribArray(6);
     glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)(3 * sizeof(glm::vec4)));
-
     glVertexAttribDivisor(3, 1);
     glVertexAttribDivisor(4, 1);
     glVertexAttribDivisor(5, 1);
@@ -555,56 +557,51 @@ void OpenGLWindow::display() // used to display information from the renderer to
     // texture position buffer
     glBindBuffer(GL_ARRAY_BUFFER, IVBO[1]);
 	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].textureCoordinates, GL_STATIC_DRAW);
-
 	glEnableVertexAttribArray(7);
     glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
-
     glVertexAttribDivisor(7, 1);
 
     // texture buffer
     glBindBuffer(GL_ARRAY_BUFFER, IVBO[2]);
 	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].textureIndex, GL_STATIC_DRAW);
-
 	glEnableVertexAttribArray(8);
     glVertexAttribPointer(8, 1, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
-
     glVertexAttribDivisor(8, 1);
 
     // layer buffer
     glBindBuffer(GL_ARRAY_BUFFER, IVBO[3]);
     glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].layerIndex, GL_STATIC_DRAW);
-
 	glEnableVertexAttribArray(9);
     glVertexAttribPointer(9, 1, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
-
     glVertexAttribDivisor(9, 1);
 
     // luminosity buffer
     glBindBuffer(GL_ARRAY_BUFFER, IVBO[4]);
 	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].luminosity, GL_STATIC_DRAW);
-
 	glEnableVertexAttribArray(10);
     glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
-
     glVertexAttribDivisor(10, 1);
 
 	// color buffer
 	glBindBuffer(GL_ARRAY_BUFFER, IVBO[5]);
 	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].color, GL_STATIC_DRAW);
-
 	glEnableVertexAttribArray(11);
 	glVertexAttribPointer(11, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
-
 	glVertexAttribDivisor(11, 1);
 
 	// shader type buffer
 	glBindBuffer(GL_ARRAY_BUFFER, IVBO[6]);
 	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].shaderIndex, GL_STATIC_DRAW);
-
 	glEnableVertexAttribArray(12);
 	glVertexAttribPointer(12, 1, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
-
 	glVertexAttribDivisor(12, 1);
+
+	// global position buffer
+	glBindBuffer(GL_ARRAY_BUFFER, IVBO[7]);
+	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0].position, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(13);
+	glVertexAttribPointer(13, 2, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
+	glVertexAttribDivisor(13, 1);
 
     // unbind buffers
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -613,6 +610,7 @@ void OpenGLWindow::display() // used to display information from the renderer to
 
 	defaultShader.setIntArray("ourTexture", 16, textureUnits);  
 	defaultShader.setFloat("time", SDL_GetTicks());
+	defaultShader.setVec2("grassDeform", grassDeform.x, grassDeform.y);
 
 	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
 

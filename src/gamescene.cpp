@@ -52,6 +52,8 @@ void GameScene::update()
 	playerLight.transform = Vector2(player.transform.x + player.size.x / 2, player.transform.y + player.size.y / 2);
 
 	window.camera(Vector2(player.transform.x + player.size.x / 2, (player.transform.y + player.size.y / 2) - 32));
+
+	window.grassDeform = Vector2(player.transform.x, player.transform.y + 4);
 }
 void GameScene::fixedUpdate()
 {

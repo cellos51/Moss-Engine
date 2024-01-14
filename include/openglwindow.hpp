@@ -35,6 +35,7 @@ public:
 	std::map<unsigned int, Vector2> TextureSize;
 	Vector2 clampAmount = Vector2(0,0);
 	float lerpAmount = 0;
+	Vector2 grassDeform = Vector2(0, 0); // temp variable until i figure out something better
 private:
 	Vector2 cameraOffset = Vector2(0,0);
 	SDL_Window* window;
@@ -60,6 +61,7 @@ struct EntityGPUData
 	glm::vec4 textureCoordinates;
 	glm::vec4 luminosity;
 	glm::vec4 color;
+	glm::vec2 position;
 	unsigned int textureIndex;
 	unsigned int layerIndex;
 	unsigned int shaderIndex;
