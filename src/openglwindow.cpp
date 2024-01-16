@@ -34,17 +34,21 @@ unsigned int newestTexture = 0;
 
 const unsigned int maxEntities = 16383; // begin stuff for entities
 
-int entityCount = 0; 
+unsigned int entityCount = 0;
 
 EntityGPUData entityData[maxEntities];
 
 const unsigned int maxLights = 1024; // begin stuff for lights
 
-int lightCount = 0; 
+unsigned int lightCount = 0;
 
-LightGPUData lightData[maxEntities];
+LightGPUData lightData[maxLights];
 
-std::map<unsigned int,std::vector<int>> TexturesToRender; // this does NOTHING but i see where this dude was coming from. ( past me made this :O )
+const unsigned int maxUIObjects = 1024; // begin stuff for ui
+
+unsigned int uiObjectCount = 0;
+
+EntityGPUData uiData[maxUIObjects];
 
 void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
 {
@@ -367,6 +371,7 @@ void OpenGLWindow::clear() // clears the renderer
 {
 	entityCount = 0;
 	lightCount = 0;
+	uiObjectCount = 0;
 
 	if (screenSize.x != getSize().x || screenSize.y != getSize().y)
 	{
@@ -434,21 +439,9 @@ void OpenGLWindow::render(Entity& p_ent, bool cam) // i think this copies the te
 		entityData[entityCount].color = glm::vec4(p_ent.color.r, p_ent.color.g, p_ent.color.b, p_ent.color.a);
 		entityData[entityCount].shaderIndex = p_ent.shader;
 
-		if (TexturesToRender.find(p_ent.layer) == TexturesToRender.end())
-		{
-			std::vector<int> newVector;
-			TexturesToRender.insert(std::pair<unsigned int,std::vector<int>>(p_ent.layer, newVector));
-		}
-
-		if (std::find(TexturesToRender[p_ent.layer].begin(), TexturesToRender[p_ent.layer].end(), p_ent.tex) == TexturesToRender[p_ent.layer].end())
-		{
-			TexturesToRender[p_ent.layer].push_back(p_ent.tex);
-		}
-
-
 		entityCount++;
 	}
-	else if (cam == false && entityCount < maxEntities)
+	else if (cam == false && uiObjectCount < maxUIObjects)
 	{
 		glm::mat4 transform = glm::mat4(1.0f);
 
@@ -456,28 +449,16 @@ void OpenGLWindow::render(Entity& p_ent, bool cam) // i think this copies the te
 		transform = glm::translate(transform, glm::vec3(((((p_ent.offset.x + round(p_ent.transform.x)) + p_ent.offset.w / 2) - getSize().x / 2)) / (p_ent.offset.w / 2), -((((p_ent.offset.y + round(p_ent.transform.y)) + p_ent.offset.h / 2) - getSize().y / 2)) / (p_ent.offset.h / 2), 0));
 		transform = glm::rotate(transform, std::rad2deg(p_ent.rotation), glm::vec3(0.0f, 0.0f, 1.0f));
 
-		entityData[entityCount].transform = transform;
-		entityData[entityCount].position = glm::vec2(p_ent.transform.x, p_ent.transform.y);
-		entityData[entityCount].textureCoordinates = glm::vec4(p_ent.texturePos.x / TextureSize[p_ent.tex].x, p_ent.texturePos.y / TextureSize[p_ent.tex].y, TextureSize[p_ent.tex].x / p_ent.texturePos.w, TextureSize[p_ent.tex].y / p_ent.texturePos.h);
-		entityData[entityCount].textureIndex = p_ent.tex;
-		entityData[entityCount].layerIndex = p_ent.layer;
-		entityData[entityCount].luminosity = glm::vec4(p_ent.luminosity.r, p_ent.luminosity.g, p_ent.luminosity.b, p_ent.luminosity.a);
-		entityData[entityCount].color = glm::vec4(p_ent.color.r, p_ent.color.g, p_ent.color.b, p_ent.color.a);
-		entityData[entityCount].shaderIndex = p_ent.shader;
+		uiData[uiObjectCount].transform = transform;
+		uiData[uiObjectCount].position = glm::vec2(p_ent.transform.x, p_ent.transform.y);
+		uiData[uiObjectCount].textureCoordinates = glm::vec4(p_ent.texturePos.x / TextureSize[p_ent.tex].x, p_ent.texturePos.y / TextureSize[p_ent.tex].y, TextureSize[p_ent.tex].x / p_ent.texturePos.w, TextureSize[p_ent.tex].y / p_ent.texturePos.h);
+		uiData[uiObjectCount].textureIndex = p_ent.tex;
+		uiData[uiObjectCount].layerIndex = p_ent.layer;
+		uiData[uiObjectCount].luminosity = glm::vec4(p_ent.luminosity.r, p_ent.luminosity.g, p_ent.luminosity.b, p_ent.luminosity.a);
+		uiData[uiObjectCount].color = glm::vec4(p_ent.color.r, p_ent.color.g, p_ent.color.b, p_ent.color.a);
+		uiData[uiObjectCount].shaderIndex = p_ent.shader;
 
-		if (TexturesToRender.find(p_ent.layer) == TexturesToRender.end())
-		{
-			std::vector<int> newVector;
-			TexturesToRender.insert(std::pair<unsigned int,std::vector<int>>(p_ent.layer, newVector));
-		}
-
-		if (std::find(TexturesToRender[p_ent.layer].begin(), TexturesToRender[p_ent.layer].end(), p_ent.tex) == TexturesToRender[p_ent.layer].end())
-		{
-			TexturesToRender[p_ent.layer].push_back(p_ent.tex);
-		}
-
-
-		entityCount++;
+		uiObjectCount++;
 	}
 }
 
@@ -487,76 +468,96 @@ void OpenGLWindow::render(Text& p_text, bool cam) // i think this copys the text
 	{
 		for (Entity character : p_text.characters)
 		{
-			render(character, cam);
+			//render(character, cam);
+			if (character.intersecting(OnscreenCamera) == true && cam == true && entityCount < maxEntities)
+			{
+				glm::mat4 transform = glm::mat4(1.0f);
+
+				transform = glm::scale(transform, glm::vec3((character.offset.w) / getSize().x, (character.offset.h) / getSize().y, 0));
+				transform = glm::translate(transform, glm::vec3(((((character.offset.x + round(character.transform.x)) + character.offset.w / 2) - getSize().x / 2) - cameraOffset.x) / (character.offset.w / 2), -((((character.offset.y + round(character.transform.y)) + character.offset.h / 2) - getSize().y / 2) - cameraOffset.y) / (character.offset.h / 2), 0));
+				transform = glm::rotate(transform, std::rad2deg(character.rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+
+				entityData[entityCount].transform = transform;
+				entityData[entityCount].position = glm::vec2(character.transform.x, character.transform.y);
+				entityData[entityCount].textureCoordinates = glm::vec4(character.texturePos.x / TextureSize[character.tex].x, character.texturePos.y / TextureSize[character.tex].y, TextureSize[character.tex].x / character.texturePos.w, TextureSize[character.tex].y / character.texturePos.h);
+				entityData[entityCount].textureIndex = character.tex;
+				entityData[entityCount].layerIndex = character.layer;
+				entityData[entityCount].luminosity = glm::vec4(character.luminosity.r, character.luminosity.g, character.luminosity.b, character.luminosity.a);
+				entityData[entityCount].color = glm::vec4(character.color.r, character.color.g, character.color.b, character.color.a);
+				entityData[entityCount].shaderIndex = character.shader;
+
+				entityCount++;
+			}
+			else if (cam == false && uiObjectCount < maxUIObjects)
+			{
+				glm::mat4 transform = glm::mat4(1.0f);
+
+				transform = glm::scale(transform, glm::vec3((character.offset.w) / getSize().x, (character.offset.h) / getSize().y, 0));
+				transform = glm::translate(transform, glm::vec3(((((character.offset.x + round(character.transform.x)) + character.offset.w / 2) - getSize().x / 2)) / (character.offset.w / 2), -((((character.offset.y + round(character.transform.y)) + character.offset.h / 2) - getSize().y / 2)) / (character.offset.h / 2), 0));
+				transform = glm::rotate(transform, std::rad2deg(character.rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+
+				uiData[uiObjectCount].transform = transform;
+				uiData[uiObjectCount].position = glm::vec2(character.transform.x, character.transform.y);
+				uiData[uiObjectCount].textureCoordinates = glm::vec4(character.texturePos.x / TextureSize[character.tex].x, character.texturePos.y / TextureSize[character.tex].y, TextureSize[character.tex].x / character.texturePos.w, TextureSize[character.tex].y / character.texturePos.h);
+				uiData[uiObjectCount].textureIndex = character.tex;
+				uiData[uiObjectCount].layerIndex = character.layer;
+				uiData[uiObjectCount].luminosity = glm::vec4(character.luminosity.r, character.luminosity.g, character.luminosity.b, character.luminosity.a);
+				uiData[uiObjectCount].color = glm::vec4(character.color.r, character.color.g, character.color.b, character.color.a);
+				uiData[uiObjectCount].shaderIndex = character.shader;
+
+				uiObjectCount++;
+			}
 		}
 	}	
 }
 
 void OpenGLWindow::render(ui::Slider& p_ui) // i have no fucking clue if this will work the way i think it will :)
 {
-	glm::mat4 transform = glm::mat4(1.0f);
-
-	transform = glm::scale(transform, glm::vec3((p_ui.size.x) / getSize().x, (p_ui.size.y) / getSize().y, 0));
-	transform = glm::translate(transform, glm::vec3(((((p_ui.transform.x) + p_ui.size.x / 2) - getSize().x / 2)) / (p_ui.size.x / 2), -((((p_ui.transform.y) + p_ui.size.y / 2) - getSize().y / 2)) / (p_ui.size.y / 2), 0));
-
-	entityData[entityCount].transform = transform;
-	entityData[entityCount].position = glm::vec2(p_ui.transform.x, p_ui.transform.y);
-	entityData[entityCount].textureCoordinates = glm::vec4(p_ui.texturePos.x / TextureSize[p_ui.tex].x, p_ui.texturePos.y / TextureSize[p_ui.tex].y, TextureSize[p_ui.tex].x / p_ui.texturePos.w, TextureSize[p_ui.tex].y / p_ui.texturePos.h);
-	entityData[entityCount].textureIndex = p_ui.tex;
-	entityData[entityCount].layerIndex = p_ui.layer;
-	entityData[entityCount].luminosity = glm::vec4(p_ui.luminosity.r, p_ui.luminosity.g, p_ui.luminosity.b, p_ui.luminosity.a);
-	entityData[entityCount].color = glm::vec4(p_ui.color.r, p_ui.color.g, p_ui.color.b, p_ui.color.a);
-	entityData[entityCount].shaderIndex = 0; // for now ui will use default shader
-
-	if (TexturesToRender.find(p_ui.layer) == TexturesToRender.end())
+	if (uiObjectCount < maxUIObjects)
 	{
-		//TexturesToRender.push_back(p_ent.tex);
-		std::vector<int> newVector;
-		TexturesToRender.insert(std::pair<unsigned int, std::vector<int>>(p_ui.layer, newVector));
+		glm::mat4 transform = glm::mat4(1.0f);
+
+		transform = glm::scale(transform, glm::vec3((p_ui.size.x) / getSize().x, (p_ui.size.y) / getSize().y, 0));
+		transform = glm::translate(transform, glm::vec3(((((p_ui.transform.x) + p_ui.size.x / 2) - getSize().x / 2)) / (p_ui.size.x / 2), -((((p_ui.transform.y) + p_ui.size.y / 2) - getSize().y / 2)) / (p_ui.size.y / 2), 0));
+
+		uiData[uiObjectCount].transform = transform;
+		uiData[uiObjectCount].position = glm::vec2(p_ui.transform.x, p_ui.transform.y);
+		uiData[uiObjectCount].textureCoordinates = glm::vec4(p_ui.texturePos.x / TextureSize[p_ui.tex].x, p_ui.texturePos.y / TextureSize[p_ui.tex].y, TextureSize[p_ui.tex].x / p_ui.texturePos.w, TextureSize[p_ui.tex].y / p_ui.texturePos.h);
+		uiData[uiObjectCount].textureIndex = p_ui.tex;
+		uiData[uiObjectCount].layerIndex = p_ui.layer;
+		uiData[uiObjectCount].luminosity = glm::vec4(p_ui.luminosity.r, p_ui.luminosity.g, p_ui.luminosity.b, p_ui.luminosity.a);
+		uiData[uiObjectCount].color = glm::vec4(p_ui.color.r, p_ui.color.g, p_ui.color.b, p_ui.color.a);
+		uiData[uiObjectCount].shaderIndex = 0; // for now ui will use default shader
+
+		uiObjectCount++;
+
+		render(p_ui.uiText, false);
+		render(p_ui.bar, false);
 	}
-
-	if (std::find(TexturesToRender[p_ui.layer].begin(), TexturesToRender[p_ui.layer].end(), p_ui.tex) == TexturesToRender[p_ui.layer].end())
-	{
-		TexturesToRender[p_ui.layer].push_back(p_ui.tex);
-	}
-
-	entityCount++;
-
-	render(p_ui.uiText, false);
-	render(p_ui.bar, false);
 }
 
 void OpenGLWindow::render(ui& p_ui) // i think this copys the texture to the renderer
 {
-	glm::mat4 transform = glm::mat4(1.0f);
-
-	transform = glm::scale(transform, glm::vec3((p_ui.size.x) / getSize().x, (p_ui.size.y) / getSize().y, 0));  
-	transform = glm::translate(transform, glm::vec3(((((p_ui.transform.x) + p_ui.size.x / 2) - getSize().x / 2)) / (p_ui.size.x / 2), -((((p_ui.transform.y) + p_ui.size.y / 2) - getSize().y / 2)) / (p_ui.size.y / 2), 0)); 
-
-	entityData[entityCount].transform = transform;
-	entityData[entityCount].position = glm::vec2(p_ui.transform.x, p_ui.transform.y);
-	entityData[entityCount].textureCoordinates = glm::vec4(p_ui.texturePos.x / TextureSize[p_ui.tex].x, p_ui.texturePos.y / TextureSize[p_ui.tex].y, TextureSize[p_ui.tex].x / p_ui.texturePos.w, TextureSize[p_ui.tex].y / p_ui.texturePos.h);
-	entityData[entityCount].textureIndex = p_ui.tex;
-	entityData[entityCount].layerIndex = p_ui.layer;
-	entityData[entityCount].luminosity = glm::vec4(p_ui.luminosity.r, p_ui.luminosity.g, p_ui.luminosity.b, p_ui.luminosity.a);
-	entityData[entityCount].color = glm::vec4(p_ui.color.r, p_ui.color.g, p_ui.color.b, p_ui.color.a);
-	entityData[entityCount].shaderIndex = 0; // for now ui will use default shader
-
-	if (TexturesToRender.find(p_ui.layer) == TexturesToRender.end())
+	if (uiObjectCount < maxUIObjects)
 	{
-		//TexturesToRender.push_back(p_ent.tex);
-		std::vector<int> newVector;
-		TexturesToRender.insert(std::pair<unsigned int,std::vector<int>>(p_ui.layer, newVector));
-	}
+		glm::mat4 transform = glm::mat4(1.0f);
 
-	if (std::find(TexturesToRender[p_ui.layer].begin(), TexturesToRender[p_ui.layer].end(), p_ui.tex) == TexturesToRender[p_ui.layer].end())
-	{
-		TexturesToRender[p_ui.layer].push_back(p_ui.tex);
-	}
+		transform = glm::scale(transform, glm::vec3((p_ui.size.x) / getSize().x, (p_ui.size.y) / getSize().y, 0));
+		transform = glm::translate(transform, glm::vec3(((((p_ui.transform.x) + p_ui.size.x / 2) - getSize().x / 2)) / (p_ui.size.x / 2), -((((p_ui.transform.y) + p_ui.size.y / 2) - getSize().y / 2)) / (p_ui.size.y / 2), 0));
 
-	entityCount++;
-    
-   	render(p_ui.uiText, false);
+		uiData[uiObjectCount].transform = transform;
+		uiData[uiObjectCount].position = glm::vec2(p_ui.transform.x, p_ui.transform.y);
+		uiData[uiObjectCount].textureCoordinates = glm::vec4(p_ui.texturePos.x / TextureSize[p_ui.tex].x, p_ui.texturePos.y / TextureSize[p_ui.tex].y, TextureSize[p_ui.tex].x / p_ui.texturePos.w, TextureSize[p_ui.tex].y / p_ui.texturePos.h);
+		uiData[uiObjectCount].textureIndex = p_ui.tex;
+		uiData[uiObjectCount].layerIndex = p_ui.layer;
+		uiData[uiObjectCount].luminosity = glm::vec4(p_ui.luminosity.r, p_ui.luminosity.g, p_ui.luminosity.b, p_ui.luminosity.a);
+		uiData[uiObjectCount].color = glm::vec4(p_ui.color.r, p_ui.color.g, p_ui.color.b, p_ui.color.a);
+		uiData[uiObjectCount].shaderIndex = 0; // for now ui will use default shader
+
+		uiObjectCount++;
+
+		render(p_ui.uiText, false);
+	}
 }
 
 void OpenGLWindow::render(Light& p_light) // i think this copys the texture to the renderer
@@ -593,7 +594,6 @@ void OpenGLWindow::display() // used to display information from the renderer to
 	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0], GL_STREAM_DRAW);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-	glEnable(GL_DEPTH_TEST);
 
 	defaultShader.use();
 	defaultShader.setIntArray("ourTexture", 16, textureUnits);  
@@ -693,6 +693,17 @@ void OpenGLWindow::display() // used to display information from the renderer to
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	}
+
+	glEnable(GL_DEPTH_TEST);
+
+	glBufferData(GL_ARRAY_BUFFER, uiObjectCount * sizeof(EntityGPUData), &uiData[0], GL_STREAM_DRAW);
+
+	defaultShader.use();
+	defaultShader.setIntArray("ourTexture", 16, textureUnits);
+	defaultShader.setFloat("time", SDL_GetTicks());
+	defaultShader.setVec2("grassDeform", grassDeform.x, grassDeform.y);
+
+	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, uiObjectCount);
 
 	SDL_GL_SwapWindow(window);
 }
