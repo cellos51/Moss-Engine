@@ -160,5 +160,11 @@
     <None Include="assets\shaders\shadowshader.vert">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="assets\shaders\dropshadow.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\shaders\dropshadow.frag">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

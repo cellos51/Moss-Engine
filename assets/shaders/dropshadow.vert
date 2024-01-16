@@ -29,7 +29,9 @@ void main()
     color = vec4(aColor, 1.0f) * iColor;
     lumen = iLuminosity.xyz;
     TexCoord = vec2((aTexCoord.x / iTextureCoordinates.z) + iTextureCoordinates.x, (aTexCoord.y / iTextureCoordinates.w) + iTextureCoordinates.y);
-    gl_Position = iTransform * vec4(aPos.xy, 1 - iLayerIndex, 1.0f); 
+
+    vec2 shadowOffset = aPos.xy - vec2(0.5f,0.25f);
+    gl_Position = iTransform * vec4(shadowOffset, 1 - iLayerIndex, 1.0f); 
 
     vec2 vertexPosition = iPosition + (aPos.xy * 16);
 
@@ -42,13 +44,13 @@ void main()
 
         vec2 positionOffset = vec2(((sin(timeOffset / 800) / 2) * (1 - deformPoint)) + deformPoint * deformDirection, ((sin(timeOffset / 1000) / 4) * (1 - deformPoint)) - deformPoint); // this is probably not very effecient but whatever.
 
-        gl_Position = iTransform * vec4(aPos.xy + positionOffset, 1 - iLayerIndex, 1.0f);    
+        gl_Position = iTransform * vec4(shadowOffset + positionOffset, 1 - iLayerIndex, 1.0f);    
         color = vec4(aColor, 1.0f) * vec4(0.5f, 0.5f, 0.0f, 0.0f) * (sin(timeOffset / 800) + 1);
     }
     else if (iShaderIndex == 2)
     {
         float timeOffset = time + ((vertexPosition.x * 25000) + (vertexPosition.y * 500));
 
-        gl_Position = iTransform * vec4(aPos.xy + vec2(sin(timeOffset / 500) / 8, sin(timeOffset / 1000) / 8), 1 - iLayerIndex, 1.0f); 
+        gl_Position = iTransform * vec4(shadowOffset + vec2(sin(timeOffset / 500) / 8, sin(timeOffset / 1000) / 8), 1 - iLayerIndex, 1.0f); 
     }
 }

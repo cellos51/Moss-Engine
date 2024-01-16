@@ -15,7 +15,12 @@ void main()
 {
     vec4 texColor = vec4(1.0);
 
-    gl_FragDepth = 1.0f - (layerId / 100.0f);
+    if (layerId > 3)
+    {
+        discard;
+    }
+
+    gl_FragDepth = 1.0f - ((layerId) / 100.0f);
 
 
     uint index = -1;
@@ -49,7 +54,5 @@ void main()
         discard;
     }
 
-    FragColor = texColor * color;
-
-    LumenColor = vec4(lumen, 1.0f) * texColor;
+    FragColor = vec4(vec3(0.0f), 1.0f);
 }

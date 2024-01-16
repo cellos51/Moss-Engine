@@ -24,6 +24,7 @@ Entity OnscreenCamera(Vector2(0,0));
 
 Shader framebufferShader("assets/shaders/framebuffer.vert", "assets/shaders/framebuffer.frag");
 Shader defaultShader("assets/shaders/shader.vert", "assets/shaders/shader.frag");
+Shader dropShadowShader("assets/shaders/dropshadow.vert", "assets/shaders/dropshadow.frag");
 Shader shadowShader("assets/shaders/shadowshader.vert", "assets/shaders/shadowshader.frag");
 Shader lightShader("assets/shaders/lightshader.vert", "assets/shaders/lightshader.frag");
 
@@ -75,6 +76,7 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
 
 	framebufferShader.compile();
 	defaultShader.compile();
+	dropShadowShader.compile();
 	shadowShader.compile();
 	lightShader.compile();
 
@@ -220,8 +222,10 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
 	glVertexAttribIPointer(3, 1, GL_UNSIGNED_BYTE, GL_FALSE, (void*)(8 * sizeof(bool)));
 	glEnableVertexAttribArray(3);  
 
-	// position
+	// entity specific vertex data
 	glBindBuffer(GL_ARRAY_BUFFER, IVBO);
+
+	// position
 	glEnableVertexAttribArray(3);
 	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
 	glEnableVertexAttribArray(4);
@@ -585,14 +589,13 @@ void OpenGLWindow::render(Light& p_light) // i think this copys the texture to t
 }
 
 void OpenGLWindow::display() // used to display information from the renderer to the window
-{
-	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-	glEnable(GL_DEPTH_TEST);
- 	
+{	
 	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0], GL_STREAM_DRAW);
 
-	defaultShader.use();
+	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+	glEnable(GL_DEPTH_TEST);
 
+	defaultShader.use();
 	defaultShader.setIntArray("ourTexture", 16, textureUnits);  
 	defaultShader.setFloat("time", SDL_GetTicks());
 	defaultShader.setVec2("grassDeform", grassDeform.x, grassDeform.y);
@@ -634,6 +637,13 @@ void OpenGLWindow::display() // used to display information from the renderer to
 	}
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	/*dropShadowShader.use(); // wip and needs more work but that's for tomorrow
+	dropShadowShader.setIntArray("ourTexture", 16, textureUnits);
+	dropShadowShader.setFloat("time", SDL_GetTicks());
+	dropShadowShader.setVec2("grassDeform", grassDeform.x, grassDeform.y);
+
+	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);*/
+
 	glDisable(GL_DEPTH_TEST);
 
 	if (console.bloom == true)
@@ -660,7 +670,6 @@ void OpenGLWindow::display() // used to display information from the renderer to
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
-
 
 		//third final pass
 		framebufferShader.setFloat("zoom", zoom);

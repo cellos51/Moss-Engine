@@ -437,6 +437,8 @@ void EditorScene::update()
 			x = (x / tileSize) * tileSize;
 			y = (y / tileSize) * tileSize;
 
+			window.grassDeform = Vector2(x2, y2);
+
 			if (viewCollision == true)
 			{
 				cursor.color.a = 1;

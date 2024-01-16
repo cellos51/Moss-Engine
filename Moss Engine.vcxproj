@@ -177,6 +177,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\3Dshader.vert" />
+    <None Include="assets\shaders\dropshadow.frag" />
+    <None Include="assets\shaders\dropshadow.vert" />
     <None Include="assets\shaders\framebuffer.frag" />
     <None Include="assets\shaders\framebuffer.vert" />
     <None Include="assets\shaders\lightshader.frag" />
