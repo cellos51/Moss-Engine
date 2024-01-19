@@ -90,16 +90,16 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
 	console.log("Max Uniform Block Size: " + std::to_string(glConsts) + "\n");
 	
 	glGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS, &glConsts);
-	console.log("Max Vertex Unifrom Components: " + std::to_string(glConsts) + "\n");
+	console.log("Max Vertex Uniform Components: " + std::to_string(glConsts) + "\n");
 
 	glGetIntegerv(GL_MAX_VERTEX_OUTPUT_COMPONENTS, &glConsts);
 	console.log("Max Vertex Output Components: " + std::to_string(glConsts) + "\n");
 
 	glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, &glConsts);
-	console.log("Max Fragment Unifrom Components: " + std::to_string(glConsts) + "\n");
+	console.log("Max Fragment Uniform Components: " + std::to_string(glConsts) + "\n");
 
 	glGetIntegerv(GL_MAX_UNIFORM_LOCATIONS, &glConsts);
-	console.log("Max Unifrom Components: " + std::to_string(glConsts) + "\n");
+	console.log("Max Uniform Components: " + std::to_string(glConsts) + "\n");
 
 	glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &glConsts);
 	console.log("Max Array Texture Layers: " + std::to_string(glConsts) + "\n");
@@ -263,20 +263,25 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
 	glVertexAttribPointer(10, 2, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)(sizeof(glm::vec4) * 7));
 	glVertexAttribDivisor(10, 1);
 
-	// textureIndex
+	// size
 	glEnableVertexAttribArray(11);
-	glVertexAttribPointer(11, 1, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)((sizeof(glm::vec4) * 7) + sizeof(glm::vec2)));
+	glVertexAttribPointer(11, 2, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)((sizeof(glm::vec4) * 7) + sizeof(glm::vec2)));
 	glVertexAttribDivisor(11, 1);
 
-	// layerIndex
+	// textureIndex
 	glEnableVertexAttribArray(12);
-	glVertexAttribPointer(12, 1, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)((sizeof(glm::vec4) * 7) + sizeof(glm::vec2) + sizeof(unsigned int)));
+	glVertexAttribPointer(12, 1, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)((sizeof(glm::vec4) * 7) + (sizeof(glm::vec2) * 2)));
 	glVertexAttribDivisor(12, 1);
 
-	// shaderIndex
+	// layerIndex
 	glEnableVertexAttribArray(13);
-	glVertexAttribPointer(13, 1, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)((sizeof(glm::vec4) * 7) + sizeof(glm::vec2) + (sizeof(unsigned int) * 2)));
+	glVertexAttribPointer(13, 1, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)((sizeof(glm::vec4) * 7) + (sizeof(glm::vec2) * 2) + sizeof(unsigned int)));
 	glVertexAttribDivisor(13, 1);
+
+	// shaderIndex
+	glEnableVertexAttribArray(14);
+	glVertexAttribPointer(14, 1, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)((sizeof(glm::vec4) * 7) + (sizeof(glm::vec2) * 2) + (sizeof(unsigned int) * 2)));
+	glVertexAttribDivisor(14, 1);
 
     screenSize = getSize();
 
@@ -432,6 +437,7 @@ void OpenGLWindow::render(Entity& p_ent, bool cam) // i think this copies the te
 
 		entityData[entityCount].transform = transform;
 		entityData[entityCount].position = glm::vec2(p_ent.transform.x, p_ent.transform.y);
+		entityData[entityCount].size = glm::vec2(p_ent.offset.w, p_ent.offset.h);
 		entityData[entityCount].textureCoordinates = glm::vec4(p_ent.texturePos.x / TextureSize[p_ent.tex].x,p_ent.texturePos.y / TextureSize[p_ent.tex].y, TextureSize[p_ent.tex].x / p_ent.texturePos.w, TextureSize[p_ent.tex].y / p_ent.texturePos.h);
 		entityData[entityCount].textureIndex = p_ent.tex;
 		entityData[entityCount].layerIndex = p_ent.layer;
@@ -451,6 +457,7 @@ void OpenGLWindow::render(Entity& p_ent, bool cam) // i think this copies the te
 
 		uiData[uiObjectCount].transform = transform;
 		uiData[uiObjectCount].position = glm::vec2(p_ent.transform.x, p_ent.transform.y);
+		uiData[uiObjectCount].size = glm::vec2(p_ent.offset.w, p_ent.offset.h);
 		uiData[uiObjectCount].textureCoordinates = glm::vec4(p_ent.texturePos.x / TextureSize[p_ent.tex].x, p_ent.texturePos.y / TextureSize[p_ent.tex].y, TextureSize[p_ent.tex].x / p_ent.texturePos.w, TextureSize[p_ent.tex].y / p_ent.texturePos.h);
 		uiData[uiObjectCount].textureIndex = p_ent.tex;
 		uiData[uiObjectCount].layerIndex = p_ent.layer;
@@ -479,6 +486,7 @@ void OpenGLWindow::render(Text& p_text, bool cam) // i think this copys the text
 
 				entityData[entityCount].transform = transform;
 				entityData[entityCount].position = glm::vec2(character.transform.x, character.transform.y);
+				entityData[entityCount].size = glm::vec2(character.offset.w, character.offset.h);
 				entityData[entityCount].textureCoordinates = glm::vec4(character.texturePos.x / TextureSize[character.tex].x, character.texturePos.y / TextureSize[character.tex].y, TextureSize[character.tex].x / character.texturePos.w, TextureSize[character.tex].y / character.texturePos.h);
 				entityData[entityCount].textureIndex = character.tex;
 				entityData[entityCount].layerIndex = character.layer;
@@ -498,6 +506,7 @@ void OpenGLWindow::render(Text& p_text, bool cam) // i think this copys the text
 
 				uiData[uiObjectCount].transform = transform;
 				uiData[uiObjectCount].position = glm::vec2(character.transform.x, character.transform.y);
+				uiData[uiObjectCount].size = glm::vec2(character.offset.w, character.offset.h);
 				uiData[uiObjectCount].textureCoordinates = glm::vec4(character.texturePos.x / TextureSize[character.tex].x, character.texturePos.y / TextureSize[character.tex].y, TextureSize[character.tex].x / character.texturePos.w, TextureSize[character.tex].y / character.texturePos.h);
 				uiData[uiObjectCount].textureIndex = character.tex;
 				uiData[uiObjectCount].layerIndex = character.layer;
@@ -522,6 +531,7 @@ void OpenGLWindow::render(ui::Slider& p_ui) // i have no fucking clue if this wi
 
 		uiData[uiObjectCount].transform = transform;
 		uiData[uiObjectCount].position = glm::vec2(p_ui.transform.x, p_ui.transform.y);
+		uiData[uiObjectCount].size = glm::vec2(p_ui.offset.w, p_ui.offset.h);
 		uiData[uiObjectCount].textureCoordinates = glm::vec4(p_ui.texturePos.x / TextureSize[p_ui.tex].x, p_ui.texturePos.y / TextureSize[p_ui.tex].y, TextureSize[p_ui.tex].x / p_ui.texturePos.w, TextureSize[p_ui.tex].y / p_ui.texturePos.h);
 		uiData[uiObjectCount].textureIndex = p_ui.tex;
 		uiData[uiObjectCount].layerIndex = p_ui.layer;
@@ -547,6 +557,7 @@ void OpenGLWindow::render(ui& p_ui) // i think this copys the texture to the ren
 
 		uiData[uiObjectCount].transform = transform;
 		uiData[uiObjectCount].position = glm::vec2(p_ui.transform.x, p_ui.transform.y);
+		uiData[uiObjectCount].size = glm::vec2(p_ui.offset.w, p_ui.offset.h);
 		uiData[uiObjectCount].textureCoordinates = glm::vec4(p_ui.texturePos.x / TextureSize[p_ui.tex].x, p_ui.texturePos.y / TextureSize[p_ui.tex].y, TextureSize[p_ui.tex].x / p_ui.texturePos.w, TextureSize[p_ui.tex].y / p_ui.texturePos.h);
 		uiData[uiObjectCount].textureIndex = p_ui.tex;
 		uiData[uiObjectCount].layerIndex = p_ui.layer;
@@ -637,12 +648,12 @@ void OpenGLWindow::display() // used to display information from the renderer to
 	}
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	/*dropShadowShader.use(); // wip and needs more work but that's for tomorrow
+	dropShadowShader.use(); // wip and needs more work but that's for tomorrow
 	dropShadowShader.setIntArray("ourTexture", 16, textureUnits);
 	dropShadowShader.setFloat("time", SDL_GetTicks());
 	dropShadowShader.setVec2("grassDeform", grassDeform.x, grassDeform.y);
 
-	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);*/
+	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
 
 	glDisable(GL_DEPTH_TEST);
 

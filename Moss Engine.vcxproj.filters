@@ -130,9 +130,6 @@
     <None Include="assets\shaders\framebuffer.frag">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="assets\shaders\3Dshader.vert">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="assets\shaders\framebuffer.vert">
       <Filter>Resource Files</Filter>
     </None>
@@ -140,12 +137,6 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="assets\shaders\lightshader.vert">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="assets\shaders\luminosity.frag">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="assets\shaders\luminosity.vert">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="assets\shaders\shader.frag">

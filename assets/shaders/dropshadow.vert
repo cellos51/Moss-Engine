@@ -1,20 +1,19 @@
 #version 460 core
 
 layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec3 aColor;
+//layout (location = 1) in vec3 aColor;
 layout (location = 2) in vec2 aTexCoord;
 
 layout (location = 3) in mat4 iTransform;
 layout (location = 7) in vec4 iTextureCoordinates;
-layout (location = 8) in vec4 iLuminosity;
-layout (location = 9) in vec4 iColor;
+//layout (location = 8) in vec4 iLuminosity;
+//layout (location = 9) in vec4 iColor;
 layout (location = 10) in vec2 iPosition;
-layout (location = 11) in int iTextureIndex;
-layout (location = 12) in int iLayerIndex;
-layout (location = 13) in int iShaderIndex;
+layout (location = 11) in vec2 iSize;
+layout (location = 12) in int iTextureIndex;
+layout (location = 13) in int iLayerIndex;
+layout (location = 14) in int iShaderIndex;
 
-out vec4 color;
-out vec3 lumen;
 out vec2 TexCoord;
 flat out uint texId;
 flat out float layerId;
@@ -26,11 +25,10 @@ void main()
 {
     texId = iTextureIndex;
     layerId = iLayerIndex;
-    color = vec4(aColor, 1.0f) * iColor;
-    lumen = iLuminosity.xyz;
     TexCoord = vec2((aTexCoord.x / iTextureCoordinates.z) + iTextureCoordinates.x, (aTexCoord.y / iTextureCoordinates.w) + iTextureCoordinates.y);
 
-    vec2 shadowOffset = aPos.xy - vec2(0.5f,0.25f);
+    vec2 shadowOffset = aPos.xy - vec2(16.0f, 8.0f) / iSize;
+
     gl_Position = iTransform * vec4(shadowOffset, 1 - iLayerIndex, 1.0f); 
 
     vec2 vertexPosition = iPosition + (aPos.xy * 16);
@@ -45,7 +43,6 @@ void main()
         vec2 positionOffset = vec2(((sin(timeOffset / 800) / 2) * (1 - deformPoint)) + deformPoint * deformDirection, ((sin(timeOffset / 1000) / 4) * (1 - deformPoint)) - deformPoint); // this is probably not very effecient but whatever.
 
         gl_Position = iTransform * vec4(shadowOffset + positionOffset, 1 - iLayerIndex, 1.0f);    
-        color = vec4(aColor, 1.0f) * vec4(0.5f, 0.5f, 0.0f, 0.0f) * (sin(timeOffset / 800) + 1);
     }
     else if (iShaderIndex == 2)
     {

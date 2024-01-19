@@ -9,9 +9,10 @@ layout (location = 7) in vec4 iTextureCoordinates;
 layout (location = 8) in vec4 iLuminosity;
 layout (location = 9) in vec4 iColor;
 layout (location = 10) in vec2 iPosition;
-layout (location = 11) in int iTextureIndex;
-layout (location = 12) in int iLayerIndex;
-layout (location = 13) in int iShaderIndex;
+layout (location = 11) in vec2 iSize;
+layout (location = 12) in int iTextureIndex;
+layout (location = 13) in int iLayerIndex;
+layout (location = 14) in int iShaderIndex;
 
 uniform mat4 lightMatrix;
 uniform int currentLayer;

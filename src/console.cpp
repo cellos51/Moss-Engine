@@ -160,5 +160,13 @@ void Console::runCommand(std::string command)
 		{
 			steamSocket.disconnect();
 		}
+		else if (v[0] == "peers")
+		{
+			console.log("local id " + std::to_string(steamSocket.netConnection) + "\n");
+			for (const auto peer : steamSocket.peers)
+			{
+				console.log("peer id " + std::to_string(peer) + "\n");
+			}
+		}
 	}
 }

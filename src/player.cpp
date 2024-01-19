@@ -10,8 +10,8 @@ Player::Player()
 {
 	size = Vector2(24, 48);
 
-	luminosity = Color4(0.01f, 0.01f, 0.01f, 0.0f);
-	layer = 2;
+	luminosity = Color4(0.0f, 0.0f, 0.0f, 0.0f);
+	layer = 3;
 	texturePos.w = 64;
 	texturePos.h = 64;
 	offset.w = 64;
@@ -296,8 +296,8 @@ NetPlayer::NetPlayer()
 {
 	size = Vector2(24, 48);
 
-	luminosity = Color4(0.2f, 0.2f, 0.2f, 0.0f);
-	layer = 2;
+	luminosity = Color4(0.0f, 0.0f, 0.0f, 0.0f);
+	layer = 3;
 	texturePos.w = 64;
 	texturePos.h = 64;
 	offset.w = 64;

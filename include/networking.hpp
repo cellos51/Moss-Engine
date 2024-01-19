@@ -19,11 +19,12 @@
 enum PacketType : uint8_t
 {
 	PLAYER_DATA,
+	PLAYER_DISCONNECT,
 };
 
 struct Packet
 {
-	unsigned long int peerID;
+	HSteamNetConnection peerID;
 	PacketType packetType;
 };
 

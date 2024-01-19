@@ -40,17 +40,16 @@ private:
 	Vector2 cameraOffset = Vector2(0,0);
 	SDL_Window* window;
 	SDL_GLContext context;
-	//SDL_Renderer* renderer;
 	Vector2 screenSize = Vector2(0,0);
 	
-	unsigned int FBOLight;
-	unsigned int FBOLightTex;
-	unsigned int FBOBlurTex;
+	GLuint FBOLight;
+	GLuint FBOLightTex;
+	GLuint FBOBlurTex;
 
-	unsigned int RBO;
-	unsigned int FBOTex;
-	unsigned int FBOBlur;
-	unsigned int FBO, VAO, VBO, EBO, IVBO;
+	GLuint RBO;
+	GLuint FBOTex;
+	GLuint FBOBlur;
+	GLuint FBO, VAO, VBO, EBO, IVBO;
 };
 
 extern OpenGLWindow window;
@@ -62,6 +61,7 @@ struct EntityGPUData
 	glm::vec4 luminosity;
 	glm::vec4 color;
 	glm::vec2 position;
+	glm::vec2 size;
 	unsigned int textureIndex;
 	unsigned int layerIndex;
 	unsigned int shaderIndex;

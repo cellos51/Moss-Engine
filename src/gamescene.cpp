@@ -83,71 +83,125 @@ void GameScene::fixedUpdate()
 
 	// network shit
 
-	PlayerData playerData{player.transform, player.velocity, player.OnGround, player.onWall()};
-
-	Packet packet { steamSocket.netConnection, PLAYER_DATA };
-
-	uint32_t dataSize = sizeof(PlayerData) + sizeof(Packet);
-	std::unique_ptr<uint8_t[]> data(new uint8_t[dataSize]);
-
-	memcpy(data.get(), &packet, sizeof(Packet)); // copy packet data into message
-	memcpy(data.get() + sizeof(Packet), &playerData, sizeof(PlayerData)); // copy player data into message
-
-	for (auto peer : steamSocket.peers) // receiving messages
+	if (steamSocket.peers.size() > 0) // only run this code if connected
 	{
-		steamSocket.sendMessage(peer, data.get(), dataSize, k_nSteamNetworkingSend_UnreliableNoDelay);
-
-		const int maxMessages = 8;
-
-		SteamNetworkingMessage_t* messages[maxMessages];
-		int receivedMessages = steamSocket.receiveMessages(peer, messages, maxMessages);
-
-		for (int i = 0; i < receivedMessages; i++)
+		if (steamSocket.listenSocket > 0 && networkPlayers.size() > steamSocket.peers.size()) // really bad way to handle disconnects but it doesn't matter that much since it doesn't happen often. this only runs on the server
 		{
-			const uint8_t* receivedData = static_cast<const uint8_t*>(messages[i]->GetData());
-			uint32_t receivedDataSize = messages[i]->GetSize();
+			HSteamNetConnection disconnectedPeer = 0;
 
-			Packet receivedPacket{};
-
-			memcpy(&receivedPacket, receivedData, sizeof(Packet));
-
-			if (networkPlayers.find(receivedPacket.peerID) == networkPlayers.end()) // add new player to our list if we don't know who it's from yet (id 0 is always from server)
+			for (const auto& [key, value] : networkPlayers)
 			{
-				NetPlayer networkPlayer;
-
-				networkPlayer.tex = player.tex;
-				networkPlayer.transform = level.spawn;
-
-				networkPlayers.insert(std::pair<unsigned long int, NetPlayer>(receivedPacket.peerID, networkPlayer));
-			}
-
-			switch (receivedPacket.packetType)
-			{
-			case PLAYER_DATA:
-				PlayerData receivedPlayerData{};
-
-				memcpy(&receivedPlayerData, receivedData + sizeof(Packet), sizeof(PlayerData));
-
-				networkPlayers[receivedPacket.peerID].targetPos = receivedPlayerData.position;
-				networkPlayers[receivedPacket.peerID].velocity = receivedPlayerData.velocity;
-				networkPlayers[receivedPacket.peerID].OnGround = receivedPlayerData.onGround;
-				networkPlayers[receivedPacket.peerID].walljumping = receivedPlayerData.walljumping;
-				break;
-			}
-
-			if (steamSocket.listenSocket > 0)
-			{
-				for (auto messagePeer : steamSocket.peers)
+				if (std::find(steamSocket.peers.begin(), steamSocket.peers.end(), key) == steamSocket.peers.end())
 				{
-					if (peer != messagePeer)
-					{
-						steamSocket.sendMessage(messagePeer, receivedData, receivedDataSize, k_nSteamNetworkingSend_UnreliableNoDelay);
-					}
+					disconnectedPeer = key;
 				}
 			}
 
-			messages[i]->Release();
+			if (disconnectedPeer != 0)
+			{
+				Packet packet{ steamSocket.netConnection, PLAYER_DISCONNECT };
+
+				uint32_t dataSize = sizeof(PlayerData) + sizeof(Packet);
+				std::unique_ptr<uint8_t[]> data(new uint8_t[dataSize]);
+
+				memcpy(data.get(), &packet, sizeof(Packet)); // copy packet data into message
+				memcpy(data.get() + sizeof(Packet), &disconnectedPeer, sizeof(HSteamNetConnection)); // copy player data into message
+
+				for (auto peer : steamSocket.peers) // receiving messages
+				{
+					steamSocket.sendMessage(peer, data.get(), dataSize, k_nSteamNetworkingSend_Reliable);
+				}
+
+				networkPlayers.erase(disconnectedPeer);
+			}
 		}
+
+		PlayerData playerData{ player.transform, player.velocity, player.OnGround, player.onWall() };
+
+		Packet packet{ 0, PLAYER_DATA }; // all sent packets from the user go from 0. this probably isn't a good idea but idfk if it works it works.
+
+		uint32_t dataSize = sizeof(PlayerData) + sizeof(Packet);
+		std::unique_ptr<uint8_t[]> data(new uint8_t[dataSize]);
+
+		memcpy(data.get(), &packet, sizeof(Packet)); // copy packet data into message
+		memcpy(data.get() + sizeof(Packet), &playerData, sizeof(PlayerData)); // copy player data into message
+
+		for (auto peer : steamSocket.peers) // receiving messages
+		{
+			steamSocket.sendMessage(peer, data.get(), dataSize, k_nSteamNetworkingSend_UnreliableNoDelay);
+
+			const int maxMessages = 8;
+
+			SteamNetworkingMessage_t* messages[maxMessages];
+			int receivedMessages = steamSocket.receiveMessages(peer, messages, maxMessages);
+
+			for (int i = 0; i < receivedMessages; i++)
+			{
+				if (steamSocket.listenSocket > 0) // if we're the server, manually set the data of the peer for future clients.
+				{
+					memcpy(messages[i]->m_pData, &peer, sizeof(HSteamNetConnection));
+				}
+
+				const uint8_t* receivedData = static_cast<const uint8_t*>(messages[i]->GetData());
+				uint32_t receivedDataSize = messages[i]->GetSize();
+
+				Packet receivedPacket{};
+
+				memcpy(&receivedPacket, receivedData, sizeof(Packet));
+
+				if (networkPlayers.find(receivedPacket.peerID) == networkPlayers.end()) // add new player to our list if we don't know who it's from yet (id 0 is always from server)
+				{
+					NetPlayer networkPlayer;
+
+					networkPlayer.tex = player.tex;
+					networkPlayer.transform = level.spawn;
+
+					networkPlayers.insert(std::pair<unsigned long int, NetPlayer>(receivedPacket.peerID, networkPlayer));
+				}
+
+				switch (receivedPacket.packetType)
+				{
+					case PLAYER_DATA:
+					{
+						PlayerData receivedPlayerData;
+
+						memcpy(&receivedPlayerData, receivedData + sizeof(Packet), sizeof(PlayerData));
+
+						networkPlayers[receivedPacket.peerID].targetPos = receivedPlayerData.position;
+						networkPlayers[receivedPacket.peerID].velocity = receivedPlayerData.velocity;
+						networkPlayers[receivedPacket.peerID].OnGround = receivedPlayerData.onGround;
+						networkPlayers[receivedPacket.peerID].walljumping = receivedPlayerData.walljumping;
+					}
+					break;
+					case PLAYER_DISCONNECT:
+					{
+						HSteamNetConnection disconnectedPlayer = 0;
+
+						memcpy(&disconnectedPlayer, receivedData + sizeof(Packet), sizeof(HSteamNetConnection));
+
+						networkPlayers.erase(disconnectedPlayer);
+					}
+					break;
+				}
+
+				if (steamSocket.listenSocket > 0) // send messages to client if server
+				{
+					for (auto messagePeer : steamSocket.peers)
+					{
+						if (peer != messagePeer)
+						{
+							steamSocket.sendMessage(messagePeer, receivedData, receivedDataSize, k_nSteamNetworkingSend_UnreliableNoDelay);
+						}
+					}
+				}
+
+				messages[i]->Release();
+			}
+		}
+	}
+	else if (networkPlayers.size() > 0) // if disconnected and players remain, delete them
+	{
+		networkPlayers.clear();
 	}
 }
 
