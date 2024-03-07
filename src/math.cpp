@@ -43,24 +43,24 @@ Color4::Color4(float p_r, float p_g, float p_b, float p_a) : r(p_r), g(p_g), b(p
 
 }
 
-float std::clamp(float value, float min, float max)
-{
-   if (value > max)
-   {
-      value = max;
-   }
-
-   if (value < min)
-   {
-     value = min;
-   }
-
-   return value;
-}
+//float std::clamp(float value, float min, float max) // i don't need this because SDL has this function built in :P
+//{
+//   if (value > max)
+//   {
+//      value = max;
+//   }
+//
+//   if (value < min)
+//   {
+//     value = min;
+//   }
+//
+//   return value;
+//}
 
 Uint64 NOW = SDL_GetPerformanceCounter();
 Uint64 LAST = 0;
-int minfps = 60;
+double minfps = 60.0;
 double delta = 0.0001;
 
 void Time::Tick()

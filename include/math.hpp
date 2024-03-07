@@ -24,9 +24,9 @@ namespace Time
 	void setTimeScale(double scale);
 };
 
-namespace std
+namespace std // i have no clue why this is labled std because it's not part of the standard library but whatever it's only me who will read this code anyway
 {
+	//float clamp(float value, float min, float max);
 	//float lerp(float a, float b, float f);
-	float clamp(float value, float min, float max);
 	float rad2deg(float value);
 };

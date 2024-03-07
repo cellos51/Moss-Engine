@@ -15,49 +15,40 @@
 #include "entity.hpp"
 #include "text.hpp"
 #include "light.hpp"
+#include "console.hpp"
+
+OpenGLWindow window;
 
 float zoom = 1;
 Entity OnscreenCamera(Vector2(0,0));
 
-Shader framebufferShader("assets/shaders/framebuffer.vs", "assets/shaders/framebuffer.fs");
-Shader defaultShader("assets/shaders/shader.vs", "assets/shaders/shader.fs");
-Shader shadowShader("assets/shaders/shadowshader.vs", "assets/shaders/shadowshader.fs");
-Shader lightShader("assets/shaders/lightshader.vs", "assets/shaders/lightshader.fs");
-Shader luminosityShader("assets/shaders/luminosity.vs", "assets/shaders/luminosity.fs");
+Shader framebufferShader("assets/shaders/framebuffer.vert", "assets/shaders/framebuffer.frag");
+Shader defaultShader("assets/shaders/shader.vert", "assets/shaders/shader.frag");
+Shader dropShadowShader("assets/shaders/dropshadow.vert", "assets/shaders/dropshadow.frag");
+Shader shadowShader("assets/shaders/shadowshader.vert", "assets/shaders/shadowshader.frag");
+Shader lightShader("assets/shaders/lightshader.vert", "assets/shaders/lightshader.frag");
 
 int textureUnits[16] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
 
 unsigned int newestTexture = 0;
 
-std::map<unsigned int,Vector2> TextureSize;
+const unsigned int maxEntities = 16383; // begin stuff for entities
 
-const int maxEntities = 10000;
+unsigned int entityCount = 0;
 
-const int maxLights = 1000;
+EntityGPUData entityData[maxEntities];
 
-int entityCount = 0; // begin stuff for entities
+const unsigned int maxLights = 1024; // begin stuff for lights
 
-glm::mat4 positionArray[maxEntities];
+unsigned int lightCount = 0;
 
-glm::vec4 texCoordArray[maxEntities];
+LightGPUData lightData[maxLights];
 
-int textureArray[maxEntities];
+const unsigned int maxUIObjects = 1024; // begin stuff for ui
 
-unsigned int layerArray[maxEntities];
+unsigned int uiObjectCount = 0;
 
-glm::vec4 shadowArray[maxEntities];
-
-int lightCount = 0; // begin stuff for lights
-
-glm::vec4 lightColorArray[maxLights];
-
-glm::mat4 lightPositionArray[maxLights];
-
-glm::mat4 shadowPositionArray[maxLights];
-
-unsigned int lightLayerArray[maxLights];
-
-std::map<unsigned int,std::vector<int>> TexturesToRender; // this does stuff
+EntityGPUData uiData[maxUIObjects];
 
 void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
 {
@@ -89,29 +80,29 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
 
 	framebufferShader.compile();
 	defaultShader.compile();
+	dropShadowShader.compile();
 	shadowShader.compile();
 	lightShader.compile();
-	luminosityShader.compile();
 
 	int glConsts;
 	
 	glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &glConsts);
-	std::cout << "Max Uniform Block Size:" << glConsts << std::endl;
+	console.log("Max Uniform Block Size: " + std::to_string(glConsts) + "\n");
 	
 	glGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS, &glConsts);
-	std::cout << "Max Vertex Unifrom Components:" << glConsts << std::endl;
+	console.log("Max Vertex Uniform Components: " + std::to_string(glConsts) + "\n");
 
 	glGetIntegerv(GL_MAX_VERTEX_OUTPUT_COMPONENTS, &glConsts);
-	std::cout << "Max Vertex Output Components:" << glConsts << std::endl;	
+	console.log("Max Vertex Output Components: " + std::to_string(glConsts) + "\n");
 
 	glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, &glConsts);
-	std::cout << "Max Fragment Unifrom Components:" << glConsts << std::endl;
+	console.log("Max Fragment Uniform Components: " + std::to_string(glConsts) + "\n");
 
 	glGetIntegerv(GL_MAX_UNIFORM_LOCATIONS, &glConsts);
-	std::cout << "Max Unifrom Components:" << glConsts << std::endl;
+	console.log("Max Uniform Components: " + std::to_string(glConsts) + "\n");
 
 	glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &glConsts);
-	std::cout << "Max Array Texture Layers:" << glConsts << std::endl;
+	console.log("Max Array Texture Layers: " + std::to_string(glConsts) + "\n");
 
 	glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
@@ -129,24 +120,38 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
 
 	glGenFramebuffers(1, &FBO);
 	glGenFramebuffers(1, &FBOLight);
+	glGenFramebuffers(1, &FBOBlur);
 	glGenTextures(1, &FBOTex);
 	glGenTextures(1, &FBOLightTex);
+	glGenTextures(1, &FBOBlurTex);
 	glGenRenderbuffers(1, &RBO);
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
-    glGenBuffers(6, IVBO); 
+    glGenBuffers(1, &IVBO); 
 
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 
+	GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+	glDrawBuffers(2, drawBuffers);
+
     glActiveTexture(GL_TEXTURE0 + FBOTex);
     glBindTexture(GL_TEXTURE_2D, FBOTex);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, p_w, p_h, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, FBOTex, 0); 
+
+	glActiveTexture(GL_TEXTURE1 + FBOLightTex);
+	glBindTexture(GL_TEXTURE_2D, FBOLightTex);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, p_w, p_h, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, FBOLightTex, 0);
 	
 	glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -157,14 +162,14 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+		console.log("ERROR::FRAMEBUFFER:: Framebuffer is not complete!\n");
 
 	glBindFramebuffer(GL_FRAMEBUFFER, FBOLight);
 
     glActiveTexture(GL_TEXTURE0 + FBOLightTex);
     glBindTexture(GL_TEXTURE_2D, FBOLightTex);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, p_w, p_h, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
@@ -178,7 +183,22 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);  
 
 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+		console.log("ERROR::FRAMEBUFFER:: Framebuffer is not complete!\n");
+
+	glBindFramebuffer(GL_FRAMEBUFFER, FBOBlur);
+
+	glActiveTexture(GL_TEXTURE0 + FBOBlurTex);
+	glBindTexture(GL_TEXTURE_2D, FBOBlurTex);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, p_w, p_h, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, FBOBlurTex, 0);
+
+	glActiveTexture(GL_TEXTURE0 + 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	    
@@ -206,12 +226,66 @@ void OpenGLWindow::create(const char* p_title, int p_w, int p_h)
 	glVertexAttribIPointer(3, 1, GL_UNSIGNED_BYTE, GL_FALSE, (void*)(8 * sizeof(bool)));
 	glEnableVertexAttribArray(3);  
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0); 
-    glBindVertexArray(0);
+	// entity specific vertex data
+	glBindBuffer(GL_ARRAY_BUFFER, IVBO);
+
+	// position
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)0);
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)(sizeof(glm::vec4)));
+	glEnableVertexAttribArray(5);
+	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)(sizeof(glm::vec4) * 2));
+	glEnableVertexAttribArray(6);
+	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)(sizeof(glm::vec4) * 3));
+	glVertexAttribDivisor(3, 1);
+	glVertexAttribDivisor(4, 1);
+	glVertexAttribDivisor(5, 1);
+	glVertexAttribDivisor(6, 1);
+
+	// texture
+	glEnableVertexAttribArray(7);
+	glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)(sizeof(glm::vec4) * 4));
+	glVertexAttribDivisor(7, 1);
+
+	// luminosity
+	glEnableVertexAttribArray(8);
+	glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)(sizeof(glm::vec4) * 5));
+	glVertexAttribDivisor(8, 1);
+
+	// color
+	glEnableVertexAttribArray(9);
+	glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)(sizeof(glm::vec4) * 6));
+	glVertexAttribDivisor(9, 1);
+
+	// position
+	glEnableVertexAttribArray(10);
+	glVertexAttribPointer(10, 2, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)(sizeof(glm::vec4) * 7));
+	glVertexAttribDivisor(10, 1);
+
+	// size
+	glEnableVertexAttribArray(11);
+	glVertexAttribPointer(11, 2, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)((sizeof(glm::vec4) * 7) + sizeof(glm::vec2)));
+	glVertexAttribDivisor(11, 1);
+
+	// textureIndex
+	glEnableVertexAttribArray(12);
+	glVertexAttribPointer(12, 1, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)((sizeof(glm::vec4) * 7) + (sizeof(glm::vec2) * 2)));
+	glVertexAttribDivisor(12, 1);
+
+	// layerIndex
+	glEnableVertexAttribArray(13);
+	glVertexAttribPointer(13, 1, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)((sizeof(glm::vec4) * 7) + (sizeof(glm::vec2) * 2) + sizeof(unsigned int)));
+	glVertexAttribDivisor(13, 1);
+
+	// shaderIndex
+	glEnableVertexAttribArray(14);
+	glVertexAttribPointer(14, 1, GL_FLOAT, GL_FALSE, sizeof(EntityGPUData), (void*)((sizeof(glm::vec4) * 7) + (sizeof(glm::vec2) * 2) + (sizeof(unsigned int) * 2)));
+	glVertexAttribDivisor(14, 1);
 
     screenSize = getSize();
 
-    std::cout << "Error check: " << glGetError() << std::endl;
+	console.log("Error check: " + std::to_string(glGetError()) + "\n");
 }
 
 unsigned int OpenGLWindow::loadTexture(const char* p_filePath) // used load textures :P
@@ -250,7 +324,49 @@ unsigned int OpenGLWindow::loadTexture(const char* p_filePath) // used load text
 
 	TextureSize.insert(std::pair<unsigned int,Vector2>(texture, Vector2(width, height)));
 
-	std::cout << "TextureID: " << texture << std::endl;
+	//std::cout << "TextureID: " << texture << std::endl;
+
+	newestTexture = texture;
+	return texture;
+}
+
+unsigned int OpenGLWindow::replaceTexture(const char* p_filePath, unsigned int texture) // used replace textures >:(
+{
+	int width, height, nrChannels;
+	//unsigned int texture;
+	unsigned char* data;
+
+	stbi_set_flip_vertically_on_load(true);
+
+	data = stbi_load(p_filePath, &width, &height, &nrChannels, 0);
+
+
+	//glGenTextures(1, &texture);
+	glActiveTexture(GL_TEXTURE0 + texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		//glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		return -1;
+	}
+	stbi_image_free(data);
+
+	glActiveTexture(GL_TEXTURE0 + 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	TextureSize.insert(std::pair<unsigned int, Vector2>(texture, Vector2(width, height)));
+
+	//std::cout << "TextureID: " << texture << std::endl;
 
 	newestTexture = texture;
 	return texture;
@@ -260,6 +376,7 @@ void OpenGLWindow::clear() // clears the renderer
 {
 	entityCount = 0;
 	lightCount = 0;
+	uiObjectCount = 0;
 
 	if (screenSize.x != getSize().x || screenSize.y != getSize().y)
 	{
@@ -275,23 +392,33 @@ void OpenGLWindow::clear() // clears the renderer
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, getSize().x, getSize().y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
+		glBindTexture(GL_TEXTURE_2D, FBOBlurTex);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, getSize().x, getSize().y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		glGenerateMipmap(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
 		glBindRenderbuffer(GL_RENDERBUFFER, RBO);  
 	    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, getSize().x, getSize().y);
 	    glBindRenderbuffer(GL_RENDERBUFFER, 0);
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-	glClearColor(0.439, 0.502, 0.565, 1.0);
-	//glClearColor(0, 0, 0, 1.0);
+	//glClearColor(0.439, 0.502, 0.565, 1.0);
+	glClearColor(ambientLight.r, ambientLight.g, ambientLight.b, ambientLight.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glBindFramebuffer(GL_FRAMEBUFFER, FBOLight);
-	glClearColor(ambientLight.r, ambientLight.g, ambientLight.b, ambientLight.a);
-	//glClearColor(0, 0, 0, 1.0);
+	//glClearColor(ambientLight.r, ambientLight.g, ambientLight.b, ambientLight.a);
+	glClearColor(0, 0, 0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, FBOBlurTex);
+	//glClearColor(ambientLight.r, ambientLight.g, ambientLight.b, ambientLight.a);
+	glClearColor(0, 0, 0, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT);
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glClearColor(1.0, 1.0, 1.0, 1.0);
+	glClearColor(ambientLight.r, ambientLight.g, ambientLight.b, ambientLight.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	OnscreenCamera.transform = Vector2(cameraPos.x - OnscreenCamera.size.x / 2, cameraPos.y - OnscreenCamera.size.y / 2);
@@ -308,27 +435,19 @@ void OpenGLWindow::render(Entity& p_ent, bool cam) // i think this copies the te
 		transform = glm::translate(transform, glm::vec3(((((p_ent.offset.x + round(p_ent.transform.x)) + p_ent.offset.w / 2) - getSize().x / 2) - cameraOffset.x) / (p_ent.offset.w / 2), -((((p_ent.offset.y + round(p_ent.transform.y)) + p_ent.offset.h / 2) - getSize().y / 2) - cameraOffset.y) / (p_ent.offset.h / 2), 0)); 
 		transform = glm::rotate(transform, std::rad2deg(p_ent.rotation), glm::vec3(0.0f, 0.0f, 1.0f));
 
-		positionArray[entityCount] = transform;
-		texCoordArray[entityCount] = glm::vec4(p_ent.texturePos.x / TextureSize[p_ent.tex].x,p_ent.texturePos.y / TextureSize[p_ent.tex].y, TextureSize[p_ent.tex].x / p_ent.texturePos.w, TextureSize[p_ent.tex].y / p_ent.texturePos.h);
-		textureArray[entityCount] = p_ent.tex;
-		layerArray[entityCount] = p_ent.layer;
-		shadowArray[entityCount] = glm::vec4(p_ent.luminosity.r,p_ent.luminosity.g,p_ent.luminosity.b,p_ent.luminosity.a);
-
-		if (TexturesToRender.find(p_ent.layer) == TexturesToRender.end())
-		{
-			std::vector<int> newVector;
-			TexturesToRender.insert(std::pair<unsigned int,std::vector<int>>(p_ent.layer, newVector));
-		}
-
-		if (std::find(TexturesToRender[p_ent.layer].begin(), TexturesToRender[p_ent.layer].end(), p_ent.tex) == TexturesToRender[p_ent.layer].end())
-		{
-			TexturesToRender[p_ent.layer].push_back(p_ent.tex);
-		}
-
+		entityData[entityCount].transform = transform;
+		entityData[entityCount].position = glm::vec2(p_ent.transform.x, p_ent.transform.y);
+		entityData[entityCount].size = glm::vec2(p_ent.offset.w, p_ent.offset.h);
+		entityData[entityCount].textureCoordinates = glm::vec4(p_ent.texturePos.x / TextureSize[p_ent.tex].x,p_ent.texturePos.y / TextureSize[p_ent.tex].y, TextureSize[p_ent.tex].x / p_ent.texturePos.w, TextureSize[p_ent.tex].y / p_ent.texturePos.h);
+		entityData[entityCount].textureIndex = p_ent.tex;
+		entityData[entityCount].layerIndex = p_ent.layer;
+		entityData[entityCount].luminosity = glm::vec4(p_ent.luminosity.r,p_ent.luminosity.g,p_ent.luminosity.b,p_ent.luminosity.a);
+		entityData[entityCount].color = glm::vec4(p_ent.color.r, p_ent.color.g, p_ent.color.b, p_ent.color.a);
+		entityData[entityCount].shaderIndex = p_ent.shader;
 
 		entityCount++;
 	}
-	else if (cam == false && entityCount < maxEntities)
+	else if (cam == false && uiObjectCount < maxUIObjects)
 	{
 		glm::mat4 transform = glm::mat4(1.0f);
 
@@ -336,25 +455,17 @@ void OpenGLWindow::render(Entity& p_ent, bool cam) // i think this copies the te
 		transform = glm::translate(transform, glm::vec3(((((p_ent.offset.x + round(p_ent.transform.x)) + p_ent.offset.w / 2) - getSize().x / 2)) / (p_ent.offset.w / 2), -((((p_ent.offset.y + round(p_ent.transform.y)) + p_ent.offset.h / 2) - getSize().y / 2)) / (p_ent.offset.h / 2), 0));
 		transform = glm::rotate(transform, std::rad2deg(p_ent.rotation), glm::vec3(0.0f, 0.0f, 1.0f));
 
-		positionArray[entityCount] = transform;
-		texCoordArray[entityCount] = glm::vec4(p_ent.texturePos.x / TextureSize[p_ent.tex].x,p_ent.texturePos.y / TextureSize[p_ent.tex].y, TextureSize[p_ent.tex].x / p_ent.texturePos.w, TextureSize[p_ent.tex].y / p_ent.texturePos.h);
-		textureArray[entityCount] = p_ent.tex;
-		layerArray[entityCount] = p_ent.layer;
-		shadowArray[entityCount] = glm::vec4(p_ent.luminosity.r,p_ent.luminosity.g,p_ent.luminosity.b,p_ent.luminosity.a);
+		uiData[uiObjectCount].transform = transform;
+		uiData[uiObjectCount].position = glm::vec2(p_ent.transform.x, p_ent.transform.y);
+		uiData[uiObjectCount].size = glm::vec2(p_ent.offset.w, p_ent.offset.h);
+		uiData[uiObjectCount].textureCoordinates = glm::vec4(p_ent.texturePos.x / TextureSize[p_ent.tex].x, p_ent.texturePos.y / TextureSize[p_ent.tex].y, TextureSize[p_ent.tex].x / p_ent.texturePos.w, TextureSize[p_ent.tex].y / p_ent.texturePos.h);
+		uiData[uiObjectCount].textureIndex = p_ent.tex;
+		uiData[uiObjectCount].layerIndex = p_ent.layer;
+		uiData[uiObjectCount].luminosity = glm::vec4(p_ent.luminosity.r, p_ent.luminosity.g, p_ent.luminosity.b, p_ent.luminosity.a);
+		uiData[uiObjectCount].color = glm::vec4(p_ent.color.r, p_ent.color.g, p_ent.color.b, p_ent.color.a);
+		uiData[uiObjectCount].shaderIndex = p_ent.shader;
 
-		if (TexturesToRender.find(p_ent.layer) == TexturesToRender.end())
-		{
-			std::vector<int> newVector;
-			TexturesToRender.insert(std::pair<unsigned int,std::vector<int>>(p_ent.layer, newVector));
-		}
-
-		if (std::find(TexturesToRender[p_ent.layer].begin(), TexturesToRender[p_ent.layer].end(), p_ent.tex) == TexturesToRender[p_ent.layer].end())
-		{
-			TexturesToRender[p_ent.layer].push_back(p_ent.tex);
-		}
-
-
-		entityCount++;
+		uiObjectCount++;
 	}
 }
 
@@ -364,153 +475,149 @@ void OpenGLWindow::render(Text& p_text, bool cam) // i think this copys the text
 	{
 		for (Entity character : p_text.characters)
 		{
-			render(character, cam);
+			//render(character, cam);
+			if (character.intersecting(OnscreenCamera) == true && cam == true && entityCount < maxEntities)
+			{
+				glm::mat4 transform = glm::mat4(1.0f);
+
+				transform = glm::scale(transform, glm::vec3((character.offset.w) / getSize().x, (character.offset.h) / getSize().y, 0));
+				transform = glm::translate(transform, glm::vec3(((((character.offset.x + round(character.transform.x)) + character.offset.w / 2) - getSize().x / 2) - cameraOffset.x) / (character.offset.w / 2), -((((character.offset.y + round(character.transform.y)) + character.offset.h / 2) - getSize().y / 2) - cameraOffset.y) / (character.offset.h / 2), 0));
+				transform = glm::rotate(transform, std::rad2deg(character.rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+
+				entityData[entityCount].transform = transform;
+				entityData[entityCount].position = glm::vec2(character.transform.x, character.transform.y);
+				entityData[entityCount].size = glm::vec2(character.offset.w, character.offset.h);
+				entityData[entityCount].textureCoordinates = glm::vec4(character.texturePos.x / TextureSize[character.tex].x, character.texturePos.y / TextureSize[character.tex].y, TextureSize[character.tex].x / character.texturePos.w, TextureSize[character.tex].y / character.texturePos.h);
+				entityData[entityCount].textureIndex = character.tex;
+				entityData[entityCount].layerIndex = character.layer;
+				entityData[entityCount].luminosity = glm::vec4(character.luminosity.r, character.luminosity.g, character.luminosity.b, character.luminosity.a);
+				entityData[entityCount].color = glm::vec4(character.color.r, character.color.g, character.color.b, character.color.a);
+				entityData[entityCount].shaderIndex = character.shader;
+
+				entityCount++;
+			}
+			else if (cam == false && uiObjectCount < maxUIObjects)
+			{
+				glm::mat4 transform = glm::mat4(1.0f);
+
+				transform = glm::scale(transform, glm::vec3((character.offset.w) / getSize().x, (character.offset.h) / getSize().y, 0));
+				transform = glm::translate(transform, glm::vec3(((((character.offset.x + round(character.transform.x)) + character.offset.w / 2) - getSize().x / 2)) / (character.offset.w / 2), -((((character.offset.y + round(character.transform.y)) + character.offset.h / 2) - getSize().y / 2)) / (character.offset.h / 2), 0));
+				transform = glm::rotate(transform, std::rad2deg(character.rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+
+				uiData[uiObjectCount].transform = transform;
+				uiData[uiObjectCount].position = glm::vec2(character.transform.x, character.transform.y);
+				uiData[uiObjectCount].size = glm::vec2(character.offset.w, character.offset.h);
+				uiData[uiObjectCount].textureCoordinates = glm::vec4(character.texturePos.x / TextureSize[character.tex].x, character.texturePos.y / TextureSize[character.tex].y, TextureSize[character.tex].x / character.texturePos.w, TextureSize[character.tex].y / character.texturePos.h);
+				uiData[uiObjectCount].textureIndex = character.tex;
+				uiData[uiObjectCount].layerIndex = character.layer;
+				uiData[uiObjectCount].luminosity = glm::vec4(character.luminosity.r, character.luminosity.g, character.luminosity.b, character.luminosity.a);
+				uiData[uiObjectCount].color = glm::vec4(character.color.r, character.color.g, character.color.b, character.color.a);
+				uiData[uiObjectCount].shaderIndex = character.shader;
+
+				uiObjectCount++;
+			}
 		}
 	}	
 }
 
+void OpenGLWindow::render(ui::Slider& p_ui) // i have no fucking clue if this will work the way i think it will :)
+{
+	if (uiObjectCount < maxUIObjects)
+	{
+		glm::mat4 transform = glm::mat4(1.0f);
+
+		transform = glm::scale(transform, glm::vec3((p_ui.size.x) / getSize().x, (p_ui.size.y) / getSize().y, 0));
+		transform = glm::translate(transform, glm::vec3(((((p_ui.transform.x) + p_ui.size.x / 2) - getSize().x / 2)) / (p_ui.size.x / 2), -((((p_ui.transform.y) + p_ui.size.y / 2) - getSize().y / 2)) / (p_ui.size.y / 2), 0));
+
+		uiData[uiObjectCount].transform = transform;
+		uiData[uiObjectCount].position = glm::vec2(p_ui.transform.x, p_ui.transform.y);
+		uiData[uiObjectCount].size = glm::vec2(p_ui.offset.w, p_ui.offset.h);
+		uiData[uiObjectCount].textureCoordinates = glm::vec4(p_ui.texturePos.x / TextureSize[p_ui.tex].x, p_ui.texturePos.y / TextureSize[p_ui.tex].y, TextureSize[p_ui.tex].x / p_ui.texturePos.w, TextureSize[p_ui.tex].y / p_ui.texturePos.h);
+		uiData[uiObjectCount].textureIndex = p_ui.tex;
+		uiData[uiObjectCount].layerIndex = p_ui.layer;
+		uiData[uiObjectCount].luminosity = glm::vec4(p_ui.luminosity.r, p_ui.luminosity.g, p_ui.luminosity.b, p_ui.luminosity.a);
+		uiData[uiObjectCount].color = glm::vec4(p_ui.color.r, p_ui.color.g, p_ui.color.b, p_ui.color.a);
+		uiData[uiObjectCount].shaderIndex = 0; // for now ui will use default shader
+
+		uiObjectCount++;
+
+		render(p_ui.uiText, false);
+		render(p_ui.bar, false);
+	}
+}
+
 void OpenGLWindow::render(ui& p_ui) // i think this copys the texture to the renderer
 {
-	glm::mat4 transform = glm::mat4(1.0f);
-
-	transform = glm::scale(transform, glm::vec3((p_ui.size.x) / getSize().x, (p_ui.size.y) / getSize().y, 0));  
-	transform = glm::translate(transform, glm::vec3(((((p_ui.transform.x) + p_ui.size.x / 2) - getSize().x / 2)) / (p_ui.size.x / 2), -((((p_ui.transform.y) + p_ui.size.y / 2) - getSize().y / 2)) / (p_ui.size.y / 2), 0)); 
-
-	positionArray[entityCount] = transform;
-	texCoordArray[entityCount] = glm::vec4(1,1,1,1);
-	textureArray[entityCount] = p_ui.tex;
-	layerArray[entityCount] = p_ui.layer;
-	shadowArray[entityCount] = glm::vec4(1,1,1,0);
-
-	if (TexturesToRender.find(p_ui.layer) == TexturesToRender.end())
+	if (uiObjectCount < maxUIObjects)
 	{
-		//TexturesToRender.push_back(p_ent.tex);
-		std::vector<int> newVector;
-		TexturesToRender.insert(std::pair<unsigned int,std::vector<int>>(p_ui.layer, newVector));
-	}
+		glm::mat4 transform = glm::mat4(1.0f);
 
-	if (std::find(TexturesToRender[p_ui.layer].begin(), TexturesToRender[p_ui.layer].end(), p_ui.tex) == TexturesToRender[p_ui.layer].end())
-	{
-		TexturesToRender[p_ui.layer].push_back(p_ui.tex);
-	}
+		transform = glm::scale(transform, glm::vec3((p_ui.size.x) / getSize().x, (p_ui.size.y) / getSize().y, 0));
+		transform = glm::translate(transform, glm::vec3(((((p_ui.transform.x) + p_ui.size.x / 2) - getSize().x / 2)) / (p_ui.size.x / 2), -((((p_ui.transform.y) + p_ui.size.y / 2) - getSize().y / 2)) / (p_ui.size.y / 2), 0));
 
-	entityCount++;
-    
-   	render(p_ui.uiText, false);
+		uiData[uiObjectCount].transform = transform;
+		uiData[uiObjectCount].position = glm::vec2(p_ui.transform.x, p_ui.transform.y);
+		uiData[uiObjectCount].size = glm::vec2(p_ui.offset.w, p_ui.offset.h);
+		uiData[uiObjectCount].textureCoordinates = glm::vec4(p_ui.texturePos.x / TextureSize[p_ui.tex].x, p_ui.texturePos.y / TextureSize[p_ui.tex].y, TextureSize[p_ui.tex].x / p_ui.texturePos.w, TextureSize[p_ui.tex].y / p_ui.texturePos.h);
+		uiData[uiObjectCount].textureIndex = p_ui.tex;
+		uiData[uiObjectCount].layerIndex = p_ui.layer;
+		uiData[uiObjectCount].luminosity = glm::vec4(p_ui.luminosity.r, p_ui.luminosity.g, p_ui.luminosity.b, p_ui.luminosity.a);
+		uiData[uiObjectCount].color = glm::vec4(p_ui.color.r, p_ui.color.g, p_ui.color.b, p_ui.color.a);
+		uiData[uiObjectCount].shaderIndex = 0; // for now ui will use default shader
+
+		uiObjectCount++;
+
+		render(p_ui.uiText, false);
+	}
 }
 
 void OpenGLWindow::render(Light& p_light) // i think this copys the texture to the renderer
 {
-	if (lightCount < maxLights)
+	Entity intersect(Vector2(p_light.radius, p_light.radius));
+	intersect.transform = Vector2(p_light.transform.x - p_light.radius / 2, p_light.transform.y - p_light.radius / 2);
+
+	if (intersect.intersecting(OnscreenCamera) == true && lightCount < maxLights)
 	{
 		glm::mat4 transform = glm::mat4(1.0f);
 
 		transform = glm::scale(transform, glm::vec3((p_light.radius) / getSize().x, (p_light.radius) / getSize().y, 0));  
 		transform = glm::translate(transform, glm::vec3(((round(p_light.transform.x) - getSize().x / 2) - cameraOffset.x) / (p_light.radius / 2), -((round(p_light.transform.y) - getSize().y / 2) - cameraOffset.y) / (p_light.radius / 2), 0)); 
+		transform = glm::rotate(transform, std::rad2deg(p_light.rotation), glm::vec3(0.0f, 0.0f, 1.0f));
 
-		lightColorArray[lightCount] = glm::vec4(p_light.r, p_light.g, p_light.b, p_light.intensity);
-		lightPositionArray[lightCount] = transform;
-		lightLayerArray[lightCount] = p_light.layer;
+		lightData[lightCount].transform = transform;
+		lightData[lightCount].color = glm::vec4(p_light.r, p_light.g, p_light.b, p_light.intensity);
+		lightData[lightCount].layerIndex = p_light.layer;
+		lightData[lightCount].shape = glm::vec2(p_light.shape.x, p_light.shape.y);
 
 		transform = glm::mat4(1.0f);
 
 		transform = glm::scale(transform, glm::vec3((p_light.radius) / getSize().x, (p_light.radius) / getSize().y, 0));  
 		transform = glm::translate(transform, glm::vec3(((round(p_light.transform.x - p_light.radius / 2) - getSize().x / 2) - cameraOffset.x) / (p_light.radius / 2), -((round(p_light.transform.y  + p_light.radius / 2) - getSize().y / 2) - cameraOffset.y) / (p_light.radius / 2), 0)); 
 
-
-		shadowPositionArray[lightCount] = transform;
+		lightData[lightCount].emissionCenter = transform;
 
 		lightCount++;
 	}
 }
 
 void OpenGLWindow::display() // used to display information from the renderer to the window
-{
+{	
+	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(EntityGPUData), &entityData[0], GL_STREAM_DRAW);
+
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-	glEnable(GL_DEPTH_TEST);
-
-	glBindVertexArray(VAO);
-
-	glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, 0.1f, 100.0f);
-
-	//glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
- 	
- 	// position buffer
-	glBindBuffer(GL_ARRAY_BUFFER, IVBO[0]);
-	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(glm::mat4), &positionArray[0], GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
-    glEnableVertexAttribArray(4);
-   	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
-    glEnableVertexAttribArray(5);
-    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
-    glEnableVertexAttribArray(6);
-    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
-
-    glVertexAttribDivisor(3, 1);
-    glVertexAttribDivisor(4, 1);
-    glVertexAttribDivisor(5, 1);
-    glVertexAttribDivisor(6, 1);
-
-    // texture position buffer
-    glBindBuffer(GL_ARRAY_BUFFER, IVBO[1]);
-	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(glm::vec4), &texCoordArray[0], GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(7);
-    glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)0);
-
-    glVertexAttribDivisor(7, 1);
-
-    // texture buffer
-    glBindBuffer(GL_ARRAY_BUFFER, IVBO[2]);
-	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(int), &textureArray[0], GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(8);
-    glVertexAttribPointer(8, 1, GL_FLOAT, GL_FALSE, sizeof(int), (void*)0);
-    //glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-
-    glVertexAttribDivisor(8, 1);
-
-    // layer buffer
-    glBindBuffer(GL_ARRAY_BUFFER, IVBO[3]);
-    glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(int), &layerArray[0], GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(9);
-    glVertexAttribPointer(9, 1, GL_FLOAT, GL_FALSE, sizeof(int), (void*)0);
-
-    glVertexAttribDivisor(9, 1);
-
-    // shadow buffer
-    glBindBuffer(GL_ARRAY_BUFFER, IVBO[4]);
-	glBufferData(GL_ARRAY_BUFFER, entityCount * sizeof(glm::vec4), &shadowArray[0], GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(10);
-    glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)0);
-
-    glVertexAttribDivisor(10, 1);
-
-    // unbind buffers
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	defaultShader.use();
-
 	defaultShader.setIntArray("ourTexture", 16, textureUnits);  
+	defaultShader.setFloat("time", SDL_GetTicks());
+	defaultShader.setVec2("grassDeform", grassDeform.x, grassDeform.y);
 
 	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, FBOLight);
-	luminosityShader.use();
-	luminosityShader.setIntArray("ourTexture", 16, textureUnits); 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-
-	glClear(GL_DEPTH_BUFFER_BIT);
-
-	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
 
 	for (int i = 0; i < lightCount; i++)
 	{
-		//glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 		glDepthMask(GL_FALSE);
 
 		glClear(GL_STENCIL_BUFFER_BIT);
@@ -519,49 +626,95 @@ void OpenGLWindow::display() // used to display information from the renderer to
 		glStencilFunc( GL_ALWAYS, 1, 0xFF );
 
 		shadowShader.use();
-
-		shadowShader.setMat4("lightMatrix", shadowPositionArray[i]); 
-
-		shadowShader.setInt("currentLayer", lightLayerArray[i]);
+		shadowShader.setMat4("lightMatrix", lightData[i].emissionCenter);
+		shadowShader.setInt("currentLayer", lightData[i].layerIndex);
 
 		glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
-
-		//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
 		glStencilOp( GL_KEEP, GL_KEEP, GL_KEEP );
 		glStencilFunc( GL_NOTEQUAL, 1, 0xFF );
 
-
 		lightShader.use();
-
-		lightShader.setInt("layerId", lightLayerArray[i]);
-
-		lightShader.setMat4("lightPos", lightPositionArray[i]);
-
-		lightShader.setVec4("lightColor", lightColorArray[i]);
+		lightShader.setInt("layerId", lightData[i].layerIndex);
+		lightShader.setVec2("shape", lightData[i].shape);
+		lightShader.setMat4("lightPos", lightData[i].transform);
+		lightShader.setVec4("lightColor", lightData[i].color);
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		glDepthMask(GL_TRUE);
-
 		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 		glStencilFunc(GL_ALWAYS, 1, 0xFF);
-
-		
 	}
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	dropShadowShader.use(); // wip and needs more work but that's for tomorrow
+	dropShadowShader.setIntArray("ourTexture", 16, textureUnits);
+	dropShadowShader.setFloat("time", SDL_GetTicks());
+	dropShadowShader.setVec2("grassDeform", grassDeform.x, grassDeform.y);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
+	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, entityCount);
 
 	glDisable(GL_DEPTH_TEST);
 
-	framebufferShader.use();
-	framebufferShader.setFloat("zoom", zoom);
-	framebufferShader.setInt("screenTexture", FBOTex);
-	framebufferShader.setInt("lightTexture", FBOLightTex);
+	if (console.bloom == true)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, FBOBlur); // back to default
 
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		//first pass
+		framebufferShader.use();
+		framebufferShader.setFloat("zoom", 1.0f);
+		framebufferShader.setInt("blurTexture", FBOTex);
+		framebufferShader.setInt("lightTexture", FBOLightTex);
+		framebufferShader.setFloat("pass", 1.0f);
+
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		glBindTexture(GL_TEXTURE_2D, FBOBlurTex);
+		glGenerateMipmap(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		//second pass
+		framebufferShader.setFloat("pass", 2.0f);
+		framebufferShader.setInt("blurTexture", FBOBlurTex);
+
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
+
+		//third final pass
+		framebufferShader.setFloat("zoom", zoom);
+		framebufferShader.setInt("screenTexture", FBOTex);
+		framebufferShader.setVec4("unlitColor", ambientLight.r, ambientLight.g, ambientLight.b, ambientLight.a);
+		framebufferShader.setFloat("pass", 3.0f);
+
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	}
+	else
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
+
+		//4th secret final pass
+		framebufferShader.use();
+		framebufferShader.setFloat("zoom", zoom);
+		framebufferShader.setInt("screenTexture", FBOTex);
+		framebufferShader.setInt("lightTexture", FBOLightTex);
+		framebufferShader.setVec4("unlitColor", ambientLight.r, ambientLight.g, ambientLight.b, ambientLight.a);
+		framebufferShader.setFloat("pass", 3.0f);
+
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	}
+
+	glEnable(GL_DEPTH_TEST);
+
+	glBufferData(GL_ARRAY_BUFFER, uiObjectCount * sizeof(EntityGPUData), &uiData[0], GL_STREAM_DRAW);
+
+	defaultShader.use();
+	defaultShader.setIntArray("ourTexture", 16, textureUnits);
+	defaultShader.setFloat("time", SDL_GetTicks());
+	defaultShader.setVec2("grassDeform", grassDeform.x, grassDeform.y);
+
+	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, uiObjectCount);
 
 	SDL_GL_SwapWindow(window);
 }
@@ -572,15 +725,12 @@ void OpenGLWindow::quit() // used before exiting the program
 	SDL_Quit();
 }
 
-int clampAmount = 5;
-float lerpAmount = 0.005;
-
 void OpenGLWindow::camera(Vector2 pos) // used before exiting the program
 {
 	cameraPos.lerp(cameraPos, pos, lerpAmount * Time::deltaTime());
 
-	cameraPos.x = std::clamp(cameraPos.x, pos.x - clampAmount, pos.x + clampAmount);
-	cameraPos.y = std::clamp(cameraPos.y, pos.y - clampAmount, pos.y + clampAmount);
+	cameraPos.x = SDL_clamp(cameraPos.x, pos.x - clampAmount.x, pos.x + clampAmount.x);
+	cameraPos.y = SDL_clamp(cameraPos.y, pos.y - clampAmount.y, pos.y + clampAmount.y);
 
 	cameraOffset = Vector2(round(cameraPos.x) - ((getSize().x) / 2)  ,round(cameraPos.y) - ((getSize().y) / 2 ));
 }
