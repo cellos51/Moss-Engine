@@ -15,12 +15,11 @@ void GameScene::onStart()
 {
 	level = Level::Load("assets/levels/level.lvl");
 
-	playerLight.layer = 3;
+	playerLight.layer = 6;
 	playerLight.intensity = 0.1f;
 	playerLight.g = 0.8f;
 	playerLight.b = 0.8f;
 
-	player.layer = 2;
 	player.tex = 9;
 	player.transform = level.spawn;
 

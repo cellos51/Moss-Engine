@@ -43,7 +43,7 @@ void EditorScene::onStart()
 	sideBar.transform = Vector2(0, 0);
 
 	layer.tex = -1;
-	layer.uiText.font = 10;
+	layer.uiText.font = 11;
 	layer.uiText.transform = Vector2(layer.transform.x - layer.size.x / 1.25, layer.transform.y - layer.size.y / 1.25);
 	layer.size = Vector2(26, 26);
 	layer.texturePos.x = 36;
@@ -314,7 +314,7 @@ void EditorScene::update()
 			Entity collisionTile(Vector2(tileSize, tileSize));
 			collisionTile.luminosity = Color4(0.1f, 0.1f, 0.1f, 1.0f);
 			collisionTile.tex = collisionTexture;
-			collisionTile.layer = 5;
+			collisionTile.layer = 100;
 
 			for (const Entity& wall : level.tiles)
 			{

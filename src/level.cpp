@@ -75,11 +75,11 @@ void Level::SaveLevel(std::string path, LevelData& data)
 	std::ofstream outFile(path);
     if (outFile.is_open())
   	{
-		typename std::vector<Entity>::size_type entSize = map.size();
+		std::vector<Entity>::size_type entSize = map.size();
 		outFile.write((char*)&entSize, sizeof(entSize));
 		outFile.write((char*)&map[0], map.size() * sizeof(Entity));
 
-		typename std::vector<Light>::size_type lightSize = data.lights.size();
+		std::vector<Light>::size_type lightSize = data.lights.size();
 		outFile.write((char*)&lightSize, sizeof(lightSize));
 		outFile.write((char*)&data.lights[0], data.lights.size() * sizeof(Light));
 

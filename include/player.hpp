@@ -3,7 +3,7 @@
 #include "physicsentity.hpp"
 #include <SDL2/SDL_mixer.h>
 
-class Player : public PhysicsEntity // will resume work tomorrow :( (i'm gonna read a manga now about like a fucking trans person or something i guess)
+class Player : public PhysicsEntity // will resume work tomorrow :(
 {
 public:
 	//using PhysicsEntity::PhysicsEntity;

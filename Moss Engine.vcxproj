@@ -77,9 +77,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Creep\Documents\Moss Engine Dev\Libraries\SDL2-VC\include;C:\Users\Creep\Documents\Moss Engine Dev\Libraries\Steamworks\public;C:\Users\Creep\Documents\Moss Engine Dev\Libraries\glm;C:\Users\Creep\Documents\Moss Engine Dev\Libraries\glad\include;C:\Users\Creep\Documents\Moss Engine Dev\Moss-Engine\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Creep\Documents\Moss Engine Dev\Libraries\Steamworks\redistributable_bin\win64;C:\Users\Creep\Documents\Moss Engine Dev\Libraries\SDL2-VC\lib\x64;$(LibraryPath)</LibraryPath>
-    <SourcePath>C:\Users\Creep\Documents\Moss Engine Dev\Libraries\glad\src;$(SourcePath)</SourcePath>
+    <IncludePath>..\Libraries\SDL2-VC\include;..\Libraries\Steamworks\public;..\Libraries\glm;..\Libraries\glad\include;$(ProjectDir)\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\Libraries\Steamworks\redistributable_bin\win64;..\Libraries\SDL2-VC\lib\x64;$(LibraryPath)</LibraryPath>
+    <SourcePath>..\Libraries\glad\src;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -151,6 +151,7 @@
     <ClCompile Include="src\physicsentity.cpp" />
     <ClCompile Include="src\player.cpp" />
     <ClCompile Include="src\scene.cpp" />
+    <ClCompile Include="src\splashscreenscene.cpp" />
     <ClCompile Include="src\stb_image.cpp" />
     <ClCompile Include="src\text.cpp" />
     <ClCompile Include="src\ui.cpp" />
@@ -170,6 +171,7 @@
     <ClInclude Include="include\player.hpp" />
     <ClInclude Include="include\scene.hpp" />
     <ClInclude Include="include\shader.hpp" />
+    <ClInclude Include="include\splashscreenscene.hpp" />
     <ClInclude Include="include\stb_image.h" />
     <ClInclude Include="include\text.hpp" />
     <ClInclude Include="include\ui.hpp" />

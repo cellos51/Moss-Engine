@@ -184,10 +184,6 @@ void PhysicsEntity::physics(bool p_phys)
 			}
 		}
 
-		// if(velocity.y >= -0.001 / 16 * Time::deltaTime() && velocity.y <= 0.001 / 16 * Time::deltaTime())
-		// {
-		// 	velocity.y = 0;
-		// }
 		if (velocity.y > 0)
 		{
 			velocity.y -= (dragY * velocity.y) / 16 * Time::deltaTime();

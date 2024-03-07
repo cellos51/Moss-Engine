@@ -14,6 +14,7 @@
 #include <shlwapi.h>
 
 #include "scene.hpp"
+#include "splashscreenscene.hpp"
 #include "editorscene.hpp"
 #include "gamescene.hpp"
 #include "console.hpp"
@@ -59,7 +60,7 @@ static bool init() // used to initiate things before using
 	window.create("Moss Engine (OpenGL)", 1280, 720); // name and size of application window
 	console.log("Window creation and program initialization finished.\n");
 
-	activeScene.openScene(std::make_shared<GameScene>(window));
+	activeScene.openScene(std::make_shared<SplashScene>(window));
 
 	// bandaid solution
 
@@ -69,6 +70,7 @@ static bool init() // used to initiate things before using
 	window.loadTexture("assets/textures/buttons.png");
 	window.loadTexture("assets/textures/collision.png");
 	window.loadTexture("assets/textures/player.png");
+	window.loadTexture("assets/textures/splash.png");
 
 	// end of bandaid solution
 
