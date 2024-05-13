@@ -19,6 +19,8 @@ public:
 	// convars
 	bool gameRunning = true;
 	bool bloom = true;
+	int frameCap = 0;
+	double tickrate = 1000.0 / 60.0;
 private:
 	void runCommand(std::string command);
 

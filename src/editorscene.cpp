@@ -768,7 +768,7 @@ void EditorScene::update()
 	}
 }
 
-void EditorScene::fixedUpdate()
+void EditorScene::fixedUpdate(double deltaTime)
 {
 
 }

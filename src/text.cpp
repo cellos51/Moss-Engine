@@ -21,6 +21,7 @@ void Text::setText(std::string data)
 
 	int i = 0;
 	int currentLine = 0;
+
 	for(char& c : data)
 	{
 		if (c == '\n')

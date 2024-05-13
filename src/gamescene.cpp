@@ -36,16 +36,11 @@ void GameScene::onEnd()
 
 void GameScene::update()
 {
-	player.update();
+	player.update(Time::deltaTime());
 
 	for (auto& [key, value] : networkPlayers)
 	{
 		value.update();
-	}
-
-	for (auto& ent : level.tiles)
-	{
-		player.getCol(ent);
 	}
 
 	playerLight.transform = Vector2(player.transform.x + player.size.x / 2, player.transform.y + player.size.y / 2);
@@ -54,8 +49,15 @@ void GameScene::update()
 
 	window.grassDeform = Vector2(player.transform.x, player.transform.y + 4);
 }
-void GameScene::fixedUpdate()
+void GameScene::fixedUpdate(double deltaTime)
 {
+	player.fixedUpdate(deltaTime);
+
+	for (auto& ent : level.tiles)
+	{
+		player.getCol(ent, deltaTime);
+	}
+
 	if (console.enabled == false)
 	{
 		if (Event::KeyPressed(SDLK_1))

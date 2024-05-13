@@ -10,7 +10,8 @@ public:
 	Player();
 	~Player();
 	bool onWall() const;
-	void update() override;
+	void update(double deltaTime);
+	void fixedUpdate(double deltaTime) override;
 	int mirror = 0;
 	float groundSpeed = 0.01f;
 	float airSpeed = 0.01f;

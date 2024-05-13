@@ -55,7 +55,7 @@ bool Player::onWall() const
 	return (walljumpTimeLeft == coyoteTime || walljumpTimeRight == coyoteTime);
 }
 
-void Player::update()
+void Player::update(double deltaTime)
 {
 	bool jumpButton = Event::KeyPressed(SDLK_SPACE) || Event::ButtonPressed(SDL_CONTROLLER_BUTTON_A);
 	bool jumpButtonDown = Event::KeyDown(SDLK_SPACE) || Event::ButtonDown(SDL_CONTROLLER_BUTTON_A);
@@ -89,7 +89,7 @@ void Player::update()
 	}
 	else
 	{
-		airTime -= Time::deltaTime();
+		airTime -= deltaTime;
 
 		speed = airSpeed;
 		dragX = 0.03f;
@@ -119,9 +119,9 @@ void Player::update()
 	// jumping and wall jumping
 
 	dragY = 0.01f;
-	cachedVelocity.x -= (cachedVelocity.x > 0) ? Time::deltaTime() / 100 : 0.0f;
-	walljumpTimeLeft -= (walljumpTimeLeft > 0) ? Time::deltaTime() : 0.0f;
-	walljumpTimeRight -= (walljumpTimeRight > 0) ? Time::deltaTime() : 0.0f;
+	cachedVelocity.x -= (cachedVelocity.x > 0) ? deltaTime / 100 : 0.0f;
+	walljumpTimeLeft -= (walljumpTimeLeft > 0) ? deltaTime : 0.0f;
+	walljumpTimeRight -= (walljumpTimeRight > 0) ? deltaTime : 0.0f;
 
 	if (((leftTouch == true && moveDir < 0.0f) || (rightTouch == true && moveDir > 0.0f)) && OnGround == false)
 	{
@@ -154,7 +154,7 @@ void Player::update()
 	}
 	else
 	{
-		jumpTime -= (jumpTime > 0) ? Time::deltaTime() : 0.0f;
+		jumpTime -= (jumpTime > 0) ? deltaTime : 0.0f;
 	}
 
 	if (jumpTime > 0 && (airTime > 0 || walljumpTimeLeft > 0 || walljumpTimeRight > 0))
@@ -189,11 +189,11 @@ void Player::update()
 	}
 	else if (jumpButton == false && !OnGround && velocity.y < 0)
 	{
-		velocity.y = std::lerp(velocity.y, 0.0f, Time::deltaTime() * 0.05);
+		velocity.y = std::lerp(velocity.y, 0.0f, deltaTime * 0.05);
 	}
 	// end of jumping
 
-	velocity.x += moveDir * Time::deltaTime();
+	velocity.x += moveDir * deltaTime;
 
 	// animation
 	if (moveDir > 0)
@@ -218,7 +218,7 @@ void Player::update()
 
 		if (std::abs(velocity.x) < 0.1)
 		{
-			elapsedTime += Time::deltaTime() / 200.0f;
+			elapsedTime += deltaTime / 200.0f;
 			texturePos.x = (mirror + int(elapsedTime) % 8) * 64;
 			texturePos.y = 64;
 			resetAnimation = true;
@@ -234,7 +234,7 @@ void Player::update()
 				elapsedTime = 0;
 			}
 
-			elapsedTime += Time::deltaTime() / 100.0f * std::abs(velocity.x);
+			elapsedTime += deltaTime / 100.0f * std::abs(velocity.x);
 			texturePos.x = (mirror + int(elapsedTime) % 12) * 64;
 			texturePos.y = 0;
 
@@ -276,21 +276,23 @@ void Player::update()
 		else if (velocity.y < 0 )
 		{
 			texturePos.x = (mirror + 8) * 64;
-			rotation = std::lerp(rotation, -velocity.x, Time::deltaTime() * 0.005);
+			rotation = std::lerp(rotation, -velocity.x, deltaTime * 0.005);
 		}
 		else
 		{
 			texturePos.x = (mirror + 9) * 64;
-			rotation = std::lerp(rotation, velocity.x, Time::deltaTime() * 0.005);
+			rotation = std::lerp(rotation, velocity.x, deltaTime * 0.005);
 		}
 		resetAnimation = true;
 	}
 
 	//rotation = std::lerp(rotation, -velocity.x, Time::deltaTime() * 0.05); // cool velocity based rotation but it doesn't look too good with pixel art
-
-	Player::physics(phys);
 }
 
+void Player::fixedUpdate(double deltaTime)
+{
+	PhysicsEntity::physics(phys, deltaTime);
+}
 
 NetPlayer::NetPlayer()
 {

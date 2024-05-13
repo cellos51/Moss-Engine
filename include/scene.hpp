@@ -10,7 +10,7 @@ public:
 	virtual void onStart() = 0;
 	virtual void onEnd() = 0;
 	virtual void update() {};
-	virtual void fixedUpdate() {};
+	virtual void fixedUpdate(double deltaTime) {};
 	virtual void render(OpenGLWindow& window) {};
 };
 
@@ -22,7 +22,7 @@ public:
 	void openScene(std::shared_ptr<Scene> scene);
 	void closeScene();
 	void update();
-	void fixedUpdate();
+	void fixedUpdate(double deltaTime);
 	void render(OpenGLWindow& window);
 private:
 	std::shared_ptr<Scene> activeScene;

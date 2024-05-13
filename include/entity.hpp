@@ -28,6 +28,4 @@ public:
 	SDL_Rect texturePos;
 	Color4 luminosity = Color4(0.0f, 0.0f, 0.0f, 1.0f);
 	Color4 color = Color4(1.0f, 1.0f, 1.0f, 1.0f);
-
-	std::vector<Entity> children;
 };

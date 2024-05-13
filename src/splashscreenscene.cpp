@@ -49,7 +49,7 @@ void SplashScene::update()
 		activeScene.openScene(std::make_shared<GameScene>(window));
 	}
 }
-void SplashScene::fixedUpdate()
+void SplashScene::fixedUpdate(double deltaTime)
 {
 
 }

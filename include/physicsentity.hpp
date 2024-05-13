@@ -16,11 +16,11 @@ public:
 	float dragY = 0.01f; // 0.01
 	float bounciness = 0; // 0.8
 	bool phys = true;
-	void getCol(Entity& p_ent);
-	void physics(bool p_phys);
-	virtual void update()
+	void getCol(Entity& p_ent, double deltaTime);
+	void physics(bool p_phys, double deltaTime);
+	virtual void fixedUpdate(double deltaTime)
 	{
-		PhysicsEntity::physics(phys);
+		PhysicsEntity::physics(phys, deltaTime);
 	}
 	bool leftTouch = false;
 	bool rightTouch = false;

@@ -75,7 +75,6 @@ void Console::update()
 			input.uiText.setText("");
 		}
 
-
 		output.transform = Vector2(32, ((window.getSize().y - input.size.y) - 64) - output.getLines() * output.fontSize);
 		output.lineLength = window.getSize().x / output.fontSize;
 		output.setText(data);
@@ -107,7 +106,6 @@ void Console::runCommand(std::string command)
 	{
 		v.push_back(command);
 	}
-
 
 	if (v.size() > 1)
 	{
@@ -145,6 +143,18 @@ void Console::runCommand(std::string command)
 				activeScene.openScene(std::make_shared<EditorScene>(window));
 			}
 		}
+		else if (v[0] == "framecap")
+		{
+			frameCap = std::stoi(v[1]);
+		}
+		else if (v[0] == "tickrate")
+		{
+			tickrate = 1000.0 / std::stoi(v[1]);
+		}
+		else
+		{
+			Console::log("Unknown command: " + v[0] + '\n');
+		}
 	}
 	else
 	{
@@ -167,6 +177,10 @@ void Console::runCommand(std::string command)
 			{
 				console.log("peer id " + std::to_string(peer) + "\n");
 			}
+		}
+		else
+		{
+			Console::log("Unknown command: " + v[0] + '\n');
 		}
 	}
 }

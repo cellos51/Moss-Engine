@@ -48,11 +48,11 @@ void SceneManager::update()
 	}
 }
 
-void SceneManager::fixedUpdate()
+void SceneManager::fixedUpdate(double deltaTime)
 {
 	if (activeScene)
 	{
-		activeScene->fixedUpdate();
+		activeScene->fixedUpdate(deltaTime);
 	}
 }
 

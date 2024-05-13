@@ -26,9 +26,6 @@
 #include "ui.hpp"
 #include "light.hpp"
 
-const double fixedTick = 1000.0 / 60.0;
-double fixedTime = 0.0;
-
 static bool init() // used to initiate things before using
 {
 	if (SteamAPI_RestartAppIfNecessary(k_uAppIdInvalid)) // Replace with your App ID
@@ -41,8 +38,10 @@ static bool init() // used to initiate things before using
 		console.log("Fatal Error - Steam must be running to play this game (SteamAPI_Init() failed).\n");
 		//console.gameRunning = false;
 	}
-
-	steamSocket.init();
+	else
+	{
+		steamSocket.init();
+	}
 
 	if( SDL_Init( SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER ) < 0 )
     {
@@ -78,8 +77,6 @@ static bool init() // used to initiate things before using
 
 	Event::AppStart();
 
-
-
 	return true;
 }
 
@@ -89,9 +86,9 @@ static void gameLoop() // it runs forever
 	console.update(); // grrr i have to reference window here because i couldn't include a reference variable cause no constructor :(
 }
 
-static void fixedGameLoop() // it runs forever
+static void fixedGameLoop(double deltaTime) // it runs forever
 {
-	activeScene.fixedUpdate();
+	activeScene.fixedUpdate(deltaTime);
 	console.fixedUpdate();
 }
 
@@ -113,17 +110,27 @@ int main(int argc, char* args[])
     	console.gameRunning = Event::AppQuit();
 		gameLoop();
 
+		static double fixedTime;
 		fixedTime += Time::deltaTime();
 
-		while (fixedTime > fixedTick) // mid way to do this but whatevs
+		while (fixedTime > console.tickrate) // mid way to do this but whatevs
 		{
-			fixedGameLoop();
-			fixedTime -= fixedTick;
+			fixedGameLoop(console.tickrate);
+			fixedTime -= console.tickrate;
 		}
 
 		window.clear();
     	render();
     	window.display();
+
+		if (console.frameCap > 0)
+		{
+			double frameCap = 2000.0 / console.frameCap;
+			if (Time::deltaTime() < frameCap)
+			{
+				SDL_Delay(frameCap - Time::deltaTime());
+			}
+		}
 	}
 	activeScene.closeScene();
 
