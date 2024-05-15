@@ -57,156 +57,6 @@ bool Player::onWall() const
 
 void Player::update(double deltaTime)
 {
-	bool jumpButton = Event::KeyPressed(SDLK_SPACE) || Event::ButtonPressed(SDL_CONTROLLER_BUTTON_A);
-	bool jumpButtonDown = Event::KeyDown(SDLK_SPACE) || Event::ButtonDown(SDL_CONTROLLER_BUTTON_A);
-
-	float moveAxis = 0;
-	moveAxis += (Event::KeyPressed(SDLK_a) == true) ? 1.0f : 0.0f;
-	moveAxis += (Event::KeyPressed(SDLK_d) == true) ? -1.0f : 0.0f;
-	moveAxis = (Event::JoyAxis(SDL_CONTROLLER_AXIS_LEFTX) != 0.0f) ? Event::JoyAxis(SDL_CONTROLLER_AXIS_LEFTX) : moveAxis;
-
-
-	// movement
-
-	float moveDir = 0.0f;
-
-	float speed = 0;
-
-	if (OnGround == true)
-	{
-		walljumpTimeLeft = 0.0f;
-		walljumpTimeRight = 0.0f;
-
-		airTime = coyoteTime;
-
-		speed = groundSpeed;
-		dragX = 0.04f;
-
-		if (moveAxis == 0.0f)
-		{
-			dragX = 0.3f;
-		}
-	}
-	else
-	{
-		airTime -= deltaTime;
-
-		speed = airSpeed;
-		dragX = 0.03f;
-	}
-
-
-	if (moveAxis < 0)
-	{
-		moveDir += speed * -moveAxis;
-
-		if (velocity.x < 0 && OnGround == true) // this lets you stop on a DIME (not really a dime but you get the idea)
-		{
-			dragX = 0.3f;
-		}
-	}
-
-	if (moveAxis > 0)
-	{
-		moveDir -= speed * moveAxis;
-
-		if (velocity.x > 0 && OnGround == true)
-		{
-			dragX = 0.3f;
-		}
-	}
-
-	// jumping and wall jumping
-
-	dragY = 0.01f;
-	cachedVelocity.x -= (cachedVelocity.x > 0) ? deltaTime / 100 : 0.0f;
-	walljumpTimeLeft -= (walljumpTimeLeft > 0) ? deltaTime : 0.0f;
-	walljumpTimeRight -= (walljumpTimeRight > 0) ? deltaTime : 0.0f;
-
-	if (((leftTouch == true && moveDir < 0.0f) || (rightTouch == true && moveDir > 0.0f)) && OnGround == false)
-	{
-		if (velocity.y > 0.0f)
-		{
-			dragY = 0.1f;
-		}
-
-		Mix_Volume(6, std::abs(velocity.y) * 20);
-
-		if (leftTouch == true)
-		{
-			walljumpTimeLeft = coyoteTime;
-		}
-		else if (rightTouch == true)
-		{
-			walljumpTimeRight = coyoteTime;
-		}
-	}
-	else
-	{
-		Mix_Volume(6, 0);
-		cachedVelocity.x = std::abs(velocity.x);
-	}
-	
-
-	if (jumpButtonDown == true)
-	{
-		jumpTime = jumpBuffer;
-	}
-	else
-	{
-		jumpTime -= (jumpTime > 0) ? deltaTime : 0.0f;
-	}
-
-	if (jumpTime > 0 && (airTime > 0 || walljumpTimeLeft > 0 || walljumpTimeRight > 0))
-	{
-		if (walljumpTimeLeft > 0 && walljumpTimeLeft > walljumpTimeRight)
-		{
-			velocity.x += 5 + cachedVelocity.x / 2;
-			velocity.y -= jumpForce;
-
-			Mix_Volume(5, 15);
-			Mix_PlayChannel(5, jump[rand() % 2], 0);
-		}
-		else if (walljumpTimeRight > 0 && walljumpTimeRight > walljumpTimeLeft)
-		{
-			velocity.x -= 5 + cachedVelocity.x / 2;
-			velocity.y -= jumpForce;
-
-			Mix_Volume(5, 15);
-			Mix_PlayChannel(5, jump[rand() % 2], 0);
-		}
-		else if (airTime > 0)
-		{
-			velocity.y -= jumpForce;
-
-			Mix_Volume(5, 15);
-			Mix_PlayChannel(5, jump[rand() % 2], 0);
-		}
-		walljumpTimeLeft = 0.0f;
-		walljumpTimeRight = 0.0f;
-		airTime = 0.0f;
-		jumpTime = 0.0f;
-	}
-	else if (jumpButton == false && !OnGround && velocity.y < 0)
-	{
-		velocity.y = std::lerp(velocity.y, 0.0f, deltaTime * 0.05);
-	}
-	// end of jumping
-
-	velocity.x += moveDir * deltaTime;
-
-	// animation
-	if (moveDir > 0)
-	{
-		texturePos.w = 64;
-		mirror = 0;
-	}
-	else if (moveDir < 0)
-	{
-		texturePos.w = -64;
-		mirror = 1;
-	}
-
 	if (OnGround == true)
 	{
 		if (hitGround == false)
@@ -291,6 +141,159 @@ void Player::update(double deltaTime)
 
 void Player::fixedUpdate(double deltaTime)
 {
+	bool jumpButton = Event::KeyPressed(SDLK_SPACE) || Event::ButtonPressed(SDL_CONTROLLER_BUTTON_A);
+
+	float moveAxis = 0;
+	moveAxis += (Event::KeyPressed(SDLK_a) == true) ? 1.0f : 0.0f;
+	moveAxis += (Event::KeyPressed(SDLK_d) == true) ? -1.0f : 0.0f;
+	moveAxis = (Event::JoyAxis(SDL_CONTROLLER_AXIS_LEFTX) != 0.0f) ? Event::JoyAxis(SDL_CONTROLLER_AXIS_LEFTX) : moveAxis;
+
+	// movement
+
+	float moveDir = 0.0f;
+
+	float speed = 0;
+
+	if (OnGround == true)
+	{
+		walljumpTimeLeft = 0.0f;
+		walljumpTimeRight = 0.0f;
+
+		airTime = coyoteTime;
+
+		speed = groundSpeed;
+		dragX = 0.04f;
+
+		if (moveAxis == 0.0f)
+		{
+			dragX = 0.3f;
+		}
+	}
+	else
+	{
+		airTime -= deltaTime;
+
+		speed = airSpeed;
+		dragX = 0.03f;
+	}
+
+
+	if (moveAxis < 0)
+	{
+		moveDir += speed * -moveAxis;
+
+		if (velocity.x < 0 && OnGround == true) // this lets you stop on a DIME (not really a dime but you get the idea)
+		{
+			dragX = 0.3f;
+		}
+	}
+
+	if (moveAxis > 0)
+	{
+		moveDir -= speed * moveAxis;
+
+		if (velocity.x > 0 && OnGround == true)
+		{
+			dragX = 0.3f;
+		}
+	}
+
+	// jumping and wall jumping
+
+	dragY = 0.01f;
+	cachedVelocity.x -= (cachedVelocity.x > 0) ? deltaTime / 100 : 0.0f;
+	walljumpTimeLeft -= (walljumpTimeLeft > 0) ? deltaTime : 0.0f;
+	walljumpTimeRight -= (walljumpTimeRight > 0) ? deltaTime : 0.0f;
+
+	if (((leftTouch == true && moveDir < 0.0f) || (rightTouch == true && moveDir > 0.0f)) && OnGround == false)
+	{
+		if (velocity.y > 0.0f)
+		{
+			dragY = 0.1f;
+		}
+
+		Mix_Volume(6, std::abs(velocity.y) * 20);
+
+		if (leftTouch == true)
+		{
+			walljumpTimeLeft = coyoteTime;
+		}
+		else if (rightTouch == true)
+		{
+			walljumpTimeRight = coyoteTime;
+		}
+	}
+	else
+	{
+		Mix_Volume(6, 0);
+		cachedVelocity.x = std::abs(velocity.x);
+	}
+
+	if (jumpButton == true && pressingJump == false)
+	{
+		pressingJump = true;
+		jumpTime = jumpBuffer;
+	}
+	else
+	{
+		jumpTime -= (jumpTime > 0) ? deltaTime : 0.0f;
+
+		if (jumpButton == false)
+		{
+			pressingJump = false;
+		}
+	}
+
+	if (jumpTime > 0 && (airTime > 0 || walljumpTimeLeft > 0 || walljumpTimeRight > 0))
+	{
+		if (walljumpTimeLeft > 0 && walljumpTimeLeft > walljumpTimeRight)
+		{
+			velocity.x += 5 + cachedVelocity.x / 2;
+			velocity.y -= jumpForce;
+
+			Mix_Volume(5, 15);
+			Mix_PlayChannel(5, jump[rand() % 2], 0);
+		}
+		else if (walljumpTimeRight > 0 && walljumpTimeRight > walljumpTimeLeft)
+		{
+			velocity.x -= 5 + cachedVelocity.x / 2;
+			velocity.y -= jumpForce;
+
+			Mix_Volume(5, 15);
+			Mix_PlayChannel(5, jump[rand() % 2], 0);
+		}
+		else if (airTime > 0)
+		{
+			velocity.y -= jumpForce;
+
+			Mix_Volume(5, 15);
+			Mix_PlayChannel(5, jump[rand() % 2], 0);
+		}
+		walljumpTimeLeft = 0.0f;
+		walljumpTimeRight = 0.0f;
+		airTime = 0.0f;
+		jumpTime = 0.0f;
+	}
+	else if (jumpButton == false && !OnGround && velocity.y < 0)
+	{
+		velocity.y = std::lerp(velocity.y, 0.0f, deltaTime * 0.05);
+	}
+	// end of jumping
+
+	velocity.x += moveDir * deltaTime;
+
+	// animation
+	if (moveAxis < 0)
+	{
+		texturePos.w = 64;
+		mirror = 0;
+	}
+	else if (moveAxis > 0)
+	{
+		texturePos.w = -64;
+		mirror = 1;
+	}
+
 	PhysicsEntity::physics(phys, deltaTime);
 }
 

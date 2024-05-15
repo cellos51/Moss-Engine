@@ -34,24 +34,11 @@ void GameScene::onEnd()
 
 }
 
-void GameScene::update()
-{
-	player.update(Time::deltaTime());
-
-	for (auto& [key, value] : networkPlayers)
-	{
-		value.update();
-	}
-
-	playerLight.transform = Vector2(player.transform.x + player.size.x / 2, player.transform.y + player.size.y / 2);
-
-	window.camera(Vector2(player.transform.x + player.size.x / 2, (player.transform.y + player.size.y / 2) - 32));
-
-	window.grassDeform = Vector2(player.transform.x, player.transform.y + 4);
-}
 void GameScene::fixedUpdate(double deltaTime)
 {
 	player.fixedUpdate(deltaTime);
+	playerLight.transform = Vector2(player.transform.x + player.size.x / 2, player.transform.y + player.size.y / 2);
+	window.grassDeform = Vector2(player.transform.x, player.transform.y + 4);
 
 	for (auto& ent : level.tiles)
 	{
@@ -203,6 +190,18 @@ void GameScene::fixedUpdate(double deltaTime)
 	else if (networkPlayers.size() > 0) // if disconnected and players remain, delete them
 	{
 		networkPlayers.clear();
+	}
+}
+
+void GameScene::update()
+{
+	player.update(Time::deltaTime());
+
+	window.camera(Vector2(player.transform.x + player.size.x / 2, (player.transform.y + player.size.y / 2) - 32));
+
+	for (auto& [key, value] : networkPlayers)
+	{
+		value.update();
 	}
 }
 

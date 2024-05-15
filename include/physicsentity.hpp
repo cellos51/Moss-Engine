@@ -16,6 +16,7 @@ public:
 	float dragY = 0.01f; // 0.01
 	float bounciness = 0; // 0.8
 	bool phys = true;
+	bool interpolate = false;
 	void getCol(Entity& p_ent, double deltaTime);
 	void physics(bool p_phys, double deltaTime);
 	virtual void fixedUpdate(double deltaTime)

@@ -26,6 +26,7 @@ private: // most of this shit if for sound effects and animations
 	float walljumpTimeRight = 0.0f;
 	float elapsedTime = 0.0f;
 	Vector2 cachedVelocity = Vector2(0.0f, 0.0f);
+	bool pressingJump = false;
 	bool stepped = false;
 	bool hitGround = false;
 	Mix_Chunk* footStep[5] = { NULL };

@@ -143,7 +143,7 @@ void Console::runCommand(std::string command)
 				activeScene.openScene(std::make_shared<EditorScene>(window));
 			}
 		}
-		else if (v[0] == "framecap")
+		else if (v[0] == "fpsmax")
 		{
 			frameCap = std::stoi(v[1]);
 		}

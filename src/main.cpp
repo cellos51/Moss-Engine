@@ -80,16 +80,16 @@ static bool init() // used to initiate things before using
 	return true;
 }
 
-static void gameLoop() // it runs forever	
-{
-	activeScene.update();
-	console.update(); // grrr i have to reference window here because i couldn't include a reference variable cause no constructor :(
-}
-
 static void fixedGameLoop(double deltaTime) // it runs forever
 {
 	activeScene.fixedUpdate(deltaTime);
 	console.fixedUpdate();
+}
+
+static void gameLoop() // it runs forever	
+{
+	activeScene.update();
+	console.update(); // grrr i have to reference window here because i couldn't include a reference variable cause no constructor :(
 }
 
 static void render() // honestly i feel like putting the stuff that is at the end of the gameloop in here
@@ -108,7 +108,6 @@ int main(int argc, char* args[])
 		Time::Tick();
     	Event::PollEvent();
     	console.gameRunning = Event::AppQuit();
-		gameLoop();
 
 		static double fixedTime;
 		fixedTime += Time::deltaTime();
@@ -118,6 +117,8 @@ int main(int argc, char* args[])
 			fixedGameLoop(console.tickrate);
 			fixedTime -= console.tickrate;
 		}
+		gameLoop();
+
 
 		window.clear();
     	render();
