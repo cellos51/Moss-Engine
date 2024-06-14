@@ -31,7 +31,7 @@ public:
 	void setZoom(float x);
 	Vector2 getSize();
 	Vector2 cameraPos = Vector2(0,0);
-	Color4 ambientLight = Color4(0.35f, 0.33f, 0.5f,1);
+	Color4 ambientLight = Color4(0.48f, 0.54f, 0.74f, 1.0f);
 	std::map<unsigned int, Vector2> TextureSize;
 	Vector2 clampAmount = Vector2(0,0);
 	float lerpAmount = 0;

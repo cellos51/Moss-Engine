@@ -35,6 +35,13 @@ void Console::init()
 	panel.transform = Vector2(0.0f, 0.0f);
 	panel.size = window.getSize();
 	panel.layer = 18;
+
+	framerate.font = font;
+	framerate.transform = Vector2(0.0f, 0.0f);
+
+	coordinates.font = font;
+	coordinates.transform = Vector2(0.0f, 16.0f);
+	coordinates.lineLength = 1024;
 }
 
 void Console::log(std::string message) // WIP
@@ -85,7 +92,7 @@ void Console::update()
 
 void Console::fixedUpdate()
 {
-
+	framerate.setText("FPS: " + std::to_string((int)(2000.0 / Time::deltaTime())));
 }
 
 void Console::render(OpenGLWindow& window)
@@ -95,6 +102,16 @@ void Console::render(OpenGLWindow& window)
 		window.render(output, false);
 		window.render(input);
 		window.render(panel);
+	}
+
+	if (showFramerate == true)
+	{
+		window.render(framerate, false);
+	}
+	if (showCoordinates == true)
+	{
+		coordinates.setText("X: " + std::to_string((int)coordinatesPos.x) + "\nY: " + std::to_string((int)coordinatesPos.y));
+		window.render(coordinates, false);
 	}
 }
 
@@ -150,6 +167,47 @@ void Console::runCommand(std::string command)
 		else if (v[0] == "tickrate")
 		{
 			tickrate = 1000.0 / std::stoi(v[1]);
+		}
+		else if (v[0] == "ambientlight")
+		{
+			if (v.size() == 5)
+			{
+				window.ambientLight = Color4(std::stof(v[1]), std::stof(v[2]), std::stof(v[3]), std::stof(v[4]));
+			}
+			else
+			{
+				Console::log("Incorrect number of arguments for command ambientlight\n");
+			}
+		}
+		else if (v[0] == "showfps")
+		{
+			if (v[1] == "true")
+			{
+				showFramerate = true;
+			}
+			else if (v[1] == "false")
+			{
+				showFramerate = false;
+			}
+			else
+			{
+				Console::log("Cannot set value showfps to: " + v[1] + '\n');
+			}
+		}
+		else if (v[0] == "showcoords")
+		{
+			if (v[1] == "true")
+			{
+				showCoordinates = true;
+			}
+			else if (v[1] == "false")
+			{
+				showCoordinates = false;
+			}
+			else
+			{
+				Console::log("Cannot set value showcoords to: " + v[1] + '\n');
+			}
 		}
 		else
 		{

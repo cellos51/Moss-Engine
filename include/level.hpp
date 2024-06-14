@@ -11,6 +11,7 @@
 struct LevelData
 {
 	Vector2 spawn = Vector2(0.0f, 0.0f);
+	Color4 ambientLight = Color4(0.5f, 0.5f, 0.5f, 1.0f);
 	std::vector<Entity> tiles;
 	std::vector<Light> lights;
 };

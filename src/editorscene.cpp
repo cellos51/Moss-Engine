@@ -320,7 +320,7 @@ void EditorScene::update()
 			{
 				if (wall.colUp == true || wall.colDown == true || wall.colLeft == true || wall.colRight == true)
 				{
-					if (wall.layer == activeLayer)
+					if (wall.layer == activeLayer || viewLayer == false)
 					{
 						collisionTile.transform = wall.transform;
 						collisionView.push_back(collisionTile);
@@ -438,6 +438,7 @@ void EditorScene::update()
 			y = (y / tileSize) * tileSize;
 
 			window.grassDeform = Vector2(x2, y2);
+			console.coordinatesPos = Vector2(x2, y2);
 
 			if (viewCollision == true)
 			{
@@ -473,7 +474,7 @@ void EditorScene::update()
 			{
 				for (unsigned int i = 0; i < level.tiles.size(); i++)
 				{
-					if (level.tiles[i].transform.x == x && level.tiles[i].transform.y == y && level.tiles[i].layer == activeLayer)
+					if (level.tiles[i].transform.x == x && level.tiles[i].transform.y == y && (level.tiles[i].layer == activeLayer || viewLayer == false))
 					{
 						level.tiles.erase(level.tiles.begin() + i);
 					}
@@ -483,7 +484,7 @@ void EditorScene::update()
 			{
 				for (unsigned int i = 0; i < level.tiles.size(); i++)
 				{
-					if (level.tiles[i].transform.x == x && level.tiles[i].transform.y == y && level.tiles[i].layer == activeLayer)
+					if (level.tiles[i].transform.x == x && level.tiles[i].transform.y == y && (level.tiles[i].layer == activeLayer || viewLayer == false))
 					{
 						level.tiles[i].colUp = false;
 						level.tiles[i].colDown = false;
@@ -585,6 +586,8 @@ void EditorScene::update()
 
 		if (saveButton.onClick())
 		{
+			level.ambientLight = window.ambientLight;
+
 			for (unsigned int i = 0; i < level.tiles.size(); i++)
 			{
 				level.tiles[i].color.a = 1;
@@ -637,6 +640,8 @@ void EditorScene::update()
 
 		if (saveAsButton.onClick())
 		{
+			level.ambientLight = window.ambientLight;
+
 			for (unsigned int i = 0; i < level.tiles.size(); i++)
 			{
 				level.tiles[i].color.a = 1;
@@ -710,6 +715,7 @@ void EditorScene::update()
 			}
 
 			playerSpawn.transform = level.spawn;
+			window.ambientLight = level.ambientLight;
 		}
 
 		if (importButton.onClick())

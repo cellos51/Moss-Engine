@@ -14,6 +14,7 @@ GameScene::GameScene(OpenGLWindow& window) : window(window)
 void GameScene::onStart()
 {
 	level = Level::Load("assets/levels/level.lvl");
+	window.ambientLight = level.ambientLight;
 
 	playerLight.layer = 6;
 	playerLight.intensity = 0.1f;
@@ -27,6 +28,18 @@ void GameScene::onStart()
 	window.setZoom(1);
 	window.clampAmount = Vector2(10,50);
 	window.lerpAmount = 0.005;
+
+	for (const Entity& tile : level.tiles)
+	{
+		if (tile.colDown || tile.colUp || tile.colLeft || tile.colRight)
+		{
+			collidableTiles.push_back(tile);
+		}
+		else
+		{
+			tiles.push_back(tile);
+		}
+	}
 }
 
 void GameScene::onEnd()
@@ -40,7 +53,7 @@ void GameScene::fixedUpdate(double deltaTime)
 	playerLight.transform = Vector2(player.transform.x + player.size.x / 2, player.transform.y + player.size.y / 2);
 	window.grassDeform = Vector2(player.transform.x, player.transform.y + 4);
 
-	for (auto& ent : level.tiles)
+	for (auto& ent : collidableTiles)
 	{
 		player.getCol(ent, deltaTime);
 	}
@@ -203,6 +216,8 @@ void GameScene::update()
 	{
 		value.update();
 	}
+
+	console.coordinatesPos = player.transform;
 }
 
 void GameScene::render(OpenGLWindow& window)
@@ -212,7 +227,12 @@ void GameScene::render(OpenGLWindow& window)
 		window.render(light);
 	}
 
-	for (Entity wall : level.tiles)
+	for (Entity wall : tiles)
+	{
+		window.render(wall, true);
+	}
+
+	for (Entity wall : collidableTiles)
 	{
 		window.render(wall, true);
 	}

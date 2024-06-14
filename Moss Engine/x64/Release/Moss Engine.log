@@ -1,72 +1,56 @@
-﻿  gamescene.cpp
+﻿  console.cpp
 C:\Users\Creep\Documents\Moss-Engine-Dev\Moss-Engine\include\text.hpp(24,39): warning C4305: 'argument': truncation from 'double' to 'float'
-  (compiling source file 'src/gamescene.cpp')
+  (compiling source file 'src/console.cpp')
   
 C:\Users\Creep\Documents\Moss-Engine-Dev\Moss-Engine\include\text.hpp(24,34): warning C4305: 'argument': truncation from 'double' to 'float'
-  (compiling source file 'src/gamescene.cpp')
+  (compiling source file 'src/console.cpp')
   
 C:\Users\Creep\Documents\Moss-Engine-Dev\Moss-Engine\include\text.hpp(24,29): warning C4305: 'argument': truncation from 'double' to 'float'
-  (compiling source file 'src/gamescene.cpp')
+  (compiling source file 'src/console.cpp')
   
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\minwindef.h(130,1): warning C4005: 'APIENTRY': macro redefinition
-  (compiling source file 'src/gamescene.cpp')
+  (compiling source file 'src/console.cpp')
   C:\Users\Creep\Documents\Moss-Engine-Dev\Libraries\glad\include\glad\glad.h(32,1):
   see previous definition of 'APIENTRY'
   
 C:\Users\Creep\Documents\Moss-Engine-Dev\Libraries\Steamworks\public\steam\matchmakingtypes.h(35,3): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  (compiling source file 'src/gamescene.cpp')
+  (compiling source file 'src/console.cpp')
   
 C:\Users\Creep\Documents\Moss-Engine-Dev\Libraries\Steamworks\public\steam\matchmakingtypes.h(37,3): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  (compiling source file 'src/gamescene.cpp')
+  (compiling source file 'src/console.cpp')
   
 C:\Users\Creep\Documents\Moss-Engine-Dev\Libraries\Steamworks\public\steam\matchmakingtypes.h(226,2): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  (compiling source file 'src/gamescene.cpp')
-  
-C:\Users\Creep\Documents\Moss-Engine-Dev\Moss-Engine\src\gamescene.cpp(29,22): warning C4305: '=': truncation from 'double' to 'float'
-  main.cpp
-C:\Users\Creep\Documents\Moss-Engine-Dev\Libraries\Steamworks\public\steam\matchmakingtypes.h(35,3): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  (compiling source file 'src/main.cpp')
-  
-C:\Users\Creep\Documents\Moss-Engine-Dev\Libraries\Steamworks\public\steam\matchmakingtypes.h(37,3): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  (compiling source file 'src/main.cpp')
-  
-C:\Users\Creep\Documents\Moss-Engine-Dev\Libraries\Steamworks\public\steam\matchmakingtypes.h(226,2): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  (compiling source file 'src/main.cpp')
-  
-C:\Users\Creep\Documents\Moss-Engine-Dev\Moss-Engine\include\text.hpp(24,39): warning C4305: 'argument': truncation from 'double' to 'float'
-  (compiling source file 'src/main.cpp')
-  
-C:\Users\Creep\Documents\Moss-Engine-Dev\Moss-Engine\include\text.hpp(24,34): warning C4305: 'argument': truncation from 'double' to 'float'
-  (compiling source file 'src/main.cpp')
-  
-C:\Users\Creep\Documents\Moss-Engine-Dev\Moss-Engine\include\text.hpp(24,29): warning C4305: 'argument': truncation from 'double' to 'float'
-  (compiling source file 'src/main.cpp')
+  (compiling source file 'src/console.cpp')
   
 C:\Users\Creep\Documents\Moss-Engine-Dev\Moss-Engine\include\editorscene.hpp(63,71): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
-  (compiling source file 'src/main.cpp')
+  (compiling source file 'src/console.cpp')
   
 C:\Users\Creep\Documents\Moss-Engine-Dev\Moss-Engine\include\editorscene.hpp(63,61): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
-  (compiling source file 'src/main.cpp')
+  (compiling source file 'src/console.cpp')
   
 C:\Users\Creep\Documents\Moss-Engine-Dev\Moss-Engine\include\editorscene.hpp(63,47): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-  (compiling source file 'src/main.cpp')
+  (compiling source file 'src/console.cpp')
   
 C:\Users\Creep\Documents\Moss-Engine-Dev\Moss-Engine\include\editorscene.hpp(64,43): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
-  (compiling source file 'src/main.cpp')
+  (compiling source file 'src/console.cpp')
   
 C:\Users\Creep\Documents\Moss-Engine-Dev\Moss-Engine\include\editorscene.hpp(64,33): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
-  (compiling source file 'src/main.cpp')
+  (compiling source file 'src/console.cpp')
   
 C:\Users\Creep\Documents\Moss-Engine-Dev\Moss-Engine\include\editorscene.hpp(66,48): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
-  (compiling source file 'src/main.cpp')
+  (compiling source file 'src/console.cpp')
   
 C:\Users\Creep\Documents\Moss-Engine-Dev\Moss-Engine\include\editorscene.hpp(66,38): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
-  (compiling source file 'src/main.cpp')
+  (compiling source file 'src/console.cpp')
   
-C:\Users\Creep\Documents\Moss-Engine-Dev\Moss-Engine\src\main.cpp(132,24): warning C4244: 'argument': conversion from 'double' to 'Uint32', possible loss of data
+C:\Users\Creep\Documents\Moss-Engine-Dev\Moss-Engine\src\console.cpp(28,41): warning C4244: '=': conversion from 'float' to 'unsigned int', possible loss of data
+C:\Users\Creep\Documents\Moss-Engine-Dev\Moss-Engine\src\console.cpp(75,42): warning C4244: '=': conversion from 'float' to 'unsigned int', possible loss of data
+C:\Users\Creep\Documents\Moss-Engine-Dev\Moss-Engine\src\console.cpp(86,42): warning C4244: '=': conversion from 'float' to 'unsigned int', possible loss of data
 LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/OPT:ICF' specification
   glad.obj : MSIL .netmodule or module compiled with /GL found; restarting link with /LTCG; add /LTCG to the link command line to improve linker performance
 LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/LTCG' specification
   Generating code
   Finished generating code
   Moss Engine.vcxproj -> C:\Users\Creep\Documents\Moss-Engine-Dev\Moss-Engine\x64\Release\Moss Engine.exe
+  'pwsh.exe' is not recognized as an internal or external command,
+  operable program or batch file.

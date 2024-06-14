@@ -22,6 +22,10 @@ private:
 	OpenGLWindow& window;
 
 	LevelData level;
+
+	std::vector<Entity> tiles;
+	std::vector<Entity> collidableTiles;
+
 	Player player = Player();
 	Light playerLight;
 

@@ -19,6 +19,9 @@ public:
 	// convars
 	bool gameRunning = true;
 	bool bloom = true;
+	bool showFramerate = false;
+	bool showCoordinates = false;
+	Vector2 coordinatesPos = Vector2(0, 0);
 	int frameCap = 0;
 	double tickrate = 1000.0 / 60.0;
 private:
@@ -30,6 +33,9 @@ private:
 	ui::TextInput input;
 	std::string data = "";
 	ui::Panel panel;
+
+	Text framerate;
+	Text coordinates;
 };
 
 extern Console console;

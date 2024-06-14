@@ -20,17 +20,23 @@ LevelData Level::Load(std::string path) // new shit incoming
 	std::ifstream inFile(path);
 	if (inFile.is_open())
 	{
-		typename std::vector<Entity>::size_type entSize = 0;
-		inFile.read((char*)&entSize, sizeof(entSize));
-		data.tiles.resize(entSize);
+		// Spawn Point
+		inFile.read((char*)&data.spawn, sizeof(Vector2));
+
+		// Ambient Light
+		inFile.read((char*)&data.ambientLight, sizeof(Color4));
+
+		// Tiles
+		typename std::vector<Entity>::size_type tilesSize = 0;
+		inFile.read((char*)&tilesSize, sizeof(tilesSize));
+		data.tiles.resize(tilesSize);
 		inFile.read((char*)&data.tiles[0], data.tiles.size() * sizeof(Entity));
 
+		// Lights
 		typename std::vector<Light>::size_type lightSize = 0;
 		inFile.read((char*)&lightSize, sizeof(lightSize));
 		data.lights.resize(lightSize);
 		inFile.read((char*)&data.lights[0], data.lights.size() * sizeof(Light));
-
-		inFile.read((char*)&data.spawn, sizeof(Vector2));
 	}
 	inFile.close();
 
@@ -39,53 +45,57 @@ LevelData Level::Load(std::string path) // new shit incoming
 
 void Level::SaveLevel(std::string path, LevelData& data)
 {	
-	std::vector<Entity> map;
+	std::vector<Entity> optimizedTiles;
 
-	for (Entity wall : data.tiles)
+	for (Entity tile1 : data.tiles)
 	{
-		for (const  Entity& wallz : data.tiles)
+		for (const Entity& tile2 : data.tiles)
 		{
-			if (wallz.colUp == true || wallz.colDown == true || wallz.colLeft == true || wallz.colRight == true)
+			if (tile2.colUp == true || tile2.colDown == true || tile2.colLeft == true || tile2.colRight == true)
 			{
-				if ((wall.transform.y + wall.size.y) == wallz.transform.y && wall.transform.x == wallz.transform.x)
+				if ((tile1.transform.y + tile1.size.y) == tile2.transform.y && tile1.transform.x == tile2.transform.x)
 				{
-					wall.colDown = false;
+					tile1.colDown = false;
 				}
 
-				if ((wall.transform.y - wall.size.y) == wallz.transform.y && wall.transform.x == wallz.transform.x)
+				if ((tile1.transform.y - tile1.size.y) == tile2.transform.y && tile1.transform.x == tile2.transform.x)
 				{
-					wall.colUp = false;
+					tile1.colUp = false;
 				}
 
-				if ((wall.transform.x + wall.size.x) == wallz.transform.x && wall.transform.y == wallz.transform.y)
+				if ((tile1.transform.x + tile1.size.x) == tile2.transform.x && tile1.transform.y == tile2.transform.y)
 				{
-					wall.colRight = false;
+					tile1.colRight = false;
 				}
 
-				if ((wall.transform.x - wall.size.x) == wallz.transform.x && wall.transform.y == wallz.transform.y)
+				if ((tile1.transform.x - tile1.size.x) == tile2.transform.x && tile1.transform.y == tile2.transform.y)
 				{
-					wall.colLeft = false;
+					tile1.colLeft = false;
 				}
 			}
 		}
 
-		map.push_back(wall);
+		optimizedTiles.push_back(tile1);
 	}
 
 	std::ofstream outFile(path);
     if (outFile.is_open())
   	{
-		std::vector<Entity>::size_type entSize = map.size();
-		outFile.write((char*)&entSize, sizeof(entSize));
-		outFile.write((char*)&map[0], map.size() * sizeof(Entity));
+		// Spawn Point
+		outFile.write((char*)&data.spawn, sizeof(Vector2));
 
+		// Ambient Light
+		outFile.write((char*)&data.ambientLight, sizeof(Color4));
+
+		// Tiles
+		std::vector<Entity>::size_type entSize = optimizedTiles.size();
+		outFile.write((char*)&entSize, sizeof(entSize));
+		outFile.write((char*)&optimizedTiles[0], optimizedTiles.size() * sizeof(Entity));
+
+		// Lights
 		std::vector<Light>::size_type lightSize = data.lights.size();
 		outFile.write((char*)&lightSize, sizeof(lightSize));
 		outFile.write((char*)&data.lights[0], data.lights.size() * sizeof(Light));
-
-		outFile.write((char*)&data.spawn, sizeof(Vector2));
-
-        //outFile << levelData;
     }
     outFile.close();
 }

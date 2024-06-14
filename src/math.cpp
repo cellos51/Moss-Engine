@@ -68,7 +68,7 @@ void Time::Tick()
    LAST = NOW;
    NOW = SDL_GetPerformanceCounter();
 
-   delta = (double)((NOW - LAST)*1000 / (double)SDL_GetPerformanceFrequency() ) * timeScale;
+   delta = (double)((NOW - LAST) * 1000.0 / (double)SDL_GetPerformanceFrequency() ) * timeScale;
 
    //if(delta > 1000 / minfps)
    //{
