@@ -144,8 +144,8 @@ void Player::fixedUpdate(double deltaTime)
 	bool jumpButton = Event::KeyPressed(SDLK_SPACE) || Event::ButtonPressed(SDL_CONTROLLER_BUTTON_A);
 
 	float moveAxis = 0;
-	moveAxis += (Event::KeyPressed(SDLK_a) == true) ? 1.0f : 0.0f;
-	moveAxis += (Event::KeyPressed(SDLK_d) == true) ? -1.0f : 0.0f;
+	moveAxis += (Event::KeyPressed(SDLK_a) == true || Event::KeyPressed(SDLK_LEFT)) ? 1.0f : 0.0f;
+	moveAxis += (Event::KeyPressed(SDLK_d) == true || Event::KeyPressed(SDLK_RIGHT)) ? -1.0f : 0.0f;
 	moveAxis = (Event::JoyAxis(SDL_CONTROLLER_AXIS_LEFTX) != 0.0f) ? Event::JoyAxis(SDL_CONTROLLER_AXIS_LEFTX) : moveAxis;
 
 	// movement

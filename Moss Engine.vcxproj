@@ -164,6 +164,7 @@
     <ClInclude Include="include\gamescene.hpp" />
     <ClInclude Include="include\level.hpp" />
     <ClInclude Include="include\light.hpp" />
+    <ClInclude Include="include\livingentity.hpp" />
     <ClInclude Include="include\math.hpp" />
     <ClInclude Include="include\networking.hpp" />
     <ClInclude Include="include\openglwindow.hpp" />

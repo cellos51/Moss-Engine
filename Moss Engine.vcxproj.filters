@@ -131,6 +131,9 @@
     <ClInclude Include="include\splashscreenscene.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\livingentity.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\framebuffer.frag">

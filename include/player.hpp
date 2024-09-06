@@ -1,16 +1,16 @@
 #pragma once
 
-#include "physicsentity.hpp"
+#include "livingentity.hpp"
 #include <SDL2/SDL_mixer.h>
 
-class Player : public PhysicsEntity // will resume work tomorrow :(
+class Player : public LivingEntity
 {
 public:
 	//using PhysicsEntity::PhysicsEntity;
 	Player();
 	~Player();
 	bool onWall() const;
-	void update(double deltaTime);
+	void update(double deltaTime) override;
 	void fixedUpdate(double deltaTime) override;
 	int mirror = 0;
 	float groundSpeed = 0.01f;

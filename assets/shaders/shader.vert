@@ -48,7 +48,7 @@ void main()
     }
     else if (iShaderIndex == 2)
     {
-        float timeOffset = time + ((vertexPosition.x * 25000) + (vertexPosition.y * 500));
+        float timeOffset = time + ((vertexPosition.x * 25000) + (vertexPosition.y * 500)); // this needs to be fixed as it breaks not to far from world origin
 
         gl_Position = iTransform * vec4(aPos.xy + vec2(sin(timeOffset / 500) / 8, sin(timeOffset / 1000) / 8), 1 - iLayerIndex, 1.0f); 
     }

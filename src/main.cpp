@@ -35,8 +35,7 @@ static bool init() // used to initiate things before using
 
 	if (!SteamAPI_Init())
 	{
-		console.log("Fatal Error - Steam must be running to play this game (SteamAPI_Init() failed).\n");
-		//console.gameRunning = false;
+		MessageBox(NULL, "Steam must be running in order for online multiplayer to work. (SteamAPI_Init() failed).", "Warning", MB_OK | MB_ICONEXCLAMATION);
 	}
 	else
 	{
@@ -45,12 +44,15 @@ static bool init() // used to initiate things before using
 
 	if( SDL_Init( SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER ) < 0 )
     {
-        console.log( "SDL could not initialize! SDL Error: " + std::string(SDL_GetError()) + "\n");
+        std::string errorMessage = "SDL could not initialize! SDL Error: " + std::string(SDL_GetError()) + "\n";
+        MessageBox(NULL, errorMessage.c_str(), "Error", MB_OK | MB_ICONERROR);
         console.gameRunning = false;
+        return false;
     }
     if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
 	{
-		console.log( "SDL_mixer could not initialize! SDL_mixer Error: " + std::string(Mix_GetError()) + "\n");
+		std::string errorMessage = "SDL_mixer could not initialize! SDL_mixer Error: " + std::string(Mix_GetError()) + "\n";
+		MessageBox(NULL, errorMessage.c_str(), "Warning", MB_OK | MB_ICONEXCLAMATION);
 		console.gameRunning = false;
 	}
 
@@ -106,8 +108,8 @@ int main(int argc, char* args[])
 		SteamAPI_RunCallbacks();
 
 		Time::Tick();
-    	Event::PollEvent();
-    	console.gameRunning = Event::AppQuit();
+					Event::PollEvent();
+					console.gameRunning = Event::AppQuit();
 
 		static double fixedTime;
 		fixedTime += Time::deltaTime();
@@ -119,10 +121,9 @@ int main(int argc, char* args[])
 		}
 		gameLoop();
 
-
 		window.clear();
-    	render();
-    	window.display();
+					render();
+					window.display();
 
 		if (console.frameCap > 0)
 		{

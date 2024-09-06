@@ -79,6 +79,11 @@ void SteamSocket::connectP2P(SteamNetworkingIdentity identity)
 
 void SteamSocket::disconnect()
 {
+	if (lobbyID == 0)
+	{
+		return;
+	}
+
 	SteamMatchmaking()->LeaveLobby(lobbyID);
 	SteamNetworkingSockets()->CloseListenSocket(listenSocket); // server
 	SteamNetworkingSockets()->CloseConnection(netConnection, k_ESteamNetworkingConnectionState_ClosedByPeer, nullptr, false); // client

@@ -84,7 +84,7 @@ void Console::update()
 
 		output.transform = Vector2(32, ((window.getSize().y - input.size.y) - 64) - output.getLines() * output.fontSize);
 		output.lineLength = window.getSize().x / output.fontSize;
-		output.setText(data);
+		output.setText(data); // this needs to be fixed so new lines work properly
 
 		panel.size = window.getSize();
 	}
@@ -92,7 +92,7 @@ void Console::update()
 
 void Console::fixedUpdate()
 {
-	framerate.setText("FPS: " + std::to_string((int)(2000.0 / Time::deltaTime())));
+	framerate.setText("FPS: " + std::to_string((int)(1000.0 / (Time::deltaTime() * Time::getTimeScale())))); // this barely works
 }
 
 void Console::render(OpenGLWindow& window)
@@ -207,6 +207,17 @@ void Console::runCommand(std::string command)
 			else
 			{
 				Console::log("Cannot set value showcoords to: " + v[1] + '\n');
+			}
+		}
+		else if (v[0] == "timescale")
+		{
+			if (v.size() == 2)
+			{
+				Time::setTimeScale(std::stod(v[1]));
+			}
+			else
+			{
+				Console::log("Incorrect number of arguments for command timescale\n");
 			}
 		}
 		else

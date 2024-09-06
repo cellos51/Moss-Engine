@@ -29,6 +29,7 @@ private:
 	Player player = Player();
 	Light playerLight;
 
-	std::unordered_map<unsigned long int, NetPlayer> networkPlayers;
+	std::map<unsigned long int, NetPlayer> networkPlayers;
+	std::map<std::string, LivingEntity> livingEntities;
 };
 

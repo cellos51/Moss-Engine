@@ -61,7 +61,6 @@ Color4::Color4(float p_r, float p_g, float p_b, float p_a) : r(p_r), g(p_g), b(p
 Uint64 NOW = SDL_GetPerformanceCounter();
 Uint64 LAST = 0;
 double delta = 0.0001;
-//double minfps = 60.0;
 
 void Time::Tick()
 {
@@ -69,16 +68,16 @@ void Time::Tick()
    NOW = SDL_GetPerformanceCounter();
 
    delta = (double)((NOW - LAST) * 1000.0 / (double)SDL_GetPerformanceFrequency() ) * timeScale;
-
-   //if(delta > 1000 / minfps)
-   //{
-   //   delta = 1000 / minfps; // slow down if the computer is too slow
-   //}
 }
 
 double Time::deltaTime()
 {
 	return delta;
+}
+
+double Time::getTimeScale()
+{
+	return timeScale;
 }
 
 void Time::setTimeScale(double scale)

@@ -29,15 +29,41 @@ void GameScene::onStart()
 	window.clampAmount = Vector2(10,50);
 	window.lerpAmount = 0.005;
 
-	for (const Entity& tile : level.tiles)
+	for (Entity tile1 : level.tiles)
 	{
-		if (tile.colDown || tile.colUp || tile.colLeft || tile.colRight)
+		for (const Entity& tile2 : level.tiles)
 		{
-			collidableTiles.push_back(tile);
+			if (tile2.colUp == true || tile2.colDown == true || tile2.colLeft == true || tile2.colRight == true)
+			{
+				if ((tile1.transform.y + tile1.size.y) == tile2.transform.y && tile1.transform.x == tile2.transform.x)
+				{
+					tile1.colDown = false;
+				}
+
+				if ((tile1.transform.y - tile1.size.y) == tile2.transform.y && tile1.transform.x == tile2.transform.x)
+				{
+					tile1.colUp = false;
+				}
+
+				if ((tile1.transform.x + tile1.size.x) == tile2.transform.x && tile1.transform.y == tile2.transform.y)
+				{
+					tile1.colRight = false;
+				}
+
+				if ((tile1.transform.x - tile1.size.x) == tile2.transform.x && tile1.transform.y == tile2.transform.y)
+				{
+					tile1.colLeft = false;
+				}
+			}
+		}
+
+		if (tile1.colDown || tile1.colUp || tile1.colLeft || tile1.colRight)
+		{
+			collidableTiles.push_back(tile1);
 		}
 		else
 		{
-			tiles.push_back(tile);
+			tiles.push_back(tile1);
 		}
 	}
 }
