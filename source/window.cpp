@@ -42,6 +42,11 @@ Window::Window(int width, int height, std::string title, Uint32 flags)
     renderer->initialize(window);
 }
 
+void Window::render()
+{
+    renderer->render();
+}
+
 Window::~Window()
 {
     delete renderer;

@@ -14,6 +14,7 @@ class Window
 {
 public:
     Window(int width, int height, std::string title, Uint32 flags);
+    void render();
     ~Window();
 private:
     SDL_Window* window;

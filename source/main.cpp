@@ -19,6 +19,8 @@ int main(int argc, char* argv[])
                     break;
                 }
             }
+
+            window.render();
         }
     }
     catch (const std::exception& e)
