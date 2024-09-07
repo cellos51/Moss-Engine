@@ -26,17 +26,44 @@ static std::vector<char> readFile(const std::string& filename)
     return buffer;
 }
 
+VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) 
+{
+    auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+    if (func != nullptr) 
+    {
+        return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
+    } else 
+    {
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
+}
+
+void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator) 
+{
+    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+    if (func != nullptr) 
+    {
+        func(instance, debugMessenger, pAllocator);
+    }
+}
+
 void VulkanRenderer::initialize(SDL_Window* window)
 {
     this->window = window;
 
     createInstance();
+    //setupDebugMessenger();
     createSurface();
     pickPhysicalDevice();
     createLogicalDevice();
     createSwapChain();
     createImageViews();
+    createRenderPass();
     createGraphicsPipeline();
+    createFramebuffers();
+    createCommandPool();
+    createCommandBuffer();
+    createSyncObjects();
 }
 
 void VulkanRenderer::render()
@@ -127,7 +154,6 @@ void VulkanRenderer::createInstance()
     createInfo.pApplicationInfo = &appInfo;
 
     const char** extensions = nullptr;
-
     uint32_t extensionCount = 0;
     SDL_Vulkan_GetInstanceExtensions(window, &extensionCount, nullptr);
 
