@@ -6,6 +6,22 @@
 
 #include <SDL2/SDL_vulkan.h>
 
+const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
+const std::vector<const char*> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+
+#ifdef NDEBUG
+    const bool enableValidationLayers = false;
+#else
+    const bool enableValidationLayers = true;
+#endif
+
+static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) 
+{
+    std::cerr << pCallbackData->pMessage << std::endl;
+
+    return VK_FALSE;
+}
+
 static std::vector<char> readFile(const std::string& filename) 
 {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
@@ -52,7 +68,7 @@ void VulkanRenderer::initialize(SDL_Window* window)
     this->window = window;
 
     createInstance();
-    //setupDebugMessenger();
+    setupDebugMessenger();
     createSurface();
     pickPhysicalDevice();
     createLogicalDevice();
@@ -94,7 +110,7 @@ void VulkanRenderer::render()
 
     if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFence) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to submit draw command buffer!");
+        throw std::runtime_error("Failed to submit draw command buffer!");
     }
 
     VkPresentInfoKHR presentInfo = {};
@@ -113,6 +129,7 @@ void VulkanRenderer::render()
 
 void VulkanRenderer::cleanup()
 {
+    vkDeviceWaitIdle(device);
     vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
     vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
     vkDestroyFence(device, inFlightFence, nullptr);
@@ -130,6 +147,10 @@ void VulkanRenderer::cleanup()
     }
     vkDestroySwapchainKHR(device, swapChain, nullptr);
     vkDestroyDevice(device, nullptr);
+    if (enableValidationLayers) 
+    {
+        DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
+    }
     vkDestroySurfaceKHR(instance, surface, nullptr);
     vkDestroyInstance(instance, nullptr);
 }
@@ -153,20 +174,50 @@ void VulkanRenderer::createInstance()
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
 
-    const char** extensions = nullptr;
-    uint32_t extensionCount = 0;
-    SDL_Vulkan_GetInstanceExtensions(window, &extensionCount, nullptr);
+    auto extensions = getRequiredExtensions();
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+    createInfo.ppEnabledExtensionNames = extensions.data();
 
-    extensions = new const char*[extensionCount];
-    SDL_Vulkan_GetInstanceExtensions(window, &extensionCount, extensions);
-
-    createInfo.enabledExtensionCount = extensionCount;
-    createInfo.ppEnabledExtensionNames = extensions;
-    createInfo.enabledLayerCount = 0;
-
-    if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS)
+    VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo = {};
+    if (enableValidationLayers) 
     {
-        throw std::runtime_error("Failed to create Vulkan instance");
+        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+        createInfo.ppEnabledLayerNames = validationLayers.data();
+
+        populateDebugMessengerCreateInfo(debugCreateInfo);
+        createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debugCreateInfo;
+    } 
+    else 
+    {
+        createInfo.enabledLayerCount = 0;
+        createInfo.pNext = nullptr;
+    }
+
+    if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) 
+    {
+        throw std::runtime_error("failed to create instance!");
+    }
+}
+
+void VulkanRenderer::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) 
+{
+    createInfo = {};
+    createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+    createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+    createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+    createInfo.pfnUserCallback = debugCallback;
+}
+
+void VulkanRenderer::setupDebugMessenger() 
+{
+    if (!enableValidationLayers) return;
+
+    VkDebugUtilsMessengerCreateInfoEXT createInfo;
+    populateDebugMessengerCreateInfo(createInfo);
+
+    if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS) 
+    {
+        throw std::runtime_error("failed to set up debug messenger!");
     }
 }
 
@@ -358,6 +409,8 @@ void VulkanRenderer::createRenderPass()
     dependency.dstSubpass = 0;
     dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     dependency.srcAccessMask = 0;
+    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
     VkRenderPassCreateInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
@@ -687,7 +740,7 @@ bool VulkanRenderer::checkDeviceExtensionSupport(VkPhysicalDevice device)
     return requiredExtensions.empty();
 }
 
-QueueFamilyIndices VulkanRenderer::findQueueFamilies(VkPhysicalDevice device)
+VulkanRenderer::QueueFamilyIndices VulkanRenderer::findQueueFamilies(VkPhysicalDevice device)
 {
     QueueFamilyIndices indices;
 
@@ -724,7 +777,7 @@ QueueFamilyIndices VulkanRenderer::findQueueFamilies(VkPhysicalDevice device)
     return indices;
 }
 
-SwapChainSupportDetails VulkanRenderer::querySwapChainSupport(VkPhysicalDevice device)
+VulkanRenderer::SwapChainSupportDetails VulkanRenderer::querySwapChainSupport(VkPhysicalDevice device)
 {
     SwapChainSupportDetails details;
 
@@ -768,10 +821,10 @@ VkPresentModeKHR VulkanRenderer::chooseSwapPresentMode(const std::vector<VkPrese
 {
     for (const auto& availablePresentMode : availablePresentModes) 
     {
-        if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) 
+        if (availablePresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR) // I HATE VSYNC
         {
             return availablePresentMode;
-        }
+        } 
     }
 
     return VK_PRESENT_MODE_FIFO_KHR;
@@ -811,6 +864,25 @@ VkShaderModule VulkanRenderer::createShaderModule(const std::vector<char>& code)
     }
 
     return shaderModule;
+}
+
+std::vector<const char*> VulkanRenderer::getRequiredExtensions() 
+{
+    const char** extensionNames = nullptr;
+    uint32_t extensionCount = 0;
+    SDL_Vulkan_GetInstanceExtensions(window, &extensionCount, nullptr);
+
+    extensionNames = new const char*[extensionCount];
+    SDL_Vulkan_GetInstanceExtensions(window, &extensionCount, extensionNames);
+
+    std::vector<const char*> extensions(extensionNames, extensionNames + extensionCount);
+
+    if (enableValidationLayers) 
+    {
+        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+    }
+
+    return extensions;
 }
 
 VulkanRenderer::~VulkanRenderer()
