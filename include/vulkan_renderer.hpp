@@ -76,13 +76,16 @@ private:
     std::vector<VkFence> inFlightFences;
     uint32_t currentFrame = 0;
 
+    void cleanupSwapChain();
+    bool recreateSwapChain();
+
     void createInstance();
     void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
     void setupDebugMessenger();
     void createSurface();
     void pickPhysicalDevice();
     void createLogicalDevice();
-    void createSwapChain();
+    bool createSwapChain();
     void createImageViews();
     void createRenderPass();
     void createGraphicsPipeline();
