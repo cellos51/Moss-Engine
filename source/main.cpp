@@ -7,7 +7,7 @@ int main(int argc, char* argv[])
 {
     try
     {
-        Window window(800, 600, "Moss Engine", SDL_WINDOW_VULKAN);
+        Window window(800, 600, "Moss Engine", SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
 
         while (true)
         {

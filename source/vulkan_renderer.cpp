@@ -1,10 +1,10 @@
 #include "vulkan_renderer.hpp"
 
+#include <SDL2/SDL_vulkan.h>
+
 #include <iostream>
 #include <set>
 #include <fstream>
-
-#include <SDL2/SDL_vulkan.h>
 
 const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
 const std::vector<const char*> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
@@ -15,20 +15,13 @@ const std::vector<const char*> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NA
     const bool enableValidationLayers = true;
 #endif
 
-static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) 
-{
-    std::cerr << pCallbackData->pMessage << std::endl;
-
-    return VK_FALSE;
-}
-
 static std::vector<char> readFile(const std::string& filename) 
 {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
     if (!file.is_open()) 
     {
-        throw std::runtime_error("Failed to open file!");
+        throw std::runtime_error("Failed to open file! " + filename);
     }
 
     size_t fileSize = (size_t) file.tellg();
@@ -40,6 +33,13 @@ static std::vector<char> readFile(const std::string& filename)
     file.close();
 
     return buffer;
+}
+
+static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) 
+{
+    std::cerr << pCallbackData->pMessage << std::endl;
+
+    return VK_FALSE;
 }
 
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) 
@@ -130,27 +130,38 @@ void VulkanRenderer::render()
 void VulkanRenderer::cleanup()
 {
     vkDeviceWaitIdle(device);
-    vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
-    vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
-    vkDestroyFence(device, inFlightFence, nullptr);
-    vkDestroyCommandPool(device, commandPool, nullptr);
+
     for (auto framebuffer : swapChainFramebuffers) 
     {
         vkDestroyFramebuffer(device, framebuffer, nullptr);
     }
+
+    vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+
     vkDestroyPipeline(device, graphicsPipeline, nullptr);
     vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
     vkDestroyRenderPass(device, renderPass, nullptr);
+
     for (auto imageView : swapChainImageViews) 
     {
         vkDestroyImageView(device, imageView, nullptr);
     }
+
     vkDestroySwapchainKHR(device, swapChain, nullptr);
+
+    vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
+    vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
+    vkDestroyFence(device, inFlightFence, nullptr);
+
+    vkDestroyCommandPool(device, commandPool, nullptr);
+
     vkDestroyDevice(device, nullptr);
+
     if (enableValidationLayers) 
     {
         DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
     }
+
     vkDestroySurfaceKHR(instance, surface, nullptr);
     vkDestroyInstance(instance, nullptr);
 }

@@ -2,10 +2,10 @@
 
 #include "vulkan_renderer.hpp"
 
-#include <iostream>
-
 #include <SDL2/SDL_vulkan.h>
 #include <SDL2/SDL_opengl.h>
+
+#include <iostream>
 
 Window::Window(int width, int height, std::string title, Uint32 flags)
 {

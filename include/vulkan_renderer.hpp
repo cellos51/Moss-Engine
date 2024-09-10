@@ -4,10 +4,10 @@
 
 #include "renderer.hpp"
 
+#include <vulkan/vulkan.h>
+
 #include <vector>
 #include <optional>
-
-#include <vulkan/vulkan.h>
 
 class VulkanRenderer: public IRenderer
 {
