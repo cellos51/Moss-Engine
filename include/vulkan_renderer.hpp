@@ -9,6 +9,7 @@
 #include <vector>
 #include <optional>
 
+
 class VulkanRenderer: public IRenderer
 {
 public:
@@ -17,6 +18,16 @@ public:
     void cleanup() override;
     ~VulkanRenderer() override;
 private:
+    const int MAX_FRAMES_IN_FLIGHT = 2;
+    const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
+    const std::vector<const char*> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+
+    #ifdef NDEBUG
+        const bool enableValidationLayers = false;
+    #else
+        const bool enableValidationLayers = true;
+    #endif
+
     struct QueueFamilyIndices 
     {
         std::optional<uint32_t> graphicsFamily;
@@ -80,14 +91,15 @@ private:
     void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
     void createSyncObjects();
 
-    bool checkValidationLayerSupport();
-    bool isDeviceSuitable(VkPhysicalDevice device);
-    bool checkDeviceExtensionSupport(VkPhysicalDevice device);
-    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
-    SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+    VkShaderModule createShaderModule(const std::vector<char>& code);
     VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
     VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
-    VkShaderModule createShaderModule(const std::vector<char>& code);
+    SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+    bool checkDeviceExtensionSupport(VkPhysicalDevice device);
+    bool isDeviceSuitable(VkPhysicalDevice device);
+    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
     std::vector<const char*> getRequiredExtensions();
+    bool checkValidationLayerSupport();
+    static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
 };
