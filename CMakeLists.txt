@@ -23,13 +23,21 @@ include_directories(${Vulkan_INCLUDE_DIRS})
 find_package(GLM REQUIRED)
 include_directories(${GLM_INCLUDE_DIRS})
 
+# Vulkan Memory Allocator
+add_subdirectory(thirdparty/VulkanMemoryAllocator)
+
+# vk-bootstrap
+add_subdirectory(thirdparty/vk-bootstrap)
+
 include_directories(include)
 file(GLOB_RECURSE SOURCES "source/*.cpp")
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCES})
 
-target_link_libraries(${CMAKE_PROJECT_NAME} -static-libgcc -static-libstdc++ -static)
-target_link_libraries(${CMAKE_PROJECT_NAME} ${SDL2_LIBRARIES})
-target_link_libraries(${CMAKE_PROJECT_NAME} ${Vulkan_LIBRARIES})
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE -static-libgcc -static-libstdc++ -static)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${SDL2_LIBRARIES})
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${Vulkan_LIBRARIES})
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE GPUOpen::VulkanMemoryAllocator)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE vk-bootstrap::vk-bootstrap)
 
 include(CTest)
 enable_testing()
