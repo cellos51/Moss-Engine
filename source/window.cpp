@@ -25,17 +25,17 @@ Window::Window(int width, int height, std::string title, Uint32 flags)
         title += " (OpenGL)";
         SDL_GL_LoadLibrary(nullptr);
         renderer = nullptr; //TODO: Implement OpenGLRenderer
+
+        throw std::runtime_error("OpenGL renderer not implemented");
     }
     else
     {
-        SDL_Quit();
         throw std::runtime_error("Window must be created with either SDL_WINDOW_VULKAN or SDL_WINDOW_OPENGL");
     }
 
     window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
     if (window == nullptr) 
     {
-        SDL_Quit();
         throw std::runtime_error(std::string("SDL_CreateWindow Error: ") + SDL_GetError());
     }
 
