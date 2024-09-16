@@ -1,33 +1,14 @@
-#include "window.hpp"
+#include <moss_engine.hpp>
 
-#include <iostream>
-#include <stdexcept>
-
-int main(int argc, char* argv[]) 
+int main(int argc, char* argv[])
 {
-    try
-    {
-        Window window(800, 600, "Moss Engine", SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
+    MossEngine engine;
 
-        while (true)
-        {
-            SDL_Event event;
-            if (SDL_PollEvent(&event))
-            {
-                if (event.type == SDL_QUIT)
-                {
-                    break;
-                }
-            }
+	engine.init();
+	
+	engine.run();
 
-            window.render();
-        }
-    }
-    catch (const std::exception& e)
-    {
-        std::cerr << e.what() << std::endl;
-        return EXIT_FAILURE;
-    }
+	engine.cleanup();
 
-    return EXIT_SUCCESS;
+    return 0;
 }
