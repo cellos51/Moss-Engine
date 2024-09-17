@@ -1,9 +1,10 @@
 #pragma once
 
+#include "moss_renderer.hpp"
+
 #include <SDL.h>
 
-#include <moss_types.hpp>
-#include <moss_renderer.hpp>
+#include <memory>
 
 class MossEngine
 {

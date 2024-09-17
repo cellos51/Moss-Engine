@@ -1,5 +1,6 @@
 #include "moss_engine.hpp"
 
+#include <cassert>
 #include <chrono>
 #include <thread>
 
@@ -46,7 +47,7 @@ void MossEngine::cleanup()
 
 void MossEngine::draw()
 {
-    // nothing yet
+    _renderer->draw();
 }
 
 void MossEngine::run()
