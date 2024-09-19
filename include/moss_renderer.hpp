@@ -10,6 +10,9 @@
 #include <stdexcept>
 #include <functional>
 #include <deque>
+#include <span>
+#include <format>
+#include <iostream>
 
 class MossRenderer
 {
@@ -28,25 +31,33 @@ public:
 private:
     static constexpr unsigned int FRAME_OVERLAP = 2;
 
+    struct DescriptorLayoutBuilder 
+    {
+        std::vector<VkDescriptorSetLayoutBinding> bindings;
+        void add_binding(uint32_t binding, VkDescriptorType type);
+        void clear();
+        VkDescriptorSetLayout build(VkDevice device, VkShaderStageFlags shaderStages, void* pNext = nullptr, VkDescriptorSetLayoutCreateFlags flags = 0);
+    };
+
+    struct DescriptorAllocator 
+    {
+        struct PoolSizeRatio
+        {
+            VkDescriptorType type;
+            float ratio;
+        };
+        VkDescriptorPool pool;
+        void init_pool(VkDevice device, uint32_t maxSets, std::span<PoolSizeRatio> poolRatios);
+        void clear_descriptors(VkDevice device);
+        void destroy_pool(VkDevice device);
+        VkDescriptorSet allocate(VkDevice device, VkDescriptorSetLayout layout);
+    };
+
     struct DeletionQueue
     {
         std::deque<std::function<void()>> deletors;
-
-        void push_function(std::function<void()>&& function) 
-        {
-            deletors.push_back(function);
-        }
-
-        void flush() 
-        {
-            // reverse iterate the deletion queue to execute all the functions
-            for (auto it = deletors.rbegin(); it != deletors.rend(); it++) 
-            {
-                (*it)(); //call functors
-            }
-
-            deletors.clear();
-        }
+        void push_function(std::function<void()>&& function);
+        void flush();
     };
 
     struct FrameData 
@@ -60,17 +71,17 @@ private:
 
     struct AllocatedImage 
     {
-    VkImage image;
-    VkImageView imageView;
-    VmaAllocation allocation;
-    VkExtent3D imageExtent;
-    VkFormat imageFormat;
+        VkImage image;
+        VkImageView imageView;
+        VmaAllocation allocation;
+        VkExtent3D imageExtent;
+        VkFormat imageFormat;
     };
 
-    VmaAllocator _allocator;
-    DeletionQueue _mainDeletionQueue;
+    SDL_Window* _window{ nullptr };   
 
-    SDL_Window* _window{ nullptr };    
+    VmaAllocator _allocator;
+    DeletionQueue _mainDeletionQueue; 
     
     VkInstance _instance; // Vulkan library handle
 	VkDebugUtilsMessengerEXT _debug_messenger; // Vulkan debug output handle
@@ -95,12 +106,23 @@ private:
     AllocatedImage _drawImage;
     VkExtent2D _drawExtent;
 
+    DescriptorAllocator globalDescriptorAllocator;
+
+	VkDescriptorSet _drawImageDescriptors;
+	VkDescriptorSetLayout _drawImageDescriptorLayout;
+
+    VkPipeline _gradientPipeline;
+	VkPipelineLayout _gradientPipelineLayout;
+
     void draw_background(VkCommandBuffer cmd);
 
     void init_vulkan();
     void init_swapchain();
     void init_commands();
     void init_sync_structures();
+    void init_descriptors();
+    void init_pipelines();
+	void init_background_pipelines();
 
     void create_swapchain(uint32_t width, uint32_t height);
 	void destroy_swapchain();
@@ -118,13 +140,13 @@ private:
     VkImageCreateInfo image_create_info(VkFormat format, VkImageUsageFlags usageFlags, VkExtent3D extent);
     VkImageViewCreateInfo imageview_create_info(VkFormat format, VkImage image, VkImageAspectFlags aspectFlags);
     void copy_image_to_image(VkCommandBuffer cmd, VkImage source, VkImage destination, VkExtent2D srcSize, VkExtent2D dstSize);
+    bool load_shader_module(const char* filePath, VkDevice device, VkShaderModule* outShaderModule);
     
     static inline void VK_CHECK(VkResult result)
     {
         if (result != VK_SUCCESS)
         {
-            std::string error = string_VkResult(result);
-            throw std::runtime_error("Vulkan Error: " + error);
+            std::cout << std::format("Vulkan Error: {}\n", string_VkResult(result));
         }
     }
 };
