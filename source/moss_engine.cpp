@@ -71,6 +71,9 @@ void MossEngine::run()
                     stop_rendering = false;
                 }
             }
+
+            // Handle ImGui events
+            ImGui_ImplSDL2_ProcessEvent(&e);
         }
 
         // do not draw if we are minimized

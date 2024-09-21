@@ -29,11 +29,30 @@ add_subdirectory(thirdparty/VulkanMemoryAllocator)
 # vk-bootstrap
 add_subdirectory(thirdparty/vk-bootstrap)
 
+# imgui
+add_library(imgui STATIC)
+
+target_include_directories(imgui PUBLIC thirdparty/imgui)
+target_include_directories(imgui PUBLIC thirdparty/imgui/backends)
+
+target_sources(imgui PRIVATE 
+    thirdparty/imgui/imgui.h
+    thirdparty/imgui/imgui.cpp
+
+    thirdparty/imgui/imgui_demo.cpp
+    thirdparty/imgui/imgui_draw.cpp
+    thirdparty/imgui/imgui_widgets.cpp
+    thirdparty/imgui/imgui_tables.cpp
+    thirdparty/imgui/backends/imgui_impl_vulkan.cpp
+    thirdparty/imgui/backends/imgui_impl_sdl2.cpp
+  )
+
 include_directories(include)
 file(GLOB_RECURSE SOURCES "source/*.cpp")
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCES})
 
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE -static-libgcc -static-libstdc++ -static)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE imgui)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${SDL2_LIBRARIES})
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${Vulkan_LIBRARIES})
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE GPUOpen::VulkanMemoryAllocator)

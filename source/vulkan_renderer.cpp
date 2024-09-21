@@ -3,6 +3,7 @@
 #define VMA_IMPLEMENTATION
 #include <vk_mem_alloc.h>
 #include <VkBootstrap.h>
+#include <backends/imgui_impl_vulkan.h>
 
 #include <fstream>
 
@@ -22,10 +23,29 @@ void VulkanRenderer::init(SDL_Window* window)
     init_sync_structures();
 	init_descriptors();
 	init_pipelines();
+	init_imgui();
 }
 
 void VulkanRenderer::draw()
 {
+	// imgui new frame
+	ImGui_ImplVulkan_NewFrame();
+	ImGui_ImplSDL2_NewFrame();
+	ImGui::NewFrame();
+
+	//some imgui UI to test
+	if (ImGui::Begin("background")) 
+	{
+		ImGui::InputFloat4("data1",(float*)& pushConstants.data1);
+		ImGui::InputFloat4("data2",(float*)& pushConstants.data2);
+		ImGui::InputFloat4("data3",(float*)& pushConstants.data3);
+		ImGui::InputFloat4("data4",(float*)& pushConstants.data4);
+	}
+	ImGui::End();
+
+	//make imgui calculate internal draw structures
+	ImGui::Render();
+
     // wait until the gpu has finished rendering the last frame. Timeout of 1
 	// second
 	VK_CHECK(vkWaitForFences(_device, 1, &get_current_frame()._renderFence, true, 1000000000));
@@ -65,11 +85,18 @@ void VulkanRenderer::draw()
 	// execute a copy from the draw image into the swapchain
 	copy_image_to_image(cmd, _drawImage.image, _swapchainImages[swapchainImageIndex], _drawExtent, _swapchainExtent);
 
-	// set swapchain image layout to Present so we can show it on the screen
-	transition_image(cmd, _swapchainImages[swapchainImageIndex], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+	// set swapchain image layout to Attachment Optimal so we can draw it
+	transition_image(cmd, _swapchainImages[swapchainImageIndex], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+
+	//draw imgui into the swapchain image
+	draw_imgui(cmd,  _swapchainImageViews[swapchainImageIndex]);
+
+	// set swapchain image layout to Present so we can draw it
+	transition_image(cmd, _swapchainImages[swapchainImageIndex], VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
 	//finalize the command buffer (we can no longer add commands, but it can now be executed)
 	VK_CHECK(vkEndCommandBuffer(cmd));
+
 
     //prepare the submission to the queue. 
 	//we want to wait on the _presentSemaphore, as that semaphore is signaled when the swapchain is ready
@@ -140,8 +167,27 @@ void VulkanRenderer::draw_background(VkCommandBuffer cmd)
 	// bind the descriptor set containing the draw image for the compute pipeline
 	vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, _gradientPipelineLayout, 0, 1, &_drawImageDescriptors, 0, nullptr);
 
+	ComputePushConstants pc;
+	pc.data1 = pushConstants.data1;
+	pc.data2 = pushConstants.data2;
+	pc.data3 = pushConstants.data3;
+	pc.data4 = pushConstants.data4;
+
+	vkCmdPushConstants(cmd, _gradientPipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(ComputePushConstants), &pc);
 	// execute the compute pipeline dispatch. We are using 16x16 workgroup size so we need to divide by it
 	vkCmdDispatch(cmd, std::ceil(_drawExtent.width / 16.0), std::ceil(_drawExtent.height / 16.0), 1);
+}
+
+void VulkanRenderer::draw_imgui(VkCommandBuffer cmd, VkImageView targetImageView)
+{
+	VkRenderingAttachmentInfo colorAttachment = attachment_info(targetImageView, nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+	VkRenderingInfo renderInfo = rendering_info(_swapchainExtent, &colorAttachment, nullptr);
+
+	vkCmdBeginRendering(cmd, &renderInfo);
+
+	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
+
+	vkCmdEndRendering(cmd);
 }
 
 void VulkanRenderer::init_vulkan()
@@ -280,6 +326,17 @@ void VulkanRenderer::init_commands()
 
 		VK_CHECK(vkAllocateCommandBuffers(_device, &cmdAllocInfo, &_frames[i]._mainCommandBuffer));
 	}
+
+	VK_CHECK(vkCreateCommandPool(_device, &commandPoolInfo, nullptr, &_immCommandPool));
+
+	// allocate the command buffer for immediate submits
+	VkCommandBufferAllocateInfo cmdAllocInfo = command_buffer_allocate_info(_immCommandPool, 1);
+
+	VK_CHECK(vkAllocateCommandBuffers(_device, &cmdAllocInfo, &_immCommandBuffer));
+
+	_mainDeletionQueue.push_function([this]() { 
+	vkDestroyCommandPool(_device, _immCommandPool, nullptr);
+	});
 }
 
 void VulkanRenderer::init_sync_structures()
@@ -298,6 +355,9 @@ void VulkanRenderer::init_sync_structures()
 		VK_CHECK(vkCreateSemaphore(_device, &semaphoreCreateInfo, nullptr, &_frames[i]._swapchainSemaphore));
 		VK_CHECK(vkCreateSemaphore(_device, &semaphoreCreateInfo, nullptr, &_frames[i]._renderSemaphore));
 	}
+
+	VK_CHECK(vkCreateFence(_device, &fenceCreateInfo, nullptr, &_immFence));
+	_mainDeletionQueue.push_function([this]() { vkDestroyFence(_device, _immFence, nullptr); });
 }
 
 void VulkanRenderer::init_descriptors()
@@ -357,12 +417,21 @@ void VulkanRenderer::init_background_pipelines()
 	computeLayout.pSetLayouts = &_drawImageDescriptorLayout;
 	computeLayout.setLayoutCount = 1;
 
+	VkPushConstantRange pushConstant{};
+	pushConstant.offset = 0;
+	pushConstant.size = sizeof(ComputePushConstants) ;
+	pushConstant.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+
+	computeLayout.pPushConstantRanges = &pushConstant;
+	computeLayout.pushConstantRangeCount = 1;
+
 	VK_CHECK(vkCreatePipelineLayout(_device, &computeLayout, nullptr, &_gradientPipelineLayout));
+
 
 	VkShaderModule computeDrawShader;
 	if (!load_shader_module("assets/shaders/gradient_comp.spv", _device, &computeDrawShader))
 	{
-		std::cout << "Error when building the compute shader \n";
+		std::cout << "Error when loading the compute shader \n";
 	}
 
 	VkPipelineShaderStageCreateInfo stageinfo{};
@@ -386,6 +455,71 @@ void VulkanRenderer::init_background_pipelines()
 		vkDestroyPipelineLayout(_device, _gradientPipelineLayout, nullptr);
 		vkDestroyPipeline(_device, _gradientPipeline, nullptr);
 		});
+}
+
+void VulkanRenderer::init_imgui()
+{
+	// 1: create descriptor pool for IMGUI
+	//  the size of the pool is very oversize, but it's copied from imgui demo
+	//  itself.
+	VkDescriptorPoolSize pool_sizes[] = { { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
+		{ VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 } };
+
+	VkDescriptorPoolCreateInfo pool_info = {};
+	pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+	pool_info.maxSets = 1000;
+	pool_info.poolSizeCount = (uint32_t)std::size(pool_sizes);
+	pool_info.pPoolSizes = pool_sizes;
+
+	VkDescriptorPool imguiPool;
+	VK_CHECK(vkCreateDescriptorPool(_device, &pool_info, nullptr, &imguiPool));
+
+	// 2: initialize imgui library
+
+	// this initializes the core structures of imgui
+	ImGui::CreateContext();
+
+	// this initializes imgui for SDL
+	ImGui_ImplSDL2_InitForVulkan(_window);
+
+	// this initializes imgui for Vulkan
+	ImGui_ImplVulkan_InitInfo init_info = {};
+	init_info.Instance = _instance;
+	init_info.PhysicalDevice = _chosenGPU;
+	init_info.Device = _device;
+	init_info.Queue = _graphicsQueue;
+	init_info.DescriptorPool = imguiPool;
+	init_info.MinImageCount = 3;
+	init_info.ImageCount = 3;
+	init_info.UseDynamicRendering = true;
+
+	//dynamic rendering parameters for imgui to use
+	init_info.PipelineRenderingCreateInfo = {.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO};
+	init_info.PipelineRenderingCreateInfo.colorAttachmentCount = 1;
+	init_info.PipelineRenderingCreateInfo.pColorAttachmentFormats = &_swapchainImageFormat;
+	
+
+	init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+
+	ImGui_ImplVulkan_Init(&init_info);
+
+	ImGui_ImplVulkan_CreateFontsTexture();
+
+	// add the destroy the imgui created structures
+	_mainDeletionQueue.push_function([this, imguiPool]() {
+		ImGui_ImplVulkan_Shutdown();
+		vkDestroyDescriptorPool(_device, imguiPool, nullptr);
+	});
 }
 
 void VulkanRenderer::create_swapchain(uint32_t width, uint32_t height)
@@ -421,6 +555,31 @@ void VulkanRenderer::destroy_swapchain()
 
 		vkDestroyImageView(_device, _swapchainImageViews[i], nullptr);
 	}
+}
+
+void VulkanRenderer::immediate_submit(std::function<void(VkCommandBuffer cmd)>&& function)
+{
+	VK_CHECK(vkResetFences(_device, 1, &_immFence));
+	VK_CHECK(vkResetCommandBuffer(_immCommandBuffer, 0));
+
+	VkCommandBuffer cmd = _immCommandBuffer;
+
+	VkCommandBufferBeginInfo cmdBeginInfo = command_buffer_begin_info(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+
+	VK_CHECK(vkBeginCommandBuffer(cmd, &cmdBeginInfo));
+
+	function(cmd);
+
+	VK_CHECK(vkEndCommandBuffer(cmd));
+
+	VkCommandBufferSubmitInfo cmdinfo = command_buffer_submit_info(cmd);
+	VkSubmitInfo2 submit = submit_info(&cmdinfo, nullptr, nullptr);
+
+	// submit command buffer to the queue and execute it.
+	//  _renderFence will now block until the graphic commands finish execution
+	VK_CHECK(vkQueueSubmit2(_graphicsQueue, 1, &submit, _immFence));
+
+	VK_CHECK(vkWaitForFences(_device, 1, &_immFence, true, 9999999999));
 }
 
 // Helper methods (technically functions because they don't use class members)
@@ -678,6 +837,39 @@ bool VulkanRenderer::load_shader_module(const char* filePath, VkDevice device, V
     }
     *outShaderModule = shaderModule;
     return true;
+}
+
+VkRenderingInfo VulkanRenderer::rendering_info(VkExtent2D renderExtent, VkRenderingAttachmentInfo* colorAttachment, VkRenderingAttachmentInfo* depthAttachment)
+{
+    VkRenderingInfo renderInfo {};
+    renderInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
+    renderInfo.pNext = nullptr;
+
+    renderInfo.renderArea = VkRect2D { VkOffset2D { 0, 0 }, renderExtent };
+    renderInfo.layerCount = 1;
+    renderInfo.colorAttachmentCount = 1;
+    renderInfo.pColorAttachments = colorAttachment;
+    renderInfo.pDepthAttachment = depthAttachment;
+    renderInfo.pStencilAttachment = nullptr;
+
+    return renderInfo;
+}
+
+VkRenderingAttachmentInfo VulkanRenderer::attachment_info(VkImageView view, VkClearValue* clear ,VkImageLayout layout)
+{
+    VkRenderingAttachmentInfo colorAttachment {};
+    colorAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+    colorAttachment.pNext = nullptr;
+
+    colorAttachment.imageView = view;
+    colorAttachment.imageLayout = layout;
+    colorAttachment.loadOp = clear ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
+    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    if (clear) {
+        colorAttachment.clearValue = *clear;
+    }
+
+    return colorAttachment;
 }
 
 

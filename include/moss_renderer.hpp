@@ -1,10 +1,13 @@
 #pragma once
 
+#include <glm/glm.hpp>
 #include <SDL.h>
 #include <SDL_vulkan.h>
 #include <vulkan/vulkan.h>
 #include <vulkan/vk_enum_string_helper.h>
 #include <vk_mem_alloc.h>
+#include <imgui.h>
+#include <backends/imgui_impl_sdl2.h>
 
 #include <vector>
 #include <stdexcept>
@@ -78,6 +81,17 @@ private:
         VkFormat imageFormat;
     };
 
+    struct ComputePushConstants 
+    {
+        glm::vec4 data1;
+        glm::vec4 data2;
+        glm::vec4 data3;
+        glm::vec4 data4;
+    };
+
+    //test
+    ComputePushConstants pushConstants{};
+
     SDL_Window* _window{ nullptr };   
 
     VmaAllocator _allocator;
@@ -114,7 +128,12 @@ private:
     VkPipeline _gradientPipeline;
 	VkPipelineLayout _gradientPipelineLayout;
 
+    VkFence _immFence;
+    VkCommandBuffer _immCommandBuffer;
+    VkCommandPool _immCommandPool;
+
     void draw_background(VkCommandBuffer cmd);
+    void draw_imgui(VkCommandBuffer cmd, VkImageView targetImageView);
 
     void init_vulkan();
     void init_swapchain();
@@ -123,9 +142,11 @@ private:
     void init_descriptors();
     void init_pipelines();
 	void init_background_pipelines();
+    void init_imgui();
 
     void create_swapchain(uint32_t width, uint32_t height);
 	void destroy_swapchain();
+    void immediate_submit(std::function<void(VkCommandBuffer cmd)>&& function);
 
     VkCommandPoolCreateInfo command_pool_create_info(uint32_t queueFamilyIndex, VkCommandPoolCreateFlags flags = 0);
     VkCommandBufferAllocateInfo command_buffer_allocate_info(VkCommandPool pool, uint32_t count = 1);
@@ -141,6 +162,8 @@ private:
     VkImageViewCreateInfo imageview_create_info(VkFormat format, VkImage image, VkImageAspectFlags aspectFlags);
     void copy_image_to_image(VkCommandBuffer cmd, VkImage source, VkImage destination, VkExtent2D srcSize, VkExtent2D dstSize);
     bool load_shader_module(const char* filePath, VkDevice device, VkShaderModule* outShaderModule);
+    VkRenderingInfo rendering_info(VkExtent2D renderExtent, VkRenderingAttachmentInfo* colorAttachment, VkRenderingAttachmentInfo* depthAttachment);
+    VkRenderingAttachmentInfo attachment_info(VkImageView view, VkClearValue* clear ,VkImageLayout layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
     
     static inline void VK_CHECK(VkResult result)
     {
