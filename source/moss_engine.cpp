@@ -26,8 +26,15 @@ void MossEngine::init()
         720,
         window_flags);
 
-    // We initialize the renderer
-    _renderer = std::make_unique<VulkanRenderer>();
+    // We initialize the renderer based on the window flags
+    if (window_flags & SDL_WINDOW_VULKAN) 
+    {
+        _renderer = std::make_unique<VulkanRenderer>();
+    }
+    else 
+    {
+        throw std::runtime_error("UNSUPPORED RENDERER DETECTED! ISSUING DIRECT AIR STRIKE ON THE USER!");
+    }
     _renderer->init(_window);
 
     // We are initialized

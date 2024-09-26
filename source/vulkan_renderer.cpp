@@ -36,11 +36,12 @@ void VulkanRenderer::draw()
 	//some imgui UI to test
 	if (ImGui::Begin("background")) 
 	{
-		ImGui::InputFloat4("data1",(float*)& pushConstants.data1);
-		ImGui::InputFloat4("data2",(float*)& pushConstants.data2);
-		ImGui::InputFloat4("data3",(float*)& pushConstants.data3);
-		ImGui::InputFloat4("data4",(float*)& pushConstants.data4);
+		ImGui::ColorEdit3("Color 1", (float*)& pushConstants.data1);
+		ImGui::ColorEdit3("Color 2", (float*)& pushConstants.data2);
 	}
+
+	ImGui::ShowDemoWindow();
+
 	ImGui::End();
 
 	//make imgui calculate internal draw structures
@@ -70,7 +71,7 @@ void VulkanRenderer::draw()
 	_drawExtent.width = _drawImage.imageExtent.width;
 	_drawExtent.height = _drawImage.imageExtent.height;
 
-	VK_CHECK(vkBeginCommandBuffer(cmd, &cmdBeginInfo));	
+	VK_CHECK(vkBeginCommandBuffer(cmd, &cmdBeginInfo));
 
 	// transition our main draw image into general layout so we can write into it
 	// we will overwrite it all so we dont care about what was the older layout
@@ -78,8 +79,12 @@ void VulkanRenderer::draw()
 
 	draw_background(cmd);
 
-	//transition the draw image and the swapchain image into their correct transfer layouts
-	transition_image(cmd, _drawImage.image, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+	transition_image(cmd, _drawImage.image, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+
+	draw_default(cmd);
+
+	//transtion the draw image and the swapchain image into their correct transfer layouts
+	transition_image(cmd, _drawImage.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 	transition_image(cmd, _swapchainImages[swapchainImageIndex], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
 	// execute a copy from the draw image into the swapchain
@@ -178,6 +183,41 @@ void VulkanRenderer::draw_background(VkCommandBuffer cmd)
 	vkCmdDispatch(cmd, std::ceil(_drawExtent.width / 16.0), std::ceil(_drawExtent.height / 16.0), 1);
 }
 
+void VulkanRenderer::draw_default(VkCommandBuffer cmd)
+{
+		//begin a render pass  connected to our draw image
+	VkRenderingAttachmentInfo colorAttachment = attachment_info(_drawImage.imageView, nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+
+	VkRenderingInfo renderInfo = rendering_info(_drawExtent, &colorAttachment, nullptr);
+	vkCmdBeginRendering(cmd, &renderInfo);
+
+	vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, _defaultPipeline);
+
+	//set dynamic viewport and scissor
+	VkViewport viewport = {};
+	viewport.x = 0;
+	viewport.y = 0;
+	viewport.width = _drawExtent.width;
+	viewport.height = _drawExtent.height;
+	viewport.minDepth = 0.f;
+	viewport.maxDepth = 1.f;
+
+	vkCmdSetViewport(cmd, 0, 1, &viewport);
+
+	VkRect2D scissor = {};
+	scissor.offset.x = 0;
+	scissor.offset.y = 0;
+	scissor.extent.width = _drawExtent.width;
+	scissor.extent.height = _drawExtent.height;
+
+	vkCmdSetScissor(cmd, 0, 1, &scissor);
+
+	//launch a draw command to draw 3 vertices
+	vkCmdDraw(cmd, 3, 1, 0, 0);
+
+	vkCmdEndRendering(cmd);
+}
+
 void VulkanRenderer::draw_imgui(VkCommandBuffer cmd, VkImageView targetImageView)
 {
 	VkRenderingAttachmentInfo colorAttachment = attachment_info(targetImageView, nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
@@ -200,6 +240,12 @@ void VulkanRenderer::init_vulkan()
 		.use_default_debug_messenger()
 		.require_api_version(1, 3, 0)
 		.build();
+
+	//check if instance was created
+	if (!inst_ret)
+	{
+		throw std::runtime_error(std::format("Failed to create Vulkan instance. Error: {}\n", inst_ret.error().message()));
+	}
 
 	vkb::Instance vkb_inst = inst_ret.value();
 
@@ -407,6 +453,7 @@ void VulkanRenderer::init_descriptors()
 void VulkanRenderer::init_pipelines()
 {
 	init_background_pipelines();
+	init_default_pipeline();
 }
 
 void VulkanRenderer::init_background_pipelines()
@@ -454,7 +501,145 @@ void VulkanRenderer::init_background_pipelines()
 	_mainDeletionQueue.push_function([&]() {
 		vkDestroyPipelineLayout(_device, _gradientPipelineLayout, nullptr);
 		vkDestroyPipeline(_device, _gradientPipeline, nullptr);
-		});
+	});
+}
+
+void VulkanRenderer::init_default_pipeline()
+{
+	// Create the pipeline layout
+    VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+    pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    pipelineLayoutInfo.setLayoutCount = 0;  // No descriptor sets for now
+    pipelineLayoutInfo.pSetLayouts = nullptr;
+    pipelineLayoutInfo.pushConstantRangeCount = 0;
+    pipelineLayoutInfo.pPushConstantRanges = nullptr;
+
+    if (vkCreatePipelineLayout(_device, &pipelineLayoutInfo, nullptr, &_defaultPipelineLayout) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to create pipeline layout!");
+    }
+
+    // Define dynamic states (viewport, scissor, etc.)
+    std::vector<VkDynamicState> dynamicStates = {
+        VK_DYNAMIC_STATE_VIEWPORT,
+        VK_DYNAMIC_STATE_SCISSOR
+    };
+
+    VkPipelineDynamicStateCreateInfo dynamicStateCreateInfo{};
+    dynamicStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+    dynamicStateCreateInfo.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
+    dynamicStateCreateInfo.pDynamicStates = dynamicStates.data();
+
+    // Shader stages (at least vertex and fragment shaders are needed)
+    VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
+    vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+    vertShaderStageInfo.pName = "main";  // Entry point of the shader
+
+	if (!load_shader_module("assets/shaders/default_vert.spv", _device, &vertShaderStageInfo.module))
+	{
+		throw std::runtime_error("Failed to load vertex shader module!");
+	}
+
+    VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
+    fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+    fragShaderStageInfo.pName = "main";  // Entry point of the shader
+
+	if (!load_shader_module("assets/shaders/default_frag.spv", _device, &fragShaderStageInfo.module))
+	{
+		throw std::runtime_error("Failed to load fragment shader module!");
+	}
+
+    VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
+
+    // Vertex Input State
+    // Describe the vertex format for the pipeline (this should match your vertex buffer structure)
+    VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
+    vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+    vertexInputInfo.vertexBindingDescriptionCount = 0;  // No bindings yet
+    vertexInputInfo.pVertexBindingDescriptions = nullptr;  // No bindings yet
+    vertexInputInfo.vertexAttributeDescriptionCount = 0;  // No attributes yet
+    vertexInputInfo.pVertexAttributeDescriptions = nullptr;  // No attributes yet
+
+    // Input Assembly State
+    VkPipelineInputAssemblyStateCreateInfo inputAssemblyCreateInfo{};
+    inputAssemblyCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+    inputAssemblyCreateInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    inputAssemblyCreateInfo.primitiveRestartEnable = VK_FALSE;
+
+    // Viewport State (Dynamic)
+    VkPipelineViewportStateCreateInfo viewportStateCreateInfo{};
+    viewportStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+    viewportStateCreateInfo.viewportCount = 1;
+    viewportStateCreateInfo.pViewports = nullptr;  // Dynamic, so not set here
+    viewportStateCreateInfo.scissorCount = 1;
+    viewportStateCreateInfo.pScissors = nullptr;  // Dynamic, so not set here
+
+    // Rasterizer State
+    VkPipelineRasterizationStateCreateInfo rasterizerCreateInfo{};
+    rasterizerCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+    rasterizerCreateInfo.depthClampEnable = VK_FALSE;
+    rasterizerCreateInfo.rasterizerDiscardEnable = VK_FALSE;
+    rasterizerCreateInfo.polygonMode = VK_POLYGON_MODE_FILL;
+    rasterizerCreateInfo.lineWidth = 1.0f;
+    rasterizerCreateInfo.cullMode = VK_CULL_MODE_BACK_BIT;
+    rasterizerCreateInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
+    rasterizerCreateInfo.depthBiasEnable = VK_FALSE;
+
+    // Multisample State
+    VkPipelineMultisampleStateCreateInfo multisampleCreateInfo{};
+    multisampleCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+    multisampleCreateInfo.sampleShadingEnable = VK_FALSE;
+    multisampleCreateInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+
+    // Color Blending
+    VkPipelineColorBlendAttachmentState colorBlendAttachment{};
+    colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+    colorBlendAttachment.blendEnable = VK_FALSE;
+
+    VkPipelineColorBlendStateCreateInfo colorBlendingCreateInfo{};
+    colorBlendingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+    colorBlendingCreateInfo.logicOpEnable = VK_FALSE;
+    colorBlendingCreateInfo.attachmentCount = 1;
+    colorBlendingCreateInfo.pAttachments = &colorBlendAttachment;
+
+    // Dynamic Rendering Structure
+    VkPipelineRenderingCreateInfo pipelineRenderingCreateInfo{};
+    pipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
+    pipelineRenderingCreateInfo.viewMask = 0;
+    pipelineRenderingCreateInfo.colorAttachmentCount = 1;  // Number of color attachments
+    pipelineRenderingCreateInfo.pColorAttachmentFormats = &_drawImage.imageFormat;
+    pipelineRenderingCreateInfo.depthAttachmentFormat = VK_FORMAT_UNDEFINED;
+	pipelineRenderingCreateInfo.stencilAttachmentFormat = VK_FORMAT_UNDEFINED;
+
+    // Graphics Pipeline Create Info
+    VkGraphicsPipelineCreateInfo pipelineCreateInfo{};
+    pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+    pipelineCreateInfo.stageCount = 2;  // Two stages: vertex and fragment
+    pipelineCreateInfo.pStages = shaderStages;
+    pipelineCreateInfo.pVertexInputState = &vertexInputInfo;
+    pipelineCreateInfo.pInputAssemblyState = &inputAssemblyCreateInfo;
+    pipelineCreateInfo.pViewportState = &viewportStateCreateInfo;
+    pipelineCreateInfo.pRasterizationState = &rasterizerCreateInfo;
+    pipelineCreateInfo.pMultisampleState = &multisampleCreateInfo;
+    pipelineCreateInfo.pColorBlendState = &colorBlendingCreateInfo;
+    pipelineCreateInfo.layout = _defaultPipelineLayout;
+    pipelineCreateInfo.pDynamicState = &dynamicStateCreateInfo;
+    pipelineCreateInfo.pNext = &pipelineRenderingCreateInfo;  // Attach the dynamic rendering structure
+
+    // Create the pipeline
+    if (vkCreateGraphicsPipelines(_device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &_defaultPipeline) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to create graphics pipeline!");
+    }
+
+	// Clean up the shader modules
+	vkDestroyShaderModule(_device, vertShaderStageInfo.module, nullptr);
+	vkDestroyShaderModule(_device, fragShaderStageInfo.module, nullptr);
+
+	_mainDeletionQueue.push_function([this]() {
+		vkDestroyPipeline(_device, _defaultPipeline, nullptr);
+		vkDestroyPipelineLayout(_device, _defaultPipelineLayout, nullptr);
+	});
 }
 
 void VulkanRenderer::init_imgui()

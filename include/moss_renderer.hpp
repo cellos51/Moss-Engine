@@ -128,11 +128,15 @@ private:
     VkPipeline _gradientPipeline;
 	VkPipelineLayout _gradientPipelineLayout;
 
+    VkPipeline _defaultPipeline;
+    VkPipelineLayout _defaultPipelineLayout;
+
     VkFence _immFence;
     VkCommandBuffer _immCommandBuffer;
     VkCommandPool _immCommandPool;
 
     void draw_background(VkCommandBuffer cmd);
+    void draw_default(VkCommandBuffer cmd);
     void draw_imgui(VkCommandBuffer cmd, VkImageView targetImageView);
 
     void init_vulkan();
@@ -142,6 +146,7 @@ private:
     void init_descriptors();
     void init_pipelines();
 	void init_background_pipelines();
+    void init_default_pipeline();
     void init_imgui();
 
     void create_swapchain(uint32_t width, uint32_t height);
