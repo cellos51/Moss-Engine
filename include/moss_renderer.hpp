@@ -1,5 +1,7 @@
 #pragma once
 
+#include "moss_mesh.hpp"
+
 #include <glm/glm.hpp>
 #include <SDL.h>
 #include <SDL_vulkan.h>
@@ -16,6 +18,8 @@
 #include <span>
 #include <format>
 #include <iostream>
+#include <unordered_map>
+#include <filesystem>
 
 class MossRenderer
 {
@@ -89,6 +93,41 @@ private:
         glm::vec4 data4;
     };
 
+    struct AllocatedBuffer 
+    {
+        VkBuffer buffer;
+        VmaAllocation allocation;
+        VmaAllocationInfo info;
+    };
+
+    // holds the resources needed for a mesh
+    struct GPUMeshBuffers 
+    {
+        AllocatedBuffer indexBuffer;
+        AllocatedBuffer vertexBuffer;
+        VkDeviceAddress vertexBufferAddress;
+    };
+
+    // push constants for our mesh object draws
+    struct GPUDrawPushConstants 
+    {
+        glm::mat4 worldMatrix;
+        VkDeviceAddress vertexBuffer;
+    };
+
+    struct GeoSurface 
+    {
+        uint32_t startIndex;
+        uint32_t count;
+    };
+
+    struct MeshAsset 
+    {
+        std::string name;
+        std::vector<GeoSurface> surfaces;
+        GPUMeshBuffers meshBuffers;
+    };
+
     //test
     ComputePushConstants pushConstants{};
 
@@ -135,6 +174,8 @@ private:
     VkCommandBuffer _immCommandBuffer;
     VkCommandPool _immCommandPool;
 
+    GPUMeshBuffers rectangle;
+
     void draw_background(VkCommandBuffer cmd);
     void draw_default(VkCommandBuffer cmd);
     void draw_imgui(VkCommandBuffer cmd, VkImageView targetImageView);
@@ -148,7 +189,11 @@ private:
 	void init_background_pipelines();
     void init_default_pipeline();
     void init_imgui();
+    void init_default_data();
 
+    AllocatedBuffer create_buffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
+    void destroy_buffer(const AllocatedBuffer& buffer);
+    GPUMeshBuffers uploadMesh(std::span<uint32_t> indices, std::span<Vertex> vertices);
     void create_swapchain(uint32_t width, uint32_t height);
 	void destroy_swapchain();
     void immediate_submit(std::function<void(VkCommandBuffer cmd)>&& function);

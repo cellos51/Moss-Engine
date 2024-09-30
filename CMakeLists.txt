@@ -33,6 +33,13 @@ add_subdirectory(thirdparty/VulkanMemoryAllocator)
 # vk-bootstrap
 add_subdirectory(thirdparty/vk-bootstrap)
 
+# fastgltf
+add_subdirectory(thirdparty/fastgltf)
+
+# stb
+add_library(stb INTERFACE)
+target_include_directories(stb INTERFACE thirdparty/stb)
+
 # imgui
 add_library(imgui STATIC)
 
@@ -61,6 +68,8 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${SDL2_LIBRARIES})
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${Vulkan_LIBRARIES})
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE GPUOpen::VulkanMemoryAllocator)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE vk-bootstrap::vk-bootstrap)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE fastgltf)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE stb)
 
 include(CTest)
 enable_testing()
