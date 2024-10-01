@@ -1,5 +1,6 @@
 #include "moss_engine.hpp"
 
+#include <iostream>
 #include <cassert>
 #include <chrono>
 #include <thread>
@@ -7,90 +8,94 @@
 MossEngine* loadedEngine = nullptr;
 
 MossEngine& MossEngine::Get() { return *loadedEngine; }
-void MossEngine::init()
+bool MossEngine::init()
 {
-    // only one engine initialization is allowed with the application.
     assert(loadedEngine == nullptr);
     loadedEngine = this;
 
-    // We initialize SDL and create a window with it.
     SDL_Init(SDL_INIT_VIDEO);
 
     SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_VULKAN);
 
-    _window = SDL_CreateWindow(
+    window = SDL_CreateWindow
+    (
         "Moss Engine",
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
         1280,
         720,
-        window_flags);
+        window_flags
+    );
 
-    // We initialize the renderer based on the window flags
     if (window_flags & SDL_WINDOW_VULKAN) 
     {
-        _renderer = std::make_unique<VulkanRenderer>();
+        renderer = std::make_unique<VulkanRenderer>();
     }
     else 
     {
-        throw std::runtime_error("UNSUPPORED RENDERER DETECTED! ISSUING DIRECT AIR STRIKE ON THE USER!");
+        std::cerr << "UNSUPPORED RENDERER DETECTED! ISSUING DIRECT AIR STRIKE ON THE USER!\n";
+        return false;
     }
-    _renderer->init(_window);
 
-    // We are initialized
-    _isInitialized = true;
+    if(!renderer->init(window))
+    {
+        std::cerr << "Failed to initialize renderer.\n";
+        return false;
+    }
+
+    isInitialized = true;
+    return true;
 }
 
 void MossEngine::cleanup()
 {
-    if (_isInitialized) {
-        _renderer->cleanup();
-        SDL_DestroyWindow(_window);
+    if (isInitialized) 
+    {
+        renderer->cleanup();
+        SDL_DestroyWindow(window);
     }
 
-    // clear engine pointer
     loadedEngine = nullptr;
 }
 
 void MossEngine::draw()
 {
-    _renderer->draw();
+    renderer->draw();
 }
 
 void MossEngine::run()
 {
-    SDL_Event e;
-    bool bQuit = false;
+    SDL_Event event;
+    bool running = true;
 
-    // main loop
-    while (!bQuit) {
-        // Handle events on queue
-        while (SDL_PollEvent(&e) != 0) {
-            // close the window when user alt-f4s or clicks the X button
-            if (e.type == SDL_QUIT)
-                bQuit = true;
-
-            if (e.type == SDL_WINDOWEVENT) {
-                if (e.window.event == SDL_WINDOWEVENT_MINIMIZED) {
-                    stop_rendering = true;
+    while (running) 
+    {
+        while (SDL_PollEvent(&event) != 0) 
+        {
+            if (event.type == SDL_QUIT)
+                running = false;
+            if (event.type == SDL_WINDOWEVENT) 
+            {
+                if (event.window.event == SDL_WINDOWEVENT_MINIMIZED) 
+                {
+                    stopRendering = true;
                 }
-                if (e.window.event == SDL_WINDOWEVENT_RESTORED) {
-                    stop_rendering = false;
+                if (event.window.event == SDL_WINDOWEVENT_RESTORED) 
+                {
+                    stopRendering = false;
                 }
             }
 
-            // Handle ImGui events
-            ImGui_ImplSDL2_ProcessEvent(&e);
+            //ImGui_ImplSDL2_ProcessEvent(&e);
         }
 
-        // do not draw if we are minimized
-        if (stop_rendering) {
-            // throttle the speed to avoid the endless spinning
+        if (stopRendering) 
+        {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             continue;
         }
 
-        draw();
+        renderer->draw();
     }
 }
 

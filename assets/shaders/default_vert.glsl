@@ -1,35 +1,14 @@
 #version 460
-#extension GL_EXT_buffer_reference : require
+#extension GL_ARB_separate_shader_objects : enable
 
-layout (location = 0) out vec3 outColor;
-layout (location = 1) out vec2 outUV;
+layout (location = 0) out vec3 fragColor;
 
-struct Vertex 
+vec2 positions[3] = vec2[](vec2 (0.0, -0.5), vec2 (0.5, 0.5), vec2 (-0.5, 0.5));
+
+vec3 colors[3] = vec3[](vec3 (1.0, 0.0, 0.0), vec3 (0.0, 1.0, 0.0), vec3 (0.0, 0.0, 1.0));
+
+void main ()
 {
-	vec3 position;
-	float uv_x;
-	vec3 normal;
-	float uv_y;
-	vec4 color;
-}; 
-
-layout(buffer_reference, std430) readonly buffer VertexBuffer{Vertex vertices[];};
-
-//push constants block
-layout( push_constant ) uniform constants
-{	
-	mat4 render_matrix;
-	VertexBuffer vertexBuffer;
-} PushConstants;
-
-void main() 
-{	
-	//load vertex data from device adress
-	Vertex v = PushConstants.vertexBuffer.vertices[gl_VertexIndex];
-
-	//output data
-	gl_Position = PushConstants.render_matrix *vec4(v.position, 1.0f);
-	outColor = v.color.xyz;
-	outUV.x = v.uv_x;
-	outUV.y = v.uv_y;
+	gl_Position = vec4 (positions[gl_VertexIndex], 0.0, 1.0);
+	fragColor = colors[gl_VertexIndex];
 }

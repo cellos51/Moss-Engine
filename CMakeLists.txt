@@ -71,5 +71,10 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE vk-bootstrap::vk-bootstrap)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE fastgltf)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE stb)
 
-include(CTest)
-enable_testing()
+add_custom_command(
+    TARGET ${CMAKE_PROJECT_NAME}
+    POST_BUILD
+    COMMAND
+        ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/assets ${CMAKE_CURRENT_BINARY_DIR}/assets
+    DEPENDS ${CMAKE_CURRENT_BINARY_DIR})

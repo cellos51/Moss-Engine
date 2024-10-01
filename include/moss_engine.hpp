@@ -5,18 +5,19 @@
 #include <SDL.h>
 
 #include <memory>
+#include <iostream>
 
 class MossEngine
 {
 public:
 	static MossEngine& Get();
-	void init();
+	bool init();
 	void cleanup();
 	void draw();
 	void run();
 private:
-	bool _isInitialized{ false };
-	bool stop_rendering{ false };
-	SDL_Window* _window{ nullptr };
-    std::unique_ptr<MossRenderer> _renderer{ nullptr };
+	bool isInitialized = false;
+	bool stopRendering = false;
+	SDL_Window* window = nullptr;
+    std::unique_ptr<MossRenderer> renderer = nullptr;
 };
