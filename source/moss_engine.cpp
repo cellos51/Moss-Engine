@@ -76,13 +76,14 @@ void MossEngine::run()
                 running = false;
             if (event.type == SDL_WINDOWEVENT) 
             {
-                if (event.window.event == SDL_WINDOWEVENT_MINIMIZED) 
+                switch (event.window.event) 
                 {
-                    stopRendering = true;
-                }
-                if (event.window.event == SDL_WINDOWEVENT_RESTORED) 
-                {
-                    stopRendering = false;
+                    case SDL_WINDOWEVENT_MINIMIZED:
+                        stopRendering = true;
+                        break;
+                    case SDL_WINDOWEVENT_RESTORED:
+                        stopRendering = false;
+                        break;
                 }
             }
 

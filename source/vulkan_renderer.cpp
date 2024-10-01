@@ -43,7 +43,17 @@ bool VulkanRenderer::draw()
     disp.waitForFences(1, &in_flight_fences[current_frame], VK_TRUE, UINT64_MAX);
 
     uint32_t image_index = 0;
-    disp.acquireNextImageKHR(swapchain, UINT64_MAX, available_semaphores[current_frame], VK_NULL_HANDLE, &image_index);
+    VkResult result = disp.acquireNextImageKHR(swapchain, UINT64_MAX, available_semaphores[current_frame], VK_NULL_HANDLE, &image_index);
+
+    if (result == VK_ERROR_OUT_OF_DATE_KHR)
+    {
+        return recreate_swapchain();
+    } 
+    else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+    {
+        std::cerr << "Failed to acquire swapchain image. Error: " << result << "\n";
+        return false;
+    }
 
     if (image_in_flight[image_index] != VK_NULL_HANDLE) 
     {
@@ -51,31 +61,27 @@ bool VulkanRenderer::draw()
     }
     image_in_flight[image_index] = in_flight_fences[current_frame];
 
-    disp.resetCommandBuffer(command_buffers[image_index], 0);
-
     VkCommandBufferBeginInfo begin_info{};
     begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     begin_info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
     if (disp.beginCommandBuffer(command_buffers[image_index], &begin_info) != VK_SUCCESS) 
     {
-        std::cout << "Failed to begin recording command buffer.\n";
+        std::cerr << "Failed to begin recording command buffer.\n";
         return false;
     }
 
-    transition_image_layout(command_buffers[image_index], swapchain_images[image_index], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+    transitionImageLayout(command_buffers[image_index], swapchain_images[image_index], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
     draw_geometry(command_buffers[image_index], swapchain_image_views[image_index]);
 
-    transition_image_layout(command_buffers[image_index], swapchain_images[image_index], VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+    transitionImageLayout(command_buffers[image_index], swapchain_images[image_index], VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
     if (disp.endCommandBuffer(command_buffers[image_index]) != VK_SUCCESS) 
     {
-        std::cout << "Failed to record command buffer.\n";
+        std::cerr << "Failed to record command buffer.\n";
         return false;
     }
-
-    disp.resetFences(1, &in_flight_fences[current_frame]);
 
     VkCommandBufferSubmitInfo command_buffer_info{};
     command_buffer_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO;
@@ -102,9 +108,11 @@ bool VulkanRenderer::draw()
     submit_info.commandBufferInfoCount = 1;
     submit_info.pCommandBufferInfos = &command_buffer_info;
 
+    disp.resetFences(1, &in_flight_fences[current_frame]);
+
     if (disp.queueSubmit2(graphics_queue, 1, &submit_info, in_flight_fences[current_frame]) != VK_SUCCESS) 
     {
-        std::cout << "Failed to submit draw command buffer.\n";
+        std::cerr << "Failed to submit draw command buffer.\n";
         return false;
     }
 
@@ -116,14 +124,14 @@ bool VulkanRenderer::draw()
     present_info.pSwapchains = &swapchain.swapchain;
     present_info.pImageIndices = &image_index;    
 
-    VkResult result = disp.queuePresentKHR(present_queue, &present_info);
+    result = disp.queuePresentKHR(present_queue, &present_info);
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) 
     {
         return recreate_swapchain();
     } 
     else if (result != VK_SUCCESS) 
     {
-        std::cout << "Failed to present swapchain image.\n";
+        std::cerr << "Failed to present swapchain image.\n";
         return false;
     }
 
@@ -201,7 +209,7 @@ bool VulkanRenderer::init_device()
     vkb::PhysicalDeviceSelector phys_device_selector(instance);
     auto phys_device_ret = phys_device_selector.set_surface(surface)
                         .set_minimum_version(1, 3) // require a vulkan 1.3 capable device
-						.set_required_features_13(features13)
+					    .set_required_features_13(features13)
 						.set_required_features_12(features12)
 						.set_required_features_11(features11)
 						.set_required_features(features)
@@ -238,7 +246,10 @@ bool VulkanRenderer::init_device()
 bool VulkanRenderer::create_swapchain()
 {
 	vkb::SwapchainBuilder swapchain_builder{ device };
-    auto swap_ret = swapchain_builder.set_old_swapchain(swapchain).set_desired_present_mode(VK_PRESENT_MODE_IMMEDIATE_KHR).build();
+    auto swap_ret = swapchain_builder.set_old_swapchain(swapchain)
+                        .set_desired_present_mode(VK_PRESENT_MODE_IMMEDIATE_KHR)
+                        .set_desired_min_image_count(swapchain_builder.DOUBLE_BUFFERING)
+                        .build();
     if (!swap_ret) 
     {
         std::cerr << swap_ret.error().message() << " " << swap_ret.vk_result() << "\n";
@@ -248,6 +259,21 @@ bool VulkanRenderer::create_swapchain()
     swapchain = swap_ret.value();
     swapchain_image_views = swapchain.get_image_views().value();
     swapchain_images = swapchain.get_images().value();
+    return true;
+}
+
+bool VulkanRenderer::recreate_swapchain()
+{
+    disp.deviceWaitIdle();
+
+    disp.destroyCommandPool(command_pool, nullptr);
+
+    swapchain.destroy_image_views(swapchain_image_views);
+
+    if (!create_swapchain()) return false;
+    if (!create_command_pool()) return false;
+    if (!create_command_buffers()) return false;
+
     return true;
 }
 
@@ -418,6 +444,26 @@ bool VulkanRenderer::create_graphics_pipeline()
     return true;
 }
 
+bool VulkanRenderer::create_vertex_buffer() 
+{
+    VkDeviceSize buffer_size = sizeof(vertices[0]) * vertices.size();
+
+    AllocatedBuffer staging_buffer = createBuffer(buffer_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
+
+    void* data;
+    vmaMapMemory(allocator, staging_buffer.allocation, &data);
+    memcpy(data, vertices.data(), (size_t)buffer_size);
+    vmaUnmapMemory(allocator, staging_buffer.allocation);
+
+    vertex_buffer = createBuffer(buffer_size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_ONLY);
+
+    copyBuffer(staging_buffer.buffer, vertex_buffer.buffer, buffer_size);
+
+    vmaDestroyBuffer(allocator, staging_buffer.buffer, staging_buffer.allocation);
+
+    return true;
+}
+
 bool VulkanRenderer::create_command_pool() 
 {
     VkCommandPoolCreateInfo pool_info{};
@@ -472,7 +518,7 @@ bool VulkanRenderer::create_sync_objects()
             disp.createSemaphore(&semaphore_info, nullptr, &finished_semaphore[i]) != VK_SUCCESS ||
             disp.createFence(&fence_info, nullptr, &in_flight_fences[i]) != VK_SUCCESS) 
             {
-            std::cout << "Failed to create sync objects.\n";
+            std::cerr << "Failed to create sync objects.\n";
             return false;
         }
     }
@@ -529,21 +575,6 @@ void VulkanRenderer::draw_geometry(VkCommandBuffer command_buffer, VkImageView i
 }
 
 // Helper functions
-bool VulkanRenderer::recreate_swapchain()
-{
-    disp.deviceWaitIdle();
-
-    disp.destroyCommandPool(command_pool, nullptr);
-
-    swapchain.destroy_image_views(swapchain_image_views);
-
-    if (!create_swapchain()) return false;
-    if (!create_command_pool()) return false;
-    if (!create_command_buffers()) return false;
-
-    return true;
-}
-
 VkShaderModule VulkanRenderer::createShaderModule(const std::vector<char>& code)
 {
 	VkShaderModuleCreateInfo create_info{};
@@ -561,7 +592,24 @@ VkShaderModule VulkanRenderer::createShaderModule(const std::vector<char>& code)
     return shaderModule;
 }
 
-void VulkanRenderer::transition_image_layout(VkCommandBuffer command_buffer, VkImage image, VkImageLayout old_layout, VkImageLayout new_layout)
+VulkanRenderer::AllocatedBuffer VulkanRenderer::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VmaMemoryUsage memory_usage)
+{
+    VkBufferCreateInfo buffer_info{};
+    buffer_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    buffer_info.size = size;
+    buffer_info.usage = usage;
+    buffer_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    VmaAllocationCreateInfo alloc_info{};
+    alloc_info.usage = memory_usage;
+
+    AllocatedBuffer buffer;
+    vmaCreateBuffer(allocator, &buffer_info, &alloc_info, &buffer.buffer, &buffer.allocation, nullptr);
+
+    return buffer;
+}
+
+void VulkanRenderer::transitionImageLayout(VkCommandBuffer command_buffer, VkImage image, VkImageLayout old_layout, VkImageLayout new_layout)
 {
     VkImageMemoryBarrier2 barrier
     {

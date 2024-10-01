@@ -25,19 +25,27 @@ public:
     bool draw() override;
     void cleanup() override;
 private:
+    struct AllocatedBuffer
+    {
+        VkBuffer buffer;
+        VmaAllocation allocation;
+    };
+
     bool init_device();
     bool create_swapchain();
+    bool recreate_swapchain();
     bool get_queues();
     bool create_graphics_pipeline();
+    bool create_vertex_buffer();
     bool create_command_pool();
     bool create_command_buffers();
     bool create_sync_objects();
-    
+
     void draw_geometry(VkCommandBuffer command_buffer, VkImageView image_view);
 
-    bool recreate_swapchain();
     VkShaderModule createShaderModule(const std::vector<char>& code);
-    void transition_image_layout(VkCommandBuffer command_buffer, VkImage image, VkImageLayout old_layout, VkImageLayout new_layout);
+    AllocatedBuffer createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VmaMemoryUsage memory_usage);
+    void transitionImageLayout(VkCommandBuffer command_buffer, VkImage image, VkImageLayout old_layout, VkImageLayout new_layout);
     
     SDL_Window* window;
     VkSurfaceKHR surface;
@@ -66,6 +74,9 @@ private:
     std::vector<VkFence> in_flight_fences;
     std::vector<VkFence> image_in_flight;
     size_t current_frame = 0;
+
+    AllocatedBuffer vertex_buffer;
+    AllocatedBuffer index_buffer;
 };
 
 class OpenGLRenderer: public MossRenderer // Placeholder for future implementation
