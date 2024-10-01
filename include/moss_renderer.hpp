@@ -32,22 +32,22 @@ private:
     bool create_command_pool();
     bool create_command_buffers();
     bool create_sync_objects();
+    
+    void draw_geometry(VkCommandBuffer command_buffer, VkImageView image_view);
 
-    // Helper functions
     bool recreate_swapchain();
     VkShaderModule createShaderModule(const std::vector<char>& code);
     void transition_image_layout(VkCommandBuffer command_buffer, VkImage image, VkImageLayout old_layout, VkImageLayout new_layout);
-
-    // Vulkan data
+    
     SDL_Window* window;
+    VkSurfaceKHR surface;
+    VmaAllocator allocator;
     vkb::Instance instance;
     vkb::InstanceDispatchTable inst_disp;
-    VkSurfaceKHR surface;
     vkb::Device device;
     vkb::DispatchTable disp;
     vkb::Swapchain swapchain;
 
-    // Render data
     VkQueue graphics_queue;
     VkQueue present_queue;
 
@@ -66,7 +66,6 @@ private:
     std::vector<VkFence> in_flight_fences;
     std::vector<VkFence> image_in_flight;
     size_t current_frame = 0;
-
 };
 
 class OpenGLRenderer: public MossRenderer // Placeholder for future implementation
