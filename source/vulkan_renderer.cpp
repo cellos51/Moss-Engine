@@ -1,6 +1,7 @@
 #include "moss_renderer.hpp"
 
 #include "moss_utility.hpp"
+#include "moss_mesh.hpp"
 
 #define VMA_IMPLEMENTATION
 #include <vk_mem_alloc.h>
@@ -32,6 +33,7 @@ bool VulkanRenderer::init(SDL_Window* window)
 	if (!get_queues()) { return false; }
 	if (!create_graphics_pipeline()) { return false; }
 	if (!create_command_pool()) { return false; }
+    if (!create_mesh_buffers()) { return false; }
     if (!create_command_buffers()) { return false; }
     if (!create_sync_objects()) { return false; }
 
@@ -144,6 +146,8 @@ void VulkanRenderer::cleanup()
 {
     disp.deviceWaitIdle();
 
+    destroyBuffer(vertex_buffer);
+    destroyBuffer(index_buffer);
     vmaDestroyAllocator(allocator);
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
@@ -309,8 +313,8 @@ bool VulkanRenderer::create_graphics_pipeline()
 
 	try
 	{
-		vert_code = readFile("assets/shaders/default_vert.spv");
-    	frag_code = readFile("assets/shaders/default_frag.spv");
+		vert_code = util::readFile("assets/shaders/default_vert.spv");
+    	frag_code = util::readFile("assets/shaders/default_frag.spv");
 	}
 	catch(const std::exception& e)
 	{
@@ -340,10 +344,15 @@ bool VulkanRenderer::create_graphics_pipeline()
 
     VkPipelineShaderStageCreateInfo shader_stages[] = { vert_stage_info, frag_stage_info };
 
+    auto bindingDescription = getBindingDescription();
+    auto attributeDescriptions = getAttributeDescriptions();
+
     VkPipelineVertexInputStateCreateInfo vertex_input_info{};
     vertex_input_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertex_input_info.vertexBindingDescriptionCount = 0;
-    vertex_input_info.vertexAttributeDescriptionCount = 0;
+    vertex_input_info.vertexBindingDescriptionCount = 1;
+    vertex_input_info.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+    vertex_input_info.pVertexBindingDescriptions = &bindingDescription;
+    vertex_input_info.pVertexAttributeDescriptions = attributeDescriptions.data();
 
     VkPipelineInputAssemblyStateCreateInfo input_assembly{};
     input_assembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -444,22 +453,71 @@ bool VulkanRenderer::create_graphics_pipeline()
     return true;
 }
 
-bool VulkanRenderer::create_vertex_buffer() 
+bool VulkanRenderer::create_mesh_buffers() 
 {
-    VkDeviceSize buffer_size = sizeof(vertices[0]) * vertices.size();
+    Mesh mesh = mesh::load_gltf("assets/models/test.glb");
 
-    AllocatedBuffer staging_buffer = createBuffer(buffer_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
+    VkDeviceSize vertex_buffer_size = sizeof(Vertex) * mesh.vertices.size();
+    VkDeviceSize index_buffer_size = sizeof(Index) * mesh.indices.size();
 
+    // Create vertex buffer
+    VkResult result = createBuffer(vertex_buffer_size, 
+                    VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                    VMA_MEMORY_USAGE_GPU_ONLY, vertex_buffer);
+    if (result != VK_SUCCESS) 
+    {
+        std::cerr << "Failed to create vertex buffer.\n";
+        return false;
+    }
+
+    // Create index buffer
+    result = createBuffer(index_buffer_size, 
+                    VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                    VMA_MEMORY_USAGE_GPU_ONLY, index_buffer);
+    if (result != VK_SUCCESS)
+    {
+        std::cerr << "Failed to create index buffer.\n";
+        return false;
+    }
+
+    // Create staging buffer
+    AllocatedBuffer staging_buffer;
+    result = createBuffer(vertex_buffer_size + index_buffer_size, 
+                    VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                    VMA_MEMORY_USAGE_CPU_ONLY, staging_buffer);
+    if (result != VK_SUCCESS)
+    {
+        std::cerr << "Failed to create staging buffer.\n";
+        return false;
+    }
+
+    // Copy data to staging buffer
     void* data;
     vmaMapMemory(allocator, staging_buffer.allocation, &data);
-    memcpy(data, vertices.data(), (size_t)buffer_size);
+    memcpy(data, mesh.vertices.data(), vertex_buffer_size);
+    memcpy(reinterpret_cast<char*>(data) + vertex_buffer_size, mesh.indices.data(), index_buffer_size);
     vmaUnmapMemory(allocator, staging_buffer.allocation);
 
-    vertex_buffer = createBuffer(buffer_size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_ONLY);
+    // Copy data to vertex and index buffers
+    VkCommandBuffer command_buffer;
+    if (!beginSingleTimeCommands(command_buffer)) { return false; }
 
-    copyBuffer(staging_buffer.buffer, vertex_buffer.buffer, buffer_size);
+    VkBufferCopy copy_region{};
+    copy_region.dstOffset = 0;
+    copy_region.srcOffset = 0;
+    copy_region.size = vertex_buffer_size;
 
-    vmaDestroyBuffer(allocator, staging_buffer.buffer, staging_buffer.allocation);
+    disp.cmdCopyBuffer(command_buffer, staging_buffer.buffer, vertex_buffer.buffer, 1, &copy_region);
+
+    copy_region.dstOffset = 0;
+    copy_region.srcOffset = vertex_buffer_size;
+    copy_region.size = index_buffer_size;
+
+    disp.cmdCopyBuffer(command_buffer, staging_buffer.buffer, index_buffer.buffer, 1, &copy_region);
+
+    if (!endSingleTimeCommands(command_buffer, graphics_queue)) { return false; }
+
+    destroyBuffer(staging_buffer);
 
     return true;
 }
@@ -483,13 +541,13 @@ bool VulkanRenderer::create_command_buffers()
 {
     command_buffers.resize(swapchain_image_views.size());
 
-    VkCommandBufferAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = command_pool;
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = (uint32_t)command_buffers.size();
+    VkCommandBufferAllocateInfo alloc_info{};
+    alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    alloc_info.commandPool = command_pool;
+    alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    alloc_info.commandBufferCount = (uint32_t)command_buffers.size();
 
-    if (disp.allocateCommandBuffers(&allocInfo, command_buffers.data()) != VK_SUCCESS) 
+    if (disp.allocateCommandBuffers(&alloc_info, command_buffers.data()) != VK_SUCCESS) 
 	{
         std::cerr << "Failed to allocate command buffers.\n";
         return false;
@@ -569,12 +627,69 @@ void VulkanRenderer::draw_geometry(VkCommandBuffer command_buffer, VkImageView i
 
     disp.cmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline);
 
-    disp.cmdDraw(command_buffer, 3, 1, 0, 0);
+    VkDeviceSize buffer_offset = 0;
+    disp.cmdBindVertexBuffers(command_buffer, 0, 1, &vertex_buffer.buffer, &buffer_offset);
+    disp.cmdBindIndexBuffer(command_buffer, index_buffer.buffer, 0, VK_INDEX_TYPE_UINT32);
+
+    disp.cmdDrawIndexed(command_buffer, 2904, 1, 0, 0, 0);
 
     disp.cmdEndRendering(command_buffer);
 }
 
 // Helper functions
+bool VulkanRenderer::beginSingleTimeCommands(VkCommandBuffer& command_buffer)
+{
+    VkCommandBufferAllocateInfo alloc_info{};
+    alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    alloc_info.commandPool = command_pool;
+    alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    alloc_info.commandBufferCount = 1;
+
+    if (disp.allocateCommandBuffers(&alloc_info, &command_buffer) != VK_SUCCESS) 
+    {
+        std::cerr << "Failed to allocate single time command buffer.\n";
+        return false;
+    }
+
+    VkCommandBufferBeginInfo begin_info{};
+	begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	begin_info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+	if (disp.beginCommandBuffer(command_buffer, &begin_info) != VK_SUCCESS) 
+    {
+        std::cerr << "Failed to begin recording single time command buffer.\n";
+        return false;
+    }
+
+    return true;
+}
+
+bool VulkanRenderer::endSingleTimeCommands(VkCommandBuffer& command_buffer, VkQueue queue)
+{
+    if (disp.endCommandBuffer(command_buffer) != VK_SUCCESS) 
+    {
+        std::cerr << "Failed to record single time command buffer.\n";
+        return false;
+    }
+
+    VkSubmitInfo submit_info{};
+    submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submit_info.commandBufferCount = 1;
+    submit_info.pCommandBuffers = &command_buffer;
+
+    if (disp.queueSubmit(queue, 1, &submit_info, VK_NULL_HANDLE) != VK_SUCCESS) 
+    {
+        std::cerr << "Failed to submit single time command buffer.\n";
+        return false;
+    }
+
+    disp.queueWaitIdle(queue);
+
+    disp.freeCommandBuffers(command_pool, 1, &command_buffer);
+
+    return true;
+}
+
 VkShaderModule VulkanRenderer::createShaderModule(const std::vector<char>& code)
 {
 	VkShaderModuleCreateInfo create_info{};
@@ -592,7 +707,7 @@ VkShaderModule VulkanRenderer::createShaderModule(const std::vector<char>& code)
     return shaderModule;
 }
 
-VulkanRenderer::AllocatedBuffer VulkanRenderer::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VmaMemoryUsage memory_usage)
+VkResult VulkanRenderer::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VmaMemoryUsage memory_usage, AllocatedBuffer& buffer)
 {
     VkBufferCreateInfo buffer_info{};
     buffer_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -603,10 +718,12 @@ VulkanRenderer::AllocatedBuffer VulkanRenderer::createBuffer(VkDeviceSize size, 
     VmaAllocationCreateInfo alloc_info{};
     alloc_info.usage = memory_usage;
 
-    AllocatedBuffer buffer;
-    vmaCreateBuffer(allocator, &buffer_info, &alloc_info, &buffer.buffer, &buffer.allocation, nullptr);
+    return vmaCreateBuffer(allocator, &buffer_info, &alloc_info, &buffer.buffer, &buffer.allocation, &buffer.info);
+}
 
-    return buffer;
+void VulkanRenderer::destroyBuffer(AllocatedBuffer& buffer)
+{
+    vmaDestroyBuffer(allocator, buffer.buffer, buffer.allocation);
 }
 
 void VulkanRenderer::transitionImageLayout(VkCommandBuffer command_buffer, VkImage image, VkImageLayout old_layout, VkImageLayout new_layout)
@@ -641,4 +758,41 @@ void VulkanRenderer::transitionImageLayout(VkCommandBuffer command_buffer, VkIma
     };
 
     disp.cmdPipelineBarrier2(command_buffer, &dependency_info);
+}
+
+VkVertexInputBindingDescription VulkanRenderer::getBindingDescription()
+{
+    VkVertexInputBindingDescription binding_description{};
+    binding_description.binding = 0;
+    binding_description.stride = sizeof(Vertex);
+    binding_description.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+    return binding_description;
+}
+
+std::array<VkVertexInputAttributeDescription, 4> VulkanRenderer::getAttributeDescriptions()
+{
+    std::array<VkVertexInputAttributeDescription, 4> attribute_descriptions{};
+
+    attribute_descriptions[0].binding = 0;
+    attribute_descriptions[0].location = 0;
+    attribute_descriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+    attribute_descriptions[0].offset = offsetof(Vertex, position);
+
+    attribute_descriptions[1].binding = 0;
+    attribute_descriptions[1].location = 1;
+    attribute_descriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+    attribute_descriptions[1].offset = offsetof(Vertex, normal);
+
+    attribute_descriptions[2].binding = 0;
+    attribute_descriptions[2].location = 2;
+    attribute_descriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+    attribute_descriptions[2].offset = offsetof(Vertex, tex_coord);
+
+    attribute_descriptions[3].binding = 0;
+    attribute_descriptions[3].location = 3;
+    attribute_descriptions[3].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+    attribute_descriptions[3].offset = offsetof(Vertex, color);
+
+    return attribute_descriptions;
 }

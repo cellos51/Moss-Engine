@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 
 #include <vector>
+#include <array>
 
 class MossRenderer
 {
@@ -29,6 +30,7 @@ private:
     {
         VkBuffer buffer;
         VmaAllocation allocation;
+        VmaAllocationInfo info;
     };
 
     bool init_device();
@@ -36,16 +38,21 @@ private:
     bool recreate_swapchain();
     bool get_queues();
     bool create_graphics_pipeline();
-    bool create_vertex_buffer();
     bool create_command_pool();
+    bool create_mesh_buffers();
     bool create_command_buffers();
     bool create_sync_objects();
 
     void draw_geometry(VkCommandBuffer command_buffer, VkImageView image_view);
 
+    bool beginSingleTimeCommands(VkCommandBuffer& command_buffer);
+    bool endSingleTimeCommands(VkCommandBuffer& command_buffer, VkQueue queue);
     VkShaderModule createShaderModule(const std::vector<char>& code);
-    AllocatedBuffer createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VmaMemoryUsage memory_usage);
+    VkResult createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VmaMemoryUsage memory_usage, AllocatedBuffer& buffer);
+    void destroyBuffer(AllocatedBuffer& buffer);
     void transitionImageLayout(VkCommandBuffer command_buffer, VkImage image, VkImageLayout old_layout, VkImageLayout new_layout);
+    VkVertexInputBindingDescription getBindingDescription();
+    std::array<VkVertexInputAttributeDescription, 4> getAttributeDescriptions();
     
     SDL_Window* window;
     VkSurfaceKHR surface;

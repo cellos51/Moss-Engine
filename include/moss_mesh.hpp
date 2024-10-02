@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 
 #include <vector>
+#include <filesystem>
 
 struct Vertex 
 {
@@ -12,13 +13,16 @@ struct Vertex
     glm::vec4 color;
 };
 
+typedef uint32_t Index;
+
 struct Mesh
 {
     std::vector<Vertex> vertices;
-    std::vector<uint32_t> indices;
+    std::vector<Index> indices;
 };
 
 namespace mesh
 {
-    Mesh create_square_mesh();
+    Mesh load_gltf(std::filesystem::path path);
+    Mesh create_square();
 }
