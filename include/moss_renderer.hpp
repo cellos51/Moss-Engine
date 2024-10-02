@@ -30,7 +30,13 @@ private:
     {
         VkBuffer buffer;
         VmaAllocation allocation;
-        VmaAllocationInfo info;
+    };
+
+    struct AllocatedImage
+    {
+        VkImage image;
+        VkImageView image_view;
+        VmaAllocation allocation;
     };
 
     bool init_device();
@@ -45,12 +51,16 @@ private:
 
     void draw_geometry(VkCommandBuffer command_buffer, VkImageView image_view);
 
+    VkShaderModule createShaderModule(const std::vector<char>& code);
+    void transitionImageLayout(VkCommandBuffer command_buffer, VkImage image, VkImageLayout old_layout, VkImageLayout new_layout);
     bool beginSingleTimeCommands(VkCommandBuffer& command_buffer);
     bool endSingleTimeCommands(VkCommandBuffer& command_buffer, VkQueue queue);
-    VkShaderModule createShaderModule(const std::vector<char>& code);
     VkResult createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VmaMemoryUsage memory_usage, AllocatedBuffer& buffer);
     void destroyBuffer(AllocatedBuffer& buffer);
-    void transitionImageLayout(VkCommandBuffer command_buffer, VkImage image, VkImageLayout old_layout, VkImageLayout new_layout);
+    VkResult createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VmaMemoryUsage memory_usage, AllocatedImage& image);
+    void destroyImage(AllocatedImage& image);
+    VkResult createImageView(VkFormat format, VkImageAspectFlags aspect, AllocatedImage& image_view);
+    void destroyImageView(AllocatedImage& image_view);
     VkVertexInputBindingDescription getBindingDescription();
     std::array<VkVertexInputAttributeDescription, 4> getAttributeDescriptions();
     
@@ -68,6 +78,7 @@ private:
 
     std::vector<VkImage> swapchain_images;
     std::vector<VkImageView> swapchain_image_views;
+    AllocatedImage depth_image;
 
     VkRenderPass render_pass;
     VkPipelineLayout pipeline_layout;
@@ -84,6 +95,7 @@ private:
 
     AllocatedBuffer vertex_buffer;
     AllocatedBuffer index_buffer;
+    std::vector<Mesh> meshes;
 };
 
 class OpenGLRenderer: public MossRenderer // Placeholder for future implementation
