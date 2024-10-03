@@ -39,15 +39,16 @@ private:
         VmaAllocation allocation;
     };
 
-    bool init_device();
-    bool create_swapchain();
-    bool recreate_swapchain();
-    bool get_queues();
-    bool create_graphics_pipeline();
-    bool create_command_pool();
-    bool create_mesh_buffers();
-    bool create_command_buffers();
-    bool create_sync_objects();
+    bool init_device(); // Create Vulkan instance and select physical device
+    bool get_queues(); // Retrieve queue handles for graphics and presentation
+    bool create_command_pool(); // Create a command pool for command buffer allocation
+    bool create_swapchain(); // Create the swap chain
+    bool prepare_images(); // Transition swapchain images and depth image from undefined
+    bool create_mesh_buffers(); // Create buffers for mesh data
+    bool create_command_buffers(); // Allocate and set up command buffers for rendering
+    bool create_sync_objects(); // Create semaphores and fences for synchronization
+    bool create_graphics_pipeline(); // Set up the graphics pipeline (shaders, render pass, etc.)
+    bool recreate_swapchain(); // Handle swapchain recreation (e.g., on window resize)
 
     void draw_geometry(VkCommandBuffer command_buffer, VkImageView image_view);
 

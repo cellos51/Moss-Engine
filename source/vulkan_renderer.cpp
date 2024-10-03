@@ -29,13 +29,14 @@ bool VulkanRenderer::init(SDL_Window* window)
 	this->window = window;
 
 	if (!init_device()) { return false; }
+    if (!get_queues()) { return false; }
+    if (!create_command_pool()) { return false; }
 	if (!create_swapchain()) { return false; }
-	if (!get_queues()) { return false; }
-	if (!create_graphics_pipeline()) { return false; }
-	if (!create_command_pool()) { return false; }
+    if (!prepare_images()) { return false; }
     if (!create_mesh_buffers()) { return false; }
     if (!create_command_buffers()) { return false; }
     if (!create_sync_objects()) { return false; }
+    if (!create_graphics_pipeline()) { return false; }
 
 	return true;
 }
@@ -73,7 +74,7 @@ bool VulkanRenderer::draw()
         return false;
     }
 
-    transitionImageLayout(command_buffers[image_index], swapchain_images[image_index], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+    transitionImageLayout(command_buffers[image_index], swapchain_images[image_index], VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
     draw_geometry(command_buffers[image_index], swapchain_image_views[image_index]);
 
@@ -173,7 +174,7 @@ void VulkanRenderer::cleanup()
     vkb::destroy_instance(instance);
 }
 
-// Private functions
+// Initialization functions
 bool VulkanRenderer::init_device()
 {
 	vkb::InstanceBuilder instance_builder;
@@ -249,12 +250,47 @@ bool VulkanRenderer::init_device()
 	return true;
 }
 
+bool VulkanRenderer::get_queues() 
+{
+    auto gq = device.get_queue(vkb::QueueType::graphics);
+    if (!gq.has_value()) 
+    {
+        std::cerr << "Failed to get graphics queue: " << gq.error().message() << "\n";
+        return false;
+    }
+    graphics_queue = gq.value();
+
+    auto pq = device.get_queue(vkb::QueueType::present);
+    if (!pq.has_value()) 
+    {
+        std::cerr << "Failed to get present queue: " << pq.error().message() << "\n";
+        return false;
+    }
+    present_queue = pq.value();
+    return true;
+}
+
+bool VulkanRenderer::create_command_pool() 
+{
+    VkCommandPoolCreateInfo pool_info{};
+    pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    pool_info.queueFamilyIndex = device.get_queue_index(vkb::QueueType::graphics).value();
+    pool_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+
+    if (disp.createCommandPool(&pool_info, nullptr, &command_pool) != VK_SUCCESS) 
+	{
+        std::cerr << "Failed to create command pool.\n";
+        return false;
+    }
+    return true;
+}
+
 bool VulkanRenderer::create_swapchain()
 {
 	vkb::SwapchainBuilder swapchain_builder{ device };
     auto swap_ret = swapchain_builder.set_old_swapchain(swapchain)
                         .set_desired_present_mode(VK_PRESENT_MODE_IMMEDIATE_KHR)
-                        .set_desired_min_image_count(swapchain_builder.TRIPLE_BUFFERING)
+                        .set_desired_min_image_count(swapchain_builder.DOUBLE_BUFFERING)
                         .build();
     if (!swap_ret) 
     {
@@ -289,41 +325,158 @@ bool VulkanRenderer::create_swapchain()
     return true;
 }
 
-bool VulkanRenderer::recreate_swapchain()
+bool VulkanRenderer::prepare_images()
 {
-    disp.deviceWaitIdle();
+    VkCommandBuffer command_buffer;
+    if (!beginSingleTimeCommands(command_buffer)) { return false; }
 
-    disp.destroyCommandPool(command_pool, nullptr);
+    for (size_t i = 0; i < swapchain_images.size(); i++) 
+    {
+        transitionImageLayout(command_buffer, swapchain_images[i], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+    }
 
-    swapchain.destroy_image_views(swapchain_image_views);
+    transitionImageLayout(command_buffer, depth_image.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
 
-    destroyImage(depth_image);
-    destroyImageView(depth_image);
-
-    if (!create_swapchain()) return false;
-    if (!create_command_pool()) return false;
-    if (!create_command_buffers()) return false;
+    if (!endSingleTimeCommands(command_buffer, graphics_queue)) { return false; }
 
     return true;
 }
 
-bool VulkanRenderer::get_queues() 
+bool VulkanRenderer::create_mesh_buffers() 
 {
-    auto gq = device.get_queue(vkb::QueueType::graphics);
-    if (!gq.has_value()) 
-    {
-        std::cerr << "Failed to get graphics queue: " << gq.error().message() << "\n";
-        return false;
-    }
-    graphics_queue = gq.value();
+    meshes.push_back(mesh::create_square());
+    meshes.push_back(mesh::load_gltf("assets/models/test.glb"));
+    
+    std::vector<Vertex> vertices;
+    std::vector<Index> indices;
+    
+    size_t vertex_offset = 0;
 
-    auto pq = device.get_queue(vkb::QueueType::present);
-    if (!pq.has_value()) 
+    // Push all vertices and indices into a single mesh
+    for (Mesh& mesh : meshes) 
     {
-        std::cerr << "Failed to get present queue: " << pq.error().message() << "\n";
+        vertices.insert(vertices.end(), mesh.vertices.begin(), mesh.vertices.end());
+        
+        for (Index index : mesh.indices) 
+        {
+            indices.push_back(index + vertex_offset);
+        }
+
+        vertex_offset += mesh.vertices.size();
+    }
+
+    // Destroy previous buffers
+    if (vertex_buffer.buffer != VK_NULL_HANDLE) { destroyBuffer(vertex_buffer); }
+    if (index_buffer.buffer != VK_NULL_HANDLE) { destroyBuffer(index_buffer); }
+
+    VkDeviceSize vertex_buffer_size = sizeof(Vertex) * vertices.size();
+    VkDeviceSize index_buffer_size = sizeof(Index) * indices.size();
+
+    // Create vertex buffer
+    VkResult result = createBuffer(vertex_buffer_size, 
+                    VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                    VMA_MEMORY_USAGE_GPU_ONLY, vertex_buffer);
+    if (result != VK_SUCCESS) 
+    {
+        std::cerr << "Failed to create vertex buffer.\n";
         return false;
     }
-    present_queue = pq.value();
+
+    // Create index buffer
+    result = createBuffer(index_buffer_size, 
+                    VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                    VMA_MEMORY_USAGE_GPU_ONLY, index_buffer);
+    if (result != VK_SUCCESS)
+    {
+        std::cerr << "Failed to create index buffer.\n";
+        return false;
+    }
+
+    // Create staging buffer
+    AllocatedBuffer staging_buffer;
+    result = createBuffer(vertex_buffer_size + index_buffer_size, 
+                    VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                    VMA_MEMORY_USAGE_CPU_ONLY, staging_buffer);
+    if (result != VK_SUCCESS)
+    {
+        std::cerr << "Failed to create staging buffer.\n";
+        return false;
+    }
+
+    // Copy data to staging buffer
+    void* data;
+    vmaMapMemory(allocator, staging_buffer.allocation, &data);
+    memcpy(data, vertices.data(), vertex_buffer_size);
+    memcpy(reinterpret_cast<char*>(data) + vertex_buffer_size, indices.data(), index_buffer_size);
+    vmaUnmapMemory(allocator, staging_buffer.allocation);
+
+    // Copy data to vertex and index buffers
+    VkCommandBuffer command_buffer;
+    if (!beginSingleTimeCommands(command_buffer)) { return false; }
+
+    VkBufferCopy copy_region{};
+    copy_region.dstOffset = 0;
+    copy_region.srcOffset = 0;
+    copy_region.size = vertex_buffer_size;
+
+    disp.cmdCopyBuffer(command_buffer, staging_buffer.buffer, vertex_buffer.buffer, 1, &copy_region);
+
+    copy_region.dstOffset = 0;
+    copy_region.srcOffset = vertex_buffer_size;
+    copy_region.size = index_buffer_size;
+
+    disp.cmdCopyBuffer(command_buffer, staging_buffer.buffer, index_buffer.buffer, 1, &copy_region);
+
+    if (!endSingleTimeCommands(command_buffer, graphics_queue)) { return false; }
+
+    destroyBuffer(staging_buffer);
+
+    return true;
+}
+
+bool VulkanRenderer::create_command_buffers() 
+{
+    command_buffers.resize(swapchain_image_views.size());
+
+    VkCommandBufferAllocateInfo alloc_info{};
+    alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    alloc_info.commandPool = command_pool;
+    alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    alloc_info.commandBufferCount = (uint32_t)command_buffers.size();
+
+    if (disp.allocateCommandBuffers(&alloc_info, command_buffers.data()) != VK_SUCCESS) 
+	{
+        std::cerr << "Failed to allocate command buffers.\n";
+        return false;
+    }
+
+    return true;
+}
+
+bool VulkanRenderer::create_sync_objects()
+{
+    available_semaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    finished_semaphore.resize(MAX_FRAMES_IN_FLIGHT);
+    in_flight_fences.resize(MAX_FRAMES_IN_FLIGHT);
+    image_in_flight.resize(swapchain.image_count, VK_NULL_HANDLE);
+
+    VkSemaphoreCreateInfo semaphore_info{};
+    semaphore_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+    VkFenceCreateInfo fence_info{};
+    fence_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fence_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
+    {
+        if (disp.createSemaphore(&semaphore_info, nullptr, &available_semaphores[i]) != VK_SUCCESS ||
+            disp.createSemaphore(&semaphore_info, nullptr, &finished_semaphore[i]) != VK_SUCCESS ||
+            disp.createFence(&fence_info, nullptr, &in_flight_fences[i]) != VK_SUCCESS) 
+            {
+            std::cerr << "Failed to create sync objects.\n";
+            return false;
+        }
+    }
     return true;
 }
 
@@ -496,163 +649,22 @@ bool VulkanRenderer::create_graphics_pipeline()
     return true;
 }
 
-bool VulkanRenderer::create_mesh_buffers() 
+bool VulkanRenderer::recreate_swapchain()
 {
-    meshes.push_back(mesh::create_square());
-    meshes.push_back(mesh::load_gltf("assets/models/test.glb"));
-    
-    std::vector<Vertex> vertices;
-    std::vector<Index> indices;
-    
-    size_t vertex_offset = 0;
+    disp.deviceWaitIdle();
 
-    // Push all vertices and indices into a single mesh
-    for (Mesh& mesh : meshes) 
-    {
-        vertices.insert(vertices.end(), mesh.vertices.begin(), mesh.vertices.end());
-        
-        for (Index index : mesh.indices) 
-        {
-            indices.push_back(index + vertex_offset);
-        }
+    disp.destroyCommandPool(command_pool, nullptr);
 
-        vertex_offset += mesh.vertices.size();
-    }
+    swapchain.destroy_image_views(swapchain_image_views);
 
-    // Destroy previous buffers
-    if (vertex_buffer.buffer != VK_NULL_HANDLE) { destroyBuffer(vertex_buffer); }
-    if (index_buffer.buffer != VK_NULL_HANDLE) { destroyBuffer(index_buffer); }
+    destroyImage(depth_image);
+    destroyImageView(depth_image);
 
-    VkDeviceSize vertex_buffer_size = sizeof(Vertex) * vertices.size();
-    VkDeviceSize index_buffer_size = sizeof(Index) * indices.size();
+    if (!create_command_pool()) return false;
+    if (!create_swapchain()) return false;
+    if (!prepare_images()) return false;
+    if (!create_command_buffers()) return false;
 
-    // Create vertex buffer
-    VkResult result = createBuffer(vertex_buffer_size, 
-                    VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-                    VMA_MEMORY_USAGE_GPU_ONLY, vertex_buffer);
-    if (result != VK_SUCCESS) 
-    {
-        std::cerr << "Failed to create vertex buffer.\n";
-        return false;
-    }
-
-    // Create index buffer
-    result = createBuffer(index_buffer_size, 
-                    VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-                    VMA_MEMORY_USAGE_GPU_ONLY, index_buffer);
-    if (result != VK_SUCCESS)
-    {
-        std::cerr << "Failed to create index buffer.\n";
-        return false;
-    }
-
-    // Create staging buffer
-    AllocatedBuffer staging_buffer;
-    result = createBuffer(vertex_buffer_size + index_buffer_size, 
-                    VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                    VMA_MEMORY_USAGE_CPU_ONLY, staging_buffer);
-    if (result != VK_SUCCESS)
-    {
-        std::cerr << "Failed to create staging buffer.\n";
-        return false;
-    }
-
-    // Copy data to staging buffer
-    void* data;
-    vmaMapMemory(allocator, staging_buffer.allocation, &data);
-    memcpy(data, vertices.data(), vertex_buffer_size);
-    memcpy(reinterpret_cast<char*>(data) + vertex_buffer_size, indices.data(), index_buffer_size);
-    vmaUnmapMemory(allocator, staging_buffer.allocation);
-
-    // Copy data to vertex and index buffers
-    VkCommandBuffer command_buffer;
-    if (!beginSingleTimeCommands(command_buffer)) { return false; }
-
-    VkBufferCopy copy_region{};
-    copy_region.dstOffset = 0;
-    copy_region.srcOffset = 0;
-    copy_region.size = vertex_buffer_size;
-
-    disp.cmdCopyBuffer(command_buffer, staging_buffer.buffer, vertex_buffer.buffer, 1, &copy_region);
-
-    copy_region.dstOffset = 0;
-    copy_region.srcOffset = vertex_buffer_size;
-    copy_region.size = index_buffer_size;
-
-    disp.cmdCopyBuffer(command_buffer, staging_buffer.buffer, index_buffer.buffer, 1, &copy_region);
-
-    if (!endSingleTimeCommands(command_buffer, graphics_queue)) { return false; }
-
-    destroyBuffer(staging_buffer);
-
-    return true;
-}
-
-bool VulkanRenderer::create_command_pool() 
-{
-    VkCommandPoolCreateInfo pool_info{};
-    pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    pool_info.queueFamilyIndex = device.get_queue_index(vkb::QueueType::graphics).value();
-    pool_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-
-    if (disp.createCommandPool(&pool_info, nullptr, &command_pool) != VK_SUCCESS) 
-	{
-        std::cerr << "Failed to create command pool.\n";
-        return false;
-    }
-    return true;
-}
-
-bool VulkanRenderer::create_command_buffers() 
-{
-    command_buffers.resize(swapchain_image_views.size());
-
-    VkCommandBufferAllocateInfo alloc_info{};
-    alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    alloc_info.commandPool = command_pool;
-    alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    alloc_info.commandBufferCount = (uint32_t)command_buffers.size();
-
-    if (disp.allocateCommandBuffers(&alloc_info, command_buffers.data()) != VK_SUCCESS) 
-	{
-        std::cerr << "Failed to allocate command buffers.\n";
-        return false;
-    }
-
-    VkCommandBuffer command_buffer;
-    if (!beginSingleTimeCommands(command_buffer)) { return false; }
-
-    transitionImageLayout(command_buffer, depth_image.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
-
-    if (!endSingleTimeCommands(command_buffer, graphics_queue)) { return false; }
-
-    return true;
-}
-
-bool VulkanRenderer::create_sync_objects()
-{
-    available_semaphores.resize(MAX_FRAMES_IN_FLIGHT);
-    finished_semaphore.resize(MAX_FRAMES_IN_FLIGHT);
-    in_flight_fences.resize(MAX_FRAMES_IN_FLIGHT);
-    image_in_flight.resize(swapchain.image_count, VK_NULL_HANDLE);
-
-    VkSemaphoreCreateInfo semaphore_info{};
-    semaphore_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-    VkFenceCreateInfo fence_info{};
-    fence_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-    fence_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
-    {
-        if (disp.createSemaphore(&semaphore_info, nullptr, &available_semaphores[i]) != VK_SUCCESS ||
-            disp.createSemaphore(&semaphore_info, nullptr, &finished_semaphore[i]) != VK_SUCCESS ||
-            disp.createFence(&fence_info, nullptr, &in_flight_fences[i]) != VK_SUCCESS) 
-            {
-            std::cerr << "Failed to create sync objects.\n";
-            return false;
-        }
-    }
     return true;
 }
 
@@ -708,8 +720,7 @@ void VulkanRenderer::draw_geometry(VkCommandBuffer command_buffer, VkImageView i
 
     disp.cmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline);
 
-    static float time = 0.0f;
-    time += 0.0001f;
+    float time = SDL_GetTicks() / 1000.0f;
 
     glm::mat4 view = glm::lookAt(glm::vec3(sin(time) * 3.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), swapchain.extent.width / (float)swapchain.extent.height, 0.1f, 10.0f);
