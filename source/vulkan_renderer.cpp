@@ -50,7 +50,7 @@ bool VulkanRenderer::draw()
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
-        return recreate_swapchain();
+        return recreateSwapchain();
     } 
     else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
     {
@@ -130,7 +130,7 @@ bool VulkanRenderer::draw()
     result = disp.queuePresentKHR(present_queue, &present_info);
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) 
     {
-        return recreate_swapchain();
+        return recreateSwapchain();
     } 
     else if (result != VK_SUCCESS) 
     {
@@ -344,8 +344,11 @@ bool VulkanRenderer::prepare_images()
 
 bool VulkanRenderer::create_mesh_buffers() 
 {
+    std::vector<Mesh> meshes;
+
     meshes.push_back(mesh::create_square());
     meshes.push_back(mesh::load_gltf("assets/models/test.glb"));
+    meshes.push_back(mesh::load_gltf("assets/models/torus.glb"));
     
     std::vector<Vertex> vertices;
     std::vector<Index> indices;
@@ -353,16 +356,24 @@ bool VulkanRenderer::create_mesh_buffers()
     size_t vertex_offset = 0;
 
     // Push all vertices and indices into a single mesh
-    for (Mesh& mesh : meshes) 
+    for (size_t i = 0; i < meshes.size(); i++)
     {
-        vertices.insert(vertices.end(), mesh.vertices.begin(), mesh.vertices.end());
+        vertices.insert(vertices.end(), meshes[i].vertices.begin(), meshes[i].vertices.end());
         
-        for (Index index : mesh.indices) 
+        size_t current_index_offset = indices.size();
+
+        for (Index index : meshes[i].indices) 
         {
             indices.push_back(index + vertex_offset);
         }
 
-        vertex_offset += mesh.vertices.size();
+        MeshRegion region;
+        region.index_offset = current_index_offset * sizeof(VkIndex);
+        region.index_count = meshes[i].indices.size();
+
+        mesh_regions.insert({ i, region });
+
+        vertex_offset += meshes[i].vertices.size();
     }
 
     // Destroy previous buffers
@@ -649,25 +660,6 @@ bool VulkanRenderer::create_graphics_pipeline()
     return true;
 }
 
-bool VulkanRenderer::recreate_swapchain()
-{
-    disp.deviceWaitIdle();
-
-    disp.destroyCommandPool(command_pool, nullptr);
-
-    swapchain.destroy_image_views(swapchain_image_views);
-
-    destroyImage(depth_image);
-    destroyImageView(depth_image);
-
-    if (!create_command_pool()) return false;
-    if (!create_swapchain()) return false;
-    if (!prepare_images()) return false;
-    if (!create_command_buffers()) return false;
-
-    return true;
-}
-
 // Drawing functions
 void VulkanRenderer::draw_geometry(VkCommandBuffer command_buffer, VkImageView image_view)
 {
@@ -731,14 +723,47 @@ void VulkanRenderer::draw_geometry(VkCommandBuffer command_buffer, VkImageView i
 
     VkDeviceSize buffer_offset = 0;
     disp.cmdBindVertexBuffers(command_buffer, 0, 1, &vertex_buffer.buffer, &buffer_offset);
-    disp.cmdBindIndexBuffer(command_buffer, index_buffer.buffer, 0, VK_INDEX_TYPE_UINT32);
 
-    disp.cmdDrawIndexed(command_buffer, 2910, 1, 0, 0, 0);
+    static size_t mesh_index = 0;
+    static Uint32 last_time = 0;
+
+    if (SDL_GetTicks() - last_time > 1000)
+    {
+        mesh_index = (mesh_index + 1) % mesh_regions.size();
+        last_time = SDL_GetTicks();
+    }
+
+    if (mesh_regions.find(mesh_index) != mesh_regions.end())
+    {
+        MeshRegion region = mesh_regions[mesh_index];
+
+        disp.cmdBindIndexBuffer(command_buffer, index_buffer.buffer, region.index_offset, VK_INDEX_TYPE_UINT32);
+        disp.cmdDrawIndexed(command_buffer, region.index_count, 1, 0, 0, 0);
+    }
 
     disp.cmdEndRendering(command_buffer);
 }
 
 // Helper functions
+bool VulkanRenderer::recreateSwapchain()
+{
+    disp.deviceWaitIdle();
+
+    disp.destroyCommandPool(command_pool, nullptr);
+
+    swapchain.destroy_image_views(swapchain_image_views);
+
+    destroyImage(depth_image);
+    destroyImageView(depth_image);
+
+    if (!create_command_pool()) return false;
+    if (!create_swapchain()) return false;
+    if (!prepare_images()) return false;
+    if (!create_command_buffers()) return false;
+
+    return true;
+}
+
 void VulkanRenderer::transitionImageLayout(VkCommandBuffer command_buffer, VkImage image, VkImageLayout old_layout, VkImageLayout new_layout)
 {
     VkImageMemoryBarrier2 barrier
@@ -915,7 +940,7 @@ VkVertexInputBindingDescription VulkanRenderer::getBindingDescription()
 {
     VkVertexInputBindingDescription binding_description{};
     binding_description.binding = 0;
-    binding_description.stride = sizeof(Vertex);
+    binding_description.stride = sizeof(VkVertex);
     binding_description.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
     return binding_description;
@@ -928,22 +953,22 @@ std::array<VkVertexInputAttributeDescription, 4> VulkanRenderer::getAttributeDes
     attribute_descriptions[0].binding = 0;
     attribute_descriptions[0].location = 0;
     attribute_descriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-    attribute_descriptions[0].offset = offsetof(Vertex, position);
+    attribute_descriptions[0].offset = offsetof(VkVertex, position);
 
     attribute_descriptions[1].binding = 0;
     attribute_descriptions[1].location = 1;
     attribute_descriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-    attribute_descriptions[1].offset = offsetof(Vertex, normal);
+    attribute_descriptions[1].offset = offsetof(VkVertex, normal);
 
     attribute_descriptions[2].binding = 0;
     attribute_descriptions[2].location = 2;
     attribute_descriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-    attribute_descriptions[2].offset = offsetof(Vertex, tex_coord);
+    attribute_descriptions[2].offset = offsetof(VkVertex, tex_coord);
 
     attribute_descriptions[3].binding = 0;
     attribute_descriptions[3].location = 3;
     attribute_descriptions[3].format = VK_FORMAT_R32G32B32A32_SFLOAT;
-    attribute_descriptions[3].offset = offsetof(Vertex, color);
+    attribute_descriptions[3].offset = offsetof(VkVertex, color);
 
     return attribute_descriptions;
 }

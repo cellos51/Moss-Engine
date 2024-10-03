@@ -1,13 +1,12 @@
 #pragma once
 
-#include "moss_mesh.hpp"
-
 #include <vulkan/vulkan.h>
 #include <vk_mem_alloc.h>
 #include <VkBootstrap.h>
 #include <SDL.h>
 #include <glm/glm.hpp>
 
+#include <unordered_map>
 #include <vector>
 #include <array>
 
@@ -39,6 +38,22 @@ private:
         VmaAllocation allocation;
     };
 
+    struct MeshRegion
+    {
+        VkDeviceSize index_offset;
+        uint32_t index_count;
+    };
+
+    struct VkVertex // Copy of Vertex from moss_mesh.hpp to avoid circular dependency
+    {
+        glm::vec3 position;
+        glm::vec3 normal;
+        glm::vec2 tex_coord;
+        glm::vec4 color;
+    };
+
+    typedef uint32_t VkIndex; // Copy of Index from moss_mesh.hpp to avoid circular dependency
+
     bool init_device(); // Create Vulkan instance and select physical device
     bool get_queues(); // Retrieve queue handles for graphics and presentation
     bool create_command_pool(); // Create a command pool for command buffer allocation
@@ -48,10 +63,10 @@ private:
     bool create_command_buffers(); // Allocate and set up command buffers for rendering
     bool create_sync_objects(); // Create semaphores and fences for synchronization
     bool create_graphics_pipeline(); // Set up the graphics pipeline (shaders, render pass, etc.)
-    bool recreate_swapchain(); // Handle swapchain recreation (e.g., on window resize)
 
     void draw_geometry(VkCommandBuffer command_buffer, VkImageView image_view);
 
+    bool recreateSwapchain();
     VkShaderModule createShaderModule(const std::vector<char>& code);
     void transitionImageLayout(VkCommandBuffer command_buffer, VkImage image, VkImageLayout old_layout, VkImageLayout new_layout);
     bool beginSingleTimeCommands(VkCommandBuffer& command_buffer);
@@ -95,8 +110,8 @@ private:
     size_t current_frame = 0;
 
     AllocatedBuffer vertex_buffer;
-    AllocatedBuffer index_buffer;
-    std::vector<Mesh> meshes;
+    AllocatedBuffer index_buffer;       
+    std::unordered_map<size_t, MeshRegion> mesh_regions; // int is a placeholder until mesh loading is implemented
 };
 
 class OpenGLRenderer: public MossRenderer // Placeholder for future implementation
