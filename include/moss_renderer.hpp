@@ -44,15 +44,10 @@ private:
         uint32_t index_count;
     };
 
-    struct VkVertex // Copy of Vertex from moss_mesh.hpp to avoid circular dependency
+    struct UniformBufferObject
     {
-        glm::vec3 position;
-        glm::vec3 normal;
-        glm::vec2 tex_coord;
-        glm::vec4 color;
+        glm::mat4 model; // We only need a model matrix because the view and projection matrices are the same for all objects
     };
-
-    typedef uint32_t VkIndex; // Copy of Index from moss_mesh.hpp to avoid circular dependency
 
     bool init_device(); // Create Vulkan instance and select physical device
     bool get_queues(); // Retrieve queue handles for graphics and presentation
@@ -60,6 +55,8 @@ private:
     bool create_swapchain(); // Create the swap chain
     bool prepare_images(); // Transition swapchain images and depth image from undefined
     bool create_mesh_buffers(); // Create buffers for mesh data
+    bool create_uniform_buffers(); // Create buffers for uniform data
+    bool create_descriptor_pool(); // Create a descriptor pool for uniform buffer descriptors
     bool create_command_buffers(); // Allocate and set up command buffers for rendering
     bool create_sync_objects(); // Create semaphores and fences for synchronization
     bool create_graphics_pipeline(); // Set up the graphics pipeline (shaders, render pass, etc.)
@@ -96,7 +93,9 @@ private:
     std::vector<VkImageView> swapchain_image_views;
     AllocatedImage depth_image;
 
-    VkRenderPass render_pass;
+    VkDescriptorSetLayout descriptor_set_layout;
+    VkDescriptorPool descriptor_pool;
+    std::vector<VkDescriptorSet> descriptor_sets;
     VkPipelineLayout pipeline_layout;
     VkPipeline graphics_pipeline;
 
@@ -110,7 +109,8 @@ private:
     size_t current_frame = 0;
 
     AllocatedBuffer vertex_buffer;
-    AllocatedBuffer index_buffer;       
+    AllocatedBuffer index_buffer;
+    std::vector<AllocatedBuffer> uniform_buffers;
     std::unordered_map<size_t, MeshRegion> mesh_regions; // int is a placeholder until mesh loading is implemented
 };
 

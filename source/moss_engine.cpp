@@ -1,5 +1,7 @@
 #include "moss_engine.hpp"
 
+#include "moss_entity.hpp"
+
 #include <iostream>
 #include <cassert>
 #include <chrono>

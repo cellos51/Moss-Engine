@@ -59,7 +59,7 @@ target_sources(imgui PRIVATE
   )
 
 include_directories(include)
-file(GLOB_RECURSE SOURCES "source/*.cpp")
+file(GLOB_RECURSE SOURCES "source/*.cpp" "source/*.c")
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCES})
 
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE -static-libgcc -static-libstdc++ -static)
@@ -70,3 +70,53 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE GPUOpen::VulkanMemoryAllocat
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE vk-bootstrap::vk-bootstrap)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE fastgltf)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE stb)
+
+# Compile Vulkan shaders
+function(compile_shader input_file output_file shader_stage)
+    add_custom_command(
+        OUTPUT ${output_file}
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/assets/shaders"
+        COMMAND ${CMAKE_COMMAND} -E echo "Compiling shader: ${input_file}"
+        COMMAND glslc -fshader-stage=${shader_stage} ${input_file} -o ${output_file}
+        DEPENDS ${input_file}
+        COMMENT "Compiling shader: ${input_file}"
+        VERBATIM
+    )
+endfunction()
+
+# List of shaders to compile
+set(SHADER_SOURCES
+    ${CMAKE_SOURCE_DIR}/assets/shaders/default_vert.glsl
+    ${CMAKE_SOURCE_DIR}/assets/shaders/default_frag.glsl
+)
+
+# Compile shaders with appropriate stages
+foreach(SHADER ${SHADER_SOURCES})
+    get_filename_component(SHADER_NAME ${SHADER} NAME_WE)
+    if(${SHADER_NAME} MATCHES "vert")
+        set(SHADER_STAGE "vert")
+    elseif(${SHADER_NAME} MATCHES "frag")
+        set(SHADER_STAGE "frag")
+    else()
+        message(FATAL_ERROR "Unknown shader stage for shader: ${SHADER}")
+    endif()
+
+    set(COMPILED_SHADER "${CMAKE_BINARY_DIR}/assets/shaders/${SHADER_NAME}.spv")
+    compile_shader(${SHADER} ${COMPILED_SHADER} ${SHADER_STAGE})
+    list(APPEND COMPILED_SHADERS ${COMPILED_SHADER})
+endforeach()
+
+# Add custom target to compile shaders
+add_custom_target(compile_shaders DEPENDS ${COMPILED_SHADERS})
+
+# Ensure shaders are compiled before building the executable
+add_dependencies(${CMAKE_PROJECT_NAME} compile_shaders)
+
+# Copy assets folder after build
+add_custom_command(
+    TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/assets
+        ${CMAKE_BINARY_DIR}/assets
+    COMMENT "Copying assets folder to build directory"
+)

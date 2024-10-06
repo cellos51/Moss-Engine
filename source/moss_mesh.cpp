@@ -14,7 +14,7 @@ Mesh mesh::load_gltf(std::filesystem::path path)
 {
     Mesh gltfMesh;
 
-    constexpr auto gltfOptions = fastgltf::Options::LoadGLBBuffers | fastgltf::Options::LoadExternalBuffers;
+    constexpr auto gltfOptions = fastgltf::Options::None;
 
     if (!std::filesystem::exists(path)) {
         std::cerr << "Failed to find " << path << '\n';
@@ -106,16 +106,6 @@ Mesh mesh::load_gltf(std::filesystem::path path)
                 {
                     vertices[initial_vtx + index].color = v;
                 });
-            }
-        }
-
-        // display the vertex normals
-        constexpr bool OverrideColors = true;
-        if (OverrideColors) 
-        {
-            for (Vertex& vtx : vertices) 
-            {
-                vtx.color = glm::vec4(vtx.normal, 1.f);
             }
         }
     }

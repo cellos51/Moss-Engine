@@ -1,5 +1,4 @@
 #version 460
-#extension GL_ARB_separate_shader_objects : enable
 
 layout (location = 0) in vec3 inPosition;
 layout (location = 1) in vec3 inNormal;
@@ -14,8 +13,14 @@ layout(push_constant) uniform PushConstants
     mat4 projection;
 } pushConstants;
 
+vec3 lightDirection = normalize(vec3(0.5, -1.0, -0.5));
+float ambient = 0.1;
+
 void main ()
 {
 	gl_Position = pushConstants.projection * pushConstants.view * vec4(inPosition, 1.0);
-	outColor = inColor;
+    
+    float intensity = max(ambient, dot(normalize(inNormal), -lightDirection));
+
+    outColor = vec4(inColor.rgb * intensity, inColor.a);
 }

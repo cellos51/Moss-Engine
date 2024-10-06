@@ -21,7 +21,7 @@ const bool enableValidationLayers = false;
 const bool enableValidationLayers = true;
 #endif
 
-const int MAX_FRAMES_IN_FLIGHT = 2;
+const int MAX_FRAMES_IN_FLIGHT = 3;
 
 // Public functions
 bool VulkanRenderer::init(SDL_Window* window)
@@ -34,6 +34,8 @@ bool VulkanRenderer::init(SDL_Window* window)
 	if (!create_swapchain()) { return false; }
     if (!prepare_images()) { return false; }
     if (!create_mesh_buffers()) { return false; }
+    if (!create_uniform_buffers()) { return false; }
+    if (!create_descriptor_pool()) { return false; }
     if (!create_command_buffers()) { return false; }
     if (!create_sync_objects()) { return false; }
     if (!create_graphics_pipeline()) { return false; }
@@ -147,23 +149,25 @@ void VulkanRenderer::cleanup()
 {
     disp.deviceWaitIdle();
 
-    destroyBuffer(vertex_buffer);
-    destroyBuffer(index_buffer);
-    destroyImage(depth_image);
-    vmaDestroyAllocator(allocator);
-
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
 	{
         disp.destroySemaphore(finished_semaphore[i], nullptr);
         disp.destroySemaphore(available_semaphores[i], nullptr);
         disp.destroyFence(in_flight_fences[i], nullptr);
+        destroyBuffer(uniform_buffers[i]);
     }
+
+    destroyBuffer(vertex_buffer);
+    destroyBuffer(index_buffer);
+    destroyImage(depth_image);
+    vmaDestroyAllocator(allocator);
 
     disp.destroyCommandPool(command_pool, nullptr);
 
+    disp.destroyDescriptorSetLayout(descriptor_set_layout, nullptr);
+    disp.destroyDescriptorPool(descriptor_pool, nullptr);
     disp.destroyPipeline(graphics_pipeline, nullptr);
     disp.destroyPipelineLayout(pipeline_layout, nullptr);
-    disp.destroyRenderPass(render_pass, nullptr);
 
     swapchain.destroy_image_views(swapchain_image_views);
     destroyImageView(depth_image);
@@ -204,14 +208,10 @@ bool VulkanRenderer::init_device()
 	features13.synchronization2 = true;
 
 	VkPhysicalDeviceVulkan12Features features12{ .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES };
-	features12.bufferDeviceAddress = true;
-	features12.descriptorIndexing = true;
 
 	VkPhysicalDeviceVulkan11Features features11{ .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES };
-	// We don't need any features from Vulkan 1.1, so we don't need to set any fields in features11
 
 	VkPhysicalDeviceFeatures features{};
-	// Same as above, we don't need any features from Vulkan 1.0, so we don't need to set any fields in features
 
     vkb::PhysicalDeviceSelector phys_device_selector(instance);
     auto phys_device_ret = phys_device_selector.set_surface(surface)
@@ -244,7 +244,6 @@ bool VulkanRenderer::init_device()
     allocator_info.physicalDevice = physical_device.physical_device;
     allocator_info.device = device.device;
     allocator_info.instance = instance.instance;
-    allocator_info.flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
     vmaCreateAllocator(&allocator_info, &allocator);
 
 	return true;
@@ -346,9 +345,15 @@ bool VulkanRenderer::create_mesh_buffers()
 {
     std::vector<Mesh> meshes;
 
-    meshes.push_back(mesh::create_square());
+    //meshes.push_back(mesh::create_square());
     meshes.push_back(mesh::load_gltf("assets/models/test.glb"));
-    meshes.push_back(mesh::load_gltf("assets/models/torus.glb"));
+    //meshes.push_back(mesh::load_gltf("assets/models/torus.glb"));
+    //meshes.push_back(mesh::load_gltf("assets/models/cube.glb"));
+    //meshes.push_back(mesh::load_gltf("assets/models/icosphere.glb"));
+    //meshes.push_back(mesh::load_gltf("assets/models/cylinder.glb"));
+    //meshes.push_back(mesh::load_gltf("assets/models/cone.glb"));
+    //meshes.push_back(mesh::load_gltf("assets/models/uvsphere.glb"));
+
     
     std::vector<Vertex> vertices;
     std::vector<Index> indices;
@@ -368,7 +373,7 @@ bool VulkanRenderer::create_mesh_buffers()
         }
 
         MeshRegion region;
-        region.index_offset = current_index_offset * sizeof(VkIndex);
+        region.index_offset = current_index_offset * sizeof(Index);
         region.index_count = meshes[i].indices.size();
 
         mesh_regions.insert({ i, region });
@@ -381,7 +386,7 @@ bool VulkanRenderer::create_mesh_buffers()
     if (index_buffer.buffer != VK_NULL_HANDLE) { destroyBuffer(index_buffer); }
 
     VkDeviceSize vertex_buffer_size = sizeof(Vertex) * vertices.size();
-    VkDeviceSize index_buffer_size = sizeof(Index) * indices.size();
+    VkDeviceSize index_buffer_size = sizeof(Vertex) * indices.size();
 
     // Create vertex buffer
     VkResult result = createBuffer(vertex_buffer_size, 
@@ -441,6 +446,102 @@ bool VulkanRenderer::create_mesh_buffers()
     if (!endSingleTimeCommands(command_buffer, graphics_queue)) { return false; }
 
     destroyBuffer(staging_buffer);
+
+    return true;
+}
+
+bool VulkanRenderer::create_uniform_buffers()
+{
+    VkDeviceSize buffer_size = sizeof(UniformBufferObject);
+
+    uniform_buffers.resize(MAX_FRAMES_IN_FLIGHT);
+
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
+    {
+        VkResult result = createBuffer(buffer_size, 
+                        VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                        VMA_MEMORY_USAGE_CPU_TO_GPU, uniform_buffers[i]);
+        if (result != VK_SUCCESS) 
+        {
+            std::cerr << "Failed to create uniform buffer.\n";
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool VulkanRenderer::create_descriptor_pool()
+{
+    VkDescriptorSetLayoutBinding ubo_layout_binding{};
+    ubo_layout_binding.binding = 0;
+    ubo_layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    ubo_layout_binding.descriptorCount = 1;
+    ubo_layout_binding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    ubo_layout_binding.pImmutableSamplers = nullptr;
+
+    VkDescriptorSetLayoutCreateInfo layout_info{};
+    layout_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    layout_info.bindingCount = 1;
+    layout_info.pBindings = &ubo_layout_binding;
+
+    if (disp.createDescriptorSetLayout(&layout_info, nullptr, &descriptor_set_layout) != VK_SUCCESS)
+    {
+        std::cerr << "Failed to create descriptor set layout.\n";
+        return false;
+    }
+
+    VkDescriptorPoolSize pool_size{};
+    pool_size.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    pool_size.descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+
+    VkDescriptorPoolCreateInfo pool_info{};
+    pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    pool_info.poolSizeCount = 1;
+    pool_info.pPoolSizes = &pool_size;
+    pool_info.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+
+    if (disp.createDescriptorPool(&pool_info, nullptr, &descriptor_pool) != VK_SUCCESS)
+    {
+        std::cerr << "Failed to create descriptor pool.\n";
+        return false;
+    }
+
+    // putting the descriptor sets here for now
+    std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, descriptor_set_layout);
+
+    VkDescriptorSetAllocateInfo alloc_info{};
+    alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    alloc_info.descriptorPool = descriptor_pool;
+    alloc_info.descriptorSetCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+    alloc_info.pSetLayouts = layouts.data();
+
+    descriptor_sets.resize(MAX_FRAMES_IN_FLIGHT);
+
+    if (disp.allocateDescriptorSets(&alloc_info, descriptor_sets.data()) != VK_SUCCESS)
+    {
+        std::cerr << "Failed to allocate descriptor sets.\n";
+        return false;
+    }
+
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
+    {
+        VkDescriptorBufferInfo buffer_info{};
+        buffer_info.buffer = uniform_buffers[i].buffer;
+        buffer_info.offset = 0;
+        buffer_info.range = sizeof(UniformBufferObject);
+
+        VkWriteDescriptorSet descriptor_write{};
+        descriptor_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptor_write.dstSet = descriptor_sets[i];
+        descriptor_write.dstBinding = 0;
+        descriptor_write.dstArrayElement = 0;
+        descriptor_write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        descriptor_write.descriptorCount = 1;
+        descriptor_write.pBufferInfo = &buffer_info;
+
+        disp.updateDescriptorSets(1, &descriptor_write, 0, nullptr);
+    }
 
     return true;
 }
@@ -616,7 +717,8 @@ bool VulkanRenderer::create_graphics_pipeline()
 
     VkPipelineLayoutCreateInfo pipeline_layout_info{};
     pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipeline_layout_info.setLayoutCount = 0;
+    pipeline_layout_info.setLayoutCount = 1;
+    pipeline_layout_info.pSetLayouts = &descriptor_set_layout;
     pipeline_layout_info.pushConstantRangeCount = 1;
     pipeline_layout_info.pPushConstantRanges = &push_constant_range;
 
@@ -712,11 +814,11 @@ void VulkanRenderer::draw_geometry(VkCommandBuffer command_buffer, VkImageView i
 
     disp.cmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline);
 
-    float time = SDL_GetTicks() / 1000.0f;
-
-    glm::mat4 view = glm::lookAt(glm::vec3(sin(time) * 3.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), swapchain.extent.width / (float)swapchain.extent.height, 0.1f, 10.0f);
     projection[1][1] *= -1; // Flip the y-axis
+
+    disp.cmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &descriptor_sets[current_frame], 0, nullptr);
 
     disp.cmdPushConstants(command_buffer, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4), &view);
     disp.cmdPushConstants(command_buffer, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, sizeof(glm::mat4), sizeof(glm::mat4), &projection);
@@ -724,16 +826,9 @@ void VulkanRenderer::draw_geometry(VkCommandBuffer command_buffer, VkImageView i
     VkDeviceSize buffer_offset = 0;
     disp.cmdBindVertexBuffers(command_buffer, 0, 1, &vertex_buffer.buffer, &buffer_offset);
 
-    static size_t mesh_index = 0;
-    static Uint32 last_time = 0;
+    size_t mesh_index = 0;
 
-    if (SDL_GetTicks() - last_time > 1000)
-    {
-        mesh_index = (mesh_index + 1) % mesh_regions.size();
-        last_time = SDL_GetTicks();
-    }
-
-    if (mesh_regions.find(mesh_index) != mesh_regions.end())
+    if (mesh_regions.find(0) != mesh_regions.end())
     {
         MeshRegion region = mesh_regions[mesh_index];
 
@@ -940,7 +1035,7 @@ VkVertexInputBindingDescription VulkanRenderer::getBindingDescription()
 {
     VkVertexInputBindingDescription binding_description{};
     binding_description.binding = 0;
-    binding_description.stride = sizeof(VkVertex);
+    binding_description.stride = sizeof(Vertex);
     binding_description.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
     return binding_description;
@@ -953,22 +1048,22 @@ std::array<VkVertexInputAttributeDescription, 4> VulkanRenderer::getAttributeDes
     attribute_descriptions[0].binding = 0;
     attribute_descriptions[0].location = 0;
     attribute_descriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-    attribute_descriptions[0].offset = offsetof(VkVertex, position);
+    attribute_descriptions[0].offset = offsetof(Vertex, position);
 
     attribute_descriptions[1].binding = 0;
     attribute_descriptions[1].location = 1;
     attribute_descriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-    attribute_descriptions[1].offset = offsetof(VkVertex, normal);
+    attribute_descriptions[1].offset = offsetof(Vertex, normal);
 
     attribute_descriptions[2].binding = 0;
     attribute_descriptions[2].location = 2;
     attribute_descriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-    attribute_descriptions[2].offset = offsetof(VkVertex, tex_coord);
+    attribute_descriptions[2].offset = offsetof(Vertex, tex_coord);
 
     attribute_descriptions[3].binding = 0;
     attribute_descriptions[3].location = 3;
     attribute_descriptions[3].format = VK_FORMAT_R32G32B32A32_SFLOAT;
-    attribute_descriptions[3].offset = offsetof(VkVertex, color);
+    attribute_descriptions[3].offset = offsetof(Vertex, color);
 
     return attribute_descriptions;
 }
