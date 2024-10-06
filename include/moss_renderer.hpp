@@ -1,5 +1,7 @@
 #pragma once
 
+#include <moss_entity.hpp>
+
 #include <vulkan/vulkan.h>
 #include <vk_mem_alloc.h>
 #include <VkBootstrap.h>
@@ -14,7 +16,8 @@ class MossRenderer
 {
 public:
     virtual bool init(SDL_Window* window) = 0;
-    virtual bool draw() = 0;
+    virtual void drawEntity(Entity* entity) = 0;
+    virtual bool drawFrame() = 0;
     virtual void cleanup() = 0;
 };
 
@@ -22,7 +25,8 @@ class VulkanRenderer: public MossRenderer
 {
 public:
     bool init(SDL_Window* window) override;
-    bool draw() override;
+    void drawEntity(Entity* entity) override;
+    bool drawFrame() override;
     void cleanup() override;
 private:
     struct AllocatedBuffer
@@ -49,6 +53,7 @@ private:
         glm::mat4 model; // We only need a model matrix because the view and projection matrices are the same for all objects
     };
 
+    // Initialization functions
     bool init_device(); // Create Vulkan instance and select physical device
     bool get_queues(); // Retrieve queue handles for graphics and presentation
     bool create_command_pool(); // Create a command pool for command buffer allocation
@@ -61,8 +66,11 @@ private:
     bool create_sync_objects(); // Create semaphores and fences for synchronization
     bool create_graphics_pipeline(); // Set up the graphics pipeline (shaders, render pass, etc.)
 
+    // Drawing functions
     void draw_geometry(VkCommandBuffer command_buffer, VkImageView image_view);
 
+    // Helper functions
+    void updateUniformBuffer(UniformBufferObject& ubo);
     bool recreateSwapchain();
     VkShaderModule createShaderModule(const std::vector<char>& code);
     void transitionImageLayout(VkCommandBuffer command_buffer, VkImage image, VkImageLayout old_layout, VkImageLayout new_layout);
@@ -111,7 +119,8 @@ private:
     AllocatedBuffer vertex_buffer;
     AllocatedBuffer index_buffer;
     std::vector<AllocatedBuffer> uniform_buffers;
-    std::unordered_map<size_t, MeshRegion> mesh_regions; // int is a placeholder until mesh loading is implemented
+    std::unordered_map<size_t, MeshRegion> mesh_regions; // Example implementation for multiple meshes
+    std::vector<Entity*> entities; // Example implementation for drawing multiple entities
 };
 
 class OpenGLRenderer: public MossRenderer // Placeholder for future implementation

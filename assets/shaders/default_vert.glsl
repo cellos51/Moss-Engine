@@ -13,12 +13,17 @@ layout(push_constant) uniform PushConstants
     mat4 projection;
 } pushConstants;
 
+layout(binding = 0) uniform UniformBufferObject 
+{
+    mat4 model;
+} ubo;
+
 vec3 lightDirection = normalize(vec3(0.5, -1.0, -0.5));
 float ambient = 0.1;
 
-void main ()
+void main()
 {
-	gl_Position = pushConstants.projection * pushConstants.view * vec4(inPosition, 1.0);
+	gl_Position = pushConstants.projection * pushConstants.view * ubo.model * vec4(inPosition, 1.0);
     
     float intensity = max(ambient, dot(normalize(inNormal), -lightDirection));
 

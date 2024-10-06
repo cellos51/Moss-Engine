@@ -12,9 +12,8 @@ class MossEngine
 public:
 	static MossEngine& Get();
 	bool init();
-	void cleanup();
-	void draw();
 	void run();
+	void cleanup();
 private:
 	bool isInitialized = false;
 	bool stopRendering = false;

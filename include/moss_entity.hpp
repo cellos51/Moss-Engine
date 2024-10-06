@@ -25,6 +25,4 @@ class Entity
 {
 public:
     Transform transform;
-    virtual void update(float delta_time) = 0;
-    virtual void fixedUpdate(float delta_time) = 0;
 };

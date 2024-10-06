@@ -49,22 +49,6 @@ bool MossEngine::init()
     return true;
 }
 
-void MossEngine::cleanup()
-{
-    if (isInitialized) 
-    {
-        renderer->cleanup();
-        SDL_DestroyWindow(window);
-    }
-
-    loadedEngine = nullptr;
-}
-
-void MossEngine::draw()
-{
-    renderer->draw();
-}
-
 void MossEngine::run()
 {
     SDL_Event event;
@@ -97,8 +81,30 @@ void MossEngine::run()
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             continue;
         }
+        
+        float time = SDL_GetTicks() / 1000.0f;
 
-        renderer->draw();
+        Entity entity1;
+        Entity entity2;
+
+        entity1.transform.position = glm::vec3(0.0f, 0.0f, -4.0f);
+        entity1.transform.rotation = glm::angleAxis(time, glm::vec3(0.0f, 1.0f, 0.0f));
+        entity2.transform.position = glm::vec3(1.0f, 0.0f, -4.0f);
+
+        renderer->drawEntity(&entity1);
+        renderer->drawEntity(&entity2);
+
+        renderer->drawFrame();
     }
 }
 
+void MossEngine::cleanup()
+{
+    if (isInitialized) 
+    {
+        renderer->cleanup();
+        SDL_DestroyWindow(window);
+    }
+
+    loadedEngine = nullptr;
+}

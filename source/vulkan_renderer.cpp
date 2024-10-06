@@ -43,7 +43,12 @@ bool VulkanRenderer::init(SDL_Window* window)
 	return true;
 }
 
-bool VulkanRenderer::draw()
+void VulkanRenderer::drawEntity(Entity* entity)
+{
+    entities.push_back(entity);
+}
+
+bool VulkanRenderer::drawFrame()
 {
     disp.waitForFences(1, &in_flight_fences[current_frame], VK_TRUE, UINT64_MAX);
 
@@ -87,6 +92,8 @@ bool VulkanRenderer::draw()
         std::cerr << "Failed to record command buffer.\n";
         return false;
     }
+
+    entities.clear();
 
     VkCommandBufferSubmitInfo command_buffer_info{};
     command_buffer_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO;
@@ -456,12 +463,12 @@ bool VulkanRenderer::create_uniform_buffers()
 
     uniform_buffers.resize(MAX_FRAMES_IN_FLIGHT);
 
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
     {
         VkResult result = createBuffer(buffer_size, 
                         VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                         VMA_MEMORY_USAGE_CPU_TO_GPU, uniform_buffers[i]);
-        if (result != VK_SUCCESS) 
+        if (result != VK_SUCCESS)
         {
             std::cerr << "Failed to create uniform buffer.\n";
             return false;
@@ -818,8 +825,6 @@ void VulkanRenderer::draw_geometry(VkCommandBuffer command_buffer, VkImageView i
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), swapchain.extent.width / (float)swapchain.extent.height, 0.1f, 10.0f);
     projection[1][1] *= -1; // Flip the y-axis
 
-    disp.cmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &descriptor_sets[current_frame], 0, nullptr);
-
     disp.cmdPushConstants(command_buffer, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4), &view);
     disp.cmdPushConstants(command_buffer, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, sizeof(glm::mat4), sizeof(glm::mat4), &projection);
 
@@ -828,18 +833,33 @@ void VulkanRenderer::draw_geometry(VkCommandBuffer command_buffer, VkImageView i
 
     size_t mesh_index = 0;
 
-    if (mesh_regions.find(0) != mesh_regions.end())
+    for (const Entity* entity : entities)
     {
-        MeshRegion region = mesh_regions[mesh_index];
+        if (mesh_regions.find(0) != mesh_regions.end())
+        {
+            UniformBufferObject ubo{};
+            ubo.model = entity->transform.getMatrix();
 
-        disp.cmdBindIndexBuffer(command_buffer, index_buffer.buffer, region.index_offset, VK_INDEX_TYPE_UINT32);
-        disp.cmdDrawIndexed(command_buffer, region.index_count, 1, 0, 0, 0);
+            updateUniformBuffer(ubo);
+            disp.cmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &descriptor_sets[current_frame], 0, nullptr);
+            disp.cmdBindIndexBuffer(command_buffer, index_buffer.buffer, mesh_regions[mesh_index].index_offset, VK_INDEX_TYPE_UINT32);
+            disp.cmdDrawIndexed(command_buffer, mesh_regions[mesh_index].index_count, 1, 0, 0, 0);
+        }
     }
 
+    
     disp.cmdEndRendering(command_buffer);
 }
 
 // Helper functions
+void VulkanRenderer::updateUniformBuffer(UniformBufferObject &ubo)
+{
+    void* data;
+    vmaMapMemory(allocator, uniform_buffers[current_frame].allocation, &data);
+    memcpy(data, &ubo, sizeof(ubo));
+    vmaUnmapMemory(allocator, uniform_buffers[current_frame].allocation);
+}
+
 bool VulkanRenderer::recreateSwapchain()
 {
     disp.deviceWaitIdle();
