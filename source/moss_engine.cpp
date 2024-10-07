@@ -81,18 +81,21 @@ void MossEngine::run()
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             continue;
         }
-        
-        float time = SDL_GetTicks() / 1000.0f;
 
+        float time = SDL_GetTicks() / 1000.0f;
+        
         Entity entity1;
         Entity entity2;
+        Entity entity3;
+        Entity entity4;
 
-        entity1.transform.position = glm::vec3(0.0f, 0.0f, -4.0f);
-        entity1.transform.rotation = glm::angleAxis(time, glm::vec3(0.0f, 1.0f, 0.0f));
-        entity2.transform.position = glm::vec3(1.0f, 0.0f, -4.0f);
+        entity1.transform.position = glm::vec3(sin(time) * 2, 0.0f, -4.0f);
+        entity2.transform.position = glm::vec3(0.0f, 0.0f, sin(time * 2) + -4.0f);
+        entity3.transform.position = glm::vec3(0.0f, sin(time) * 2, -4.0f);
 
         renderer->drawEntity(&entity1);
         renderer->drawEntity(&entity2);
+        renderer->drawEntity(&entity3);
 
         renderer->drawFrame();
     }

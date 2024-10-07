@@ -22,6 +22,7 @@ const bool enableValidationLayers = true;
 #endif
 
 const int MAX_FRAMES_IN_FLIGHT = 3;
+const int MAX_INSTANCES = 1000;
 
 // Public functions
 bool VulkanRenderer::init(SDL_Window* window)
@@ -35,7 +36,7 @@ bool VulkanRenderer::init(SDL_Window* window)
     if (!prepare_images()) { return false; }
     if (!create_mesh_buffers()) { return false; }
     if (!create_uniform_buffers()) { return false; }
-    if (!create_descriptor_pool()) { return false; }
+    if (!create_descriptor_sets()) { return false; }
     if (!create_command_buffers()) { return false; }
     if (!create_sync_objects()) { return false; }
     if (!create_graphics_pipeline()) { return false; }
@@ -353,14 +354,13 @@ bool VulkanRenderer::create_mesh_buffers()
     std::vector<Mesh> meshes;
 
     //meshes.push_back(mesh::create_square());
-    meshes.push_back(mesh::load_gltf("assets/models/test.glb"));
+    //meshes.push_back(mesh::load_gltf("assets/models/test.glb"));
     //meshes.push_back(mesh::load_gltf("assets/models/torus.glb"));
     //meshes.push_back(mesh::load_gltf("assets/models/cube.glb"));
-    //meshes.push_back(mesh::load_gltf("assets/models/icosphere.glb"));
+    meshes.push_back(mesh::load_gltf("assets/models/icosphere.glb"));
     //meshes.push_back(mesh::load_gltf("assets/models/cylinder.glb"));
     //meshes.push_back(mesh::load_gltf("assets/models/cone.glb"));
     //meshes.push_back(mesh::load_gltf("assets/models/uvsphere.glb"));
-
     
     std::vector<Vertex> vertices;
     std::vector<Index> indices;
@@ -459,7 +459,14 @@ bool VulkanRenderer::create_mesh_buffers()
 
 bool VulkanRenderer::create_uniform_buffers()
 {
-    VkDeviceSize buffer_size = sizeof(UniformBufferObject);
+    dynamic_alignment = sizeof(UniformBufferObject);
+    VkDeviceSize  min_ubo_alignment = device.physical_device.properties.limits.minUniformBufferOffsetAlignment;
+    if (min_ubo_alignment > 0) 
+    {
+        dynamic_alignment = (min_ubo_alignment + dynamic_alignment - 1) & ~(min_ubo_alignment - 1);
+    }
+
+    VkDeviceSize buffer_size = dynamic_alignment * MAX_INSTANCES;
 
     uniform_buffers.resize(MAX_FRAMES_IN_FLIGHT);
 
@@ -478,11 +485,11 @@ bool VulkanRenderer::create_uniform_buffers()
     return true;
 }
 
-bool VulkanRenderer::create_descriptor_pool()
+bool VulkanRenderer::create_descriptor_sets()
 {
     VkDescriptorSetLayoutBinding ubo_layout_binding{};
     ubo_layout_binding.binding = 0;
-    ubo_layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    ubo_layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
     ubo_layout_binding.descriptorCount = 1;
     ubo_layout_binding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
     ubo_layout_binding.pImmutableSamplers = nullptr;
@@ -499,7 +506,7 @@ bool VulkanRenderer::create_descriptor_pool()
     }
 
     VkDescriptorPoolSize pool_size{};
-    pool_size.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    pool_size.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
     pool_size.descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 
     VkDescriptorPoolCreateInfo pool_info{};
@@ -543,7 +550,7 @@ bool VulkanRenderer::create_descriptor_pool()
         descriptor_write.dstSet = descriptor_sets[i];
         descriptor_write.dstBinding = 0;
         descriptor_write.dstArrayElement = 0;
-        descriptor_write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        descriptor_write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
         descriptor_write.descriptorCount = 1;
         descriptor_write.pBufferInfo = &buffer_info;
 
@@ -833,21 +840,30 @@ void VulkanRenderer::draw_geometry(VkCommandBuffer command_buffer, VkImageView i
 
     size_t mesh_index = 0;
 
-    for (const Entity* entity : entities)
+    std::vector<UniformBufferObject> ubos;
+    for (size_t i = 0; i < entities.size(); i++)
     {
+        if (i >= MAX_INSTANCES) { break; }
+
+        UniformBufferObject ubo{};
+        ubo.model = entities[i]->transform.getMatrix();
+        ubos.push_back(ubo);
+
         if (mesh_regions.find(0) != mesh_regions.end())
         {
             UniformBufferObject ubo{};
-            ubo.model = entity->transform.getMatrix();
+            ubo.model = entities[i]->transform.getMatrix();
+            
+            uint32_t dynamic_offset = i * dynamic_alignment;
+            disp.cmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &descriptor_sets[current_frame], 1, &dynamic_offset);
 
-            updateUniformBuffer(ubo);
-            disp.cmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &descriptor_sets[current_frame], 0, nullptr);
             disp.cmdBindIndexBuffer(command_buffer, index_buffer.buffer, mesh_regions[mesh_index].index_offset, VK_INDEX_TYPE_UINT32);
             disp.cmdDrawIndexed(command_buffer, mesh_regions[mesh_index].index_count, 1, 0, 0, 0);
         }
     }
 
-    
+    updateDynamicUniformBuffer(ubos);
+
     disp.cmdEndRendering(command_buffer);
 }
 
@@ -857,6 +873,20 @@ void VulkanRenderer::updateUniformBuffer(UniformBufferObject &ubo)
     void* data;
     vmaMapMemory(allocator, uniform_buffers[current_frame].allocation, &data);
     memcpy(data, &ubo, sizeof(ubo));
+    vmaUnmapMemory(allocator, uniform_buffers[current_frame].allocation);
+}
+
+void VulkanRenderer::updateDynamicUniformBuffer(std::vector<UniformBufferObject>& ubos)
+{
+    void* data;
+    vmaMapMemory(allocator, uniform_buffers[current_frame].allocation, &data);
+
+    for (size_t i = 0; i < ubos.size(); i++) 
+    {
+        void* dst = (char*)data + i * dynamic_alignment;
+        memcpy(dst, &ubos[i], sizeof(UniformBufferObject));
+    }
+
     vmaUnmapMemory(allocator, uniform_buffers[current_frame].allocation);
 }
 

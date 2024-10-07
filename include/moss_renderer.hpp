@@ -50,7 +50,7 @@ private:
 
     struct UniformBufferObject
     {
-        glm::mat4 model; // We only need a model matrix because the view and projection matrices are the same for all objects
+        glm::mat4 model;
     };
 
     // Initialization functions
@@ -61,7 +61,7 @@ private:
     bool prepare_images(); // Transition swapchain images and depth image from undefined
     bool create_mesh_buffers(); // Create buffers for mesh data
     bool create_uniform_buffers(); // Create buffers for uniform data
-    bool create_descriptor_pool(); // Create a descriptor pool for uniform buffer descriptors
+    bool create_descriptor_sets(); // Create a descriptor pool for uniform buffer descriptors
     bool create_command_buffers(); // Allocate and set up command buffers for rendering
     bool create_sync_objects(); // Create semaphores and fences for synchronization
     bool create_graphics_pipeline(); // Set up the graphics pipeline (shaders, render pass, etc.)
@@ -71,6 +71,7 @@ private:
 
     // Helper functions
     void updateUniformBuffer(UniformBufferObject& ubo);
+    void updateDynamicUniformBuffer(std::vector<UniformBufferObject>& ubos);
     bool recreateSwapchain();
     VkShaderModule createShaderModule(const std::vector<char>& code);
     void transitionImageLayout(VkCommandBuffer command_buffer, VkImage image, VkImageLayout old_layout, VkImageLayout new_layout);
@@ -118,6 +119,7 @@ private:
 
     AllocatedBuffer vertex_buffer;
     AllocatedBuffer index_buffer;
+    VkDeviceSize dynamic_alignment;
     std::vector<AllocatedBuffer> uniform_buffers;
     std::unordered_map<size_t, MeshRegion> mesh_regions; // Example implementation for multiple meshes
     std::vector<Entity*> entities; // Example implementation for drawing multiple entities
