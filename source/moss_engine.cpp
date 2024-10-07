@@ -1,5 +1,6 @@
 #include "moss_engine.hpp"
 
+#include "moss_event.hpp"
 #include "moss_entity.hpp"
 
 #include <iostream>
@@ -51,47 +52,30 @@ bool MossEngine::init()
 
 void MossEngine::run()
 {
-    SDL_Event event;
-    bool running = true;
-
-    while (running) 
+    while (!event::shouldQuit())
     {
-        while (SDL_PollEvent(&event) != 0) 
-        {
-            if (event.type == SDL_QUIT)
-                running = false;
-            if (event.type == SDL_WINDOWEVENT) 
-            {
-                switch (event.window.event) 
-                {
-                    case SDL_WINDOWEVENT_MINIMIZED:
-                        stopRendering = true;
-                        break;
-                    case SDL_WINDOWEVENT_RESTORED:
-                        stopRendering = false;
-                        break;
-                }
-            }
+        event::pollEvent();
 
-            //ImGui_ImplSDL2_ProcessEvent(&e);
-        }
-
-        if (stopRendering) 
+        if (event::isWindowMinimized()) 
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             continue;
         }
 
         float time = SDL_GetTicks() / 1000.0f;
+
+        if (event::isKeyHeld(SDL_SCANCODE_SPACE)) 
+        {
+            time *= 3;
+        }
         
         Entity entity1;
         Entity entity2;
         Entity entity3;
-        Entity entity4;
 
         entity1.transform.position = glm::vec3(sin(time) * 2, 0.0f, -4.0f);
-        entity2.transform.position = glm::vec3(0.0f, 0.0f, sin(time * 2) + -4.0f);
-        entity3.transform.position = glm::vec3(0.0f, sin(time) * 2, -4.0f);
+        entity2.transform.position = glm::vec3(0.0f, 0.0f, sin(time * 1.5) + -4.0f);
+        entity3.transform.position = glm::vec3(0.0f, sin(time* 2.3) * 3, -4.0f);
 
         renderer->drawEntity(&entity1);
         renderer->drawEntity(&entity2);

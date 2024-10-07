@@ -849,7 +849,7 @@ void VulkanRenderer::draw_geometry(VkCommandBuffer command_buffer, VkImageView i
         ubo.model = entities[i]->transform.getMatrix();
         ubos.push_back(ubo);
 
-        if (mesh_regions.find(0) != mesh_regions.end())
+        if (mesh_regions.find(mesh_index) != mesh_regions.end())
         {
             UniformBufferObject ubo{};
             ubo.model = entities[i]->transform.getMatrix();
