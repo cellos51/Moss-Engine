@@ -1,6 +1,7 @@
 #include "moss_engine.hpp"
 
 #include "moss_event.hpp"
+#include "moss_tick.hpp"
 #include "moss_entity.hpp"
 
 #include <iostream>
@@ -50,11 +51,14 @@ bool MossEngine::init()
     return true;
 }
 
+Entity entity1;
+
 void MossEngine::run()
 {
     while (!event::shouldQuit())
     {
         event::pollEvent();
+        tick::tick();
 
         if (event::isWindowMinimized()) 
         {
@@ -62,24 +66,29 @@ void MossEngine::run()
             continue;
         }
 
-        float time = SDL_GetTicks() / 1000.0f;
-
-        if (event::isKeyHeld(SDL_SCANCODE_SPACE)) 
-        {
-            time *= 3;
-        }
+        // move entity with arrow keys and tick::deltaTime()
         
-        Entity entity1;
-        Entity entity2;
-        Entity entity3;
+        if (event::isKeyHeld(SDL_SCANCODE_UP)) 
+        {
+            entity1.transform.position.y += 1.0f * tick::deltaTime();
+        }
 
-        entity1.transform.position = glm::vec3(sin(time) * 2, 0.0f, -4.0f);
-        entity2.transform.position = glm::vec3(0.0f, 0.0f, sin(time * 1.5) + -4.0f);
-        entity3.transform.position = glm::vec3(0.0f, sin(time* 2.3) * 3, -4.0f);
+        if (event::isKeyHeld(SDL_SCANCODE_DOWN)) 
+        {
+            entity1.transform.position.y -= 1.0f * tick::deltaTime();
+        }
+
+        if (event::isKeyHeld(SDL_SCANCODE_LEFT)) 
+        {
+            entity1.transform.position.x -= 1.0f * tick::deltaTime();
+        }
+
+        if (event::isKeyHeld(SDL_SCANCODE_RIGHT)) 
+        {
+            entity1.transform.position.x += 1.0f * tick::deltaTime();
+        }
 
         renderer->drawEntity(&entity1);
-        renderer->drawEntity(&entity2);
-        renderer->drawEntity(&entity3);
 
         renderer->drawFrame();
     }

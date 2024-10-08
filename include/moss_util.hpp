@@ -4,16 +4,17 @@
 
 #include <fstream>
 #include <vector>
+#include <filesystem>
 
 namespace util
 {
-    std::vector<char> readFile(const std::string& filename) 
+    std::vector<char> readFile(std::filesystem::path path)
     {
-        std::ifstream file(filename, std::ios::ate | std::ios::binary);
+        std::ifstream file(path, std::ios::ate | std::ios::binary);
 
         if (!file.is_open()) 
         {
-            throw std::runtime_error("Failed to open file: " + filename);
+            throw std::runtime_error("Failed to open file: " + path.string());
         }
 
         size_t file_size = (size_t)file.tellg();

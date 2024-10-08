@@ -8,9 +8,9 @@
 #include <vector>
 #include <iostream>
 
-fastgltf::Parser parser;
+static fastgltf::Parser parser;
 
-Mesh mesh::load_gltf(std::filesystem::path path)
+Mesh mesh::loadGLTF(std::filesystem::path path)
 {
     Mesh gltfMesh;
 
@@ -116,7 +116,7 @@ Mesh mesh::load_gltf(std::filesystem::path path)
     return gltfMesh;
 }
 
-Mesh mesh::create_square()
+Mesh mesh::createSquare()
 {
     Mesh mesh;
 

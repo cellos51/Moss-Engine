@@ -23,6 +23,6 @@ struct Mesh
 
 namespace mesh
 {
-    Mesh load_gltf(std::filesystem::path path);
-    Mesh create_square();
+    Mesh loadGLTF(std::filesystem::path path);
+    Mesh createSquare();
 }

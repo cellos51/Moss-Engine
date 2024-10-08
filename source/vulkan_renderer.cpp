@@ -1,6 +1,6 @@
 #include "moss_renderer.hpp"
 
-#include "moss_utility.hpp"
+#include "moss_util.hpp"
 #include "moss_mesh.hpp"
 
 #define VMA_IMPLEMENTATION
@@ -353,14 +353,14 @@ bool VulkanRenderer::create_mesh_buffers()
 {
     std::vector<Mesh> meshes;
 
-    //meshes.push_back(mesh::create_square());
-    //meshes.push_back(mesh::load_gltf("assets/models/test.glb"));
-    //meshes.push_back(mesh::load_gltf("assets/models/torus.glb"));
-    //meshes.push_back(mesh::load_gltf("assets/models/cube.glb"));
-    meshes.push_back(mesh::load_gltf("assets/models/icosphere.glb"));
-    //meshes.push_back(mesh::load_gltf("assets/models/cylinder.glb"));
-    //meshes.push_back(mesh::load_gltf("assets/models/cone.glb"));
-    //meshes.push_back(mesh::load_gltf("assets/models/uvsphere.glb"));
+    //meshes.push_back(mesh::createSquare());
+    //meshes.push_back(mesh::loadGLTF("assets/models/test.glb"));
+    //meshes.push_back(mesh::loadGLTF("assets/models/torus.glb"));
+    //meshes.push_back(mesh::loadGLTF("assets/models/cube.glb"));
+    meshes.push_back(mesh::loadGLTF("assets/models/icosphere.glb"));
+    //meshes.push_back(mesh::loadGLTF("assets/models/cylinder.glb"));
+    //meshes.push_back(mesh::loadGLTF("assets/models/cone.glb"));
+    //meshes.push_back(mesh::loadGLTF("assets/models/uvsphere.glb"));
     
     std::vector<Vertex> vertices;
     std::vector<Index> indices;
