@@ -392,6 +392,7 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
+*.code-workspace
 out/
 CMakeLists.txt.user
 CMakeCache.txt
