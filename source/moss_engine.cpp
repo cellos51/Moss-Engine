@@ -37,7 +37,7 @@ bool MossEngine::init()
     }
     else 
     {
-        std::cerr << "UNSUPPORED RENDERER DETECTED! ISSUING DIRECT AIR STRIKE ON THE USER!\n";
+        std::cerr << "UNSUPPORTED RENDERER DETECTED! ISSUING DIRECT AIR STRIKE ON THE USER!\n";
         return false;
     }
 

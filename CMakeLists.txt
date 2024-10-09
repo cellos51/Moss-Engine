@@ -24,8 +24,7 @@ find_package(Vulkan REQUIRED)
 include_directories(${Vulkan_INCLUDE_DIRS})
 
 # GLM
-find_package(GLM REQUIRED)
-include_directories(${GLM_INCLUDE_DIRS})
+add_subdirectory(thirdparty/glm)
 
 # Vulkan Memory Allocator
 add_subdirectory(thirdparty/VulkanMemoryAllocator)

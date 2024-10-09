@@ -12,7 +12,7 @@ namespace util
     {
         std::ifstream file(path, std::ios::ate | std::ios::binary);
 
-        if (!file.is_open()) 
+        if (!file.is_open())
         {
             throw std::runtime_error("Failed to open file: " + path.string());
         }
