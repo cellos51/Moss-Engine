@@ -17,9 +17,13 @@ bool MossEngine::init()
     assert(loadedEngine == nullptr);
     loadedEngine = this;
 
-    SDL_Init(SDL_INIT_VIDEO);
+    if (SDL_Init(SDL_INIT_VIDEO) != 0) 
+    {
+        std::cerr << "Failed to initialize SDL: " << SDL_GetError() << std::endl;
+        return false;
+    }
 
-    SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
+    SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 
     window = SDL_CreateWindow
     (
@@ -33,7 +37,19 @@ bool MossEngine::init()
 
     if (window_flags & SDL_WINDOW_VULKAN) 
     {
+        const char* title = SDL_GetWindowTitle(window);
+        std::string new_title = std::string(title) + " - Vulkan";
+        SDL_SetWindowTitle(window, new_title.c_str());
+
         renderer = std::make_unique<VulkanRenderer>();
+    }
+    else if (window_flags & SDL_WINDOW_OPENGL)
+    {
+        const char* title = SDL_GetWindowTitle(window);
+        std::string new_title = std::string(title) + " - OpenGL";
+        SDL_SetWindowTitle(window, new_title.c_str());   
+
+        renderer = std::make_unique<OpenGLRenderer>();
     }
     else 
     {
@@ -51,8 +67,6 @@ bool MossEngine::init()
     return true;
 }
 
-Entity entity1;
-
 void MossEngine::run()
 {
     while (!event::shouldQuit())
@@ -67,7 +81,8 @@ void MossEngine::run()
         }
 
         // move entity with arrow keys and tick::deltaTime()
-        
+        static Entity entity1;
+
         if (event::isKeyHeld(SDL_SCANCODE_UP)) 
         {
             entity1.transform.position.y += 1.0f * tick::deltaTime();
@@ -88,9 +103,15 @@ void MossEngine::run()
             entity1.transform.position.x += 1.0f * tick::deltaTime();
         }
 
+        if (event::isKeyPressed(SDL_SCANCODE_SPACE))
+        {
+            std::cout << tick::deltaTime() * 1000.0f << " ms\n";
+            std::cout << 1.0f / tick::deltaTime() << " FPS\n";
+        }
+
         renderer->drawEntity(&entity1);
 
-        renderer->drawFrame();
+        if(!renderer->drawFrame()) {return;}
     }
 }
 
@@ -102,5 +123,6 @@ void MossEngine::cleanup()
         SDL_DestroyWindow(window);
     }
 
+    SDL_Quit();
     loadedEngine = nullptr;
 }

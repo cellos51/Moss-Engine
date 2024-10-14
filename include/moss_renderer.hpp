@@ -1,16 +1,19 @@
 #pragma once
 
 #include <moss_entity.hpp>
+#include <moss_mesh.hpp>
 
 #include <vulkan/vulkan.h>
 #include <vk_mem_alloc.h>
 #include <VkBootstrap.h>
+#include <GL/glew.h>
 #include <SDL.h>
 #include <glm/glm.hpp>
 
 #include <unordered_map>
 #include <vector>
 #include <array>
+#include <iostream>
 
 class MossRenderer
 {
@@ -19,6 +22,8 @@ public:
     virtual void drawEntity(Entity* entity) = 0;
     virtual bool drawFrame() = 0;
     virtual void cleanup() = 0;
+protected:
+    SDL_Window* window;
 };
 
 class VulkanRenderer: public MossRenderer
@@ -86,7 +91,6 @@ private:
     VkVertexInputBindingDescription getBindingDescription();
     std::array<VkVertexInputAttributeDescription, 4> getAttributeDescriptions();
     
-    SDL_Window* window;
     VkSurfaceKHR surface;
     VmaAllocator allocator;
     vkb::Instance instance;
@@ -125,7 +129,153 @@ private:
     std::vector<Entity*> entities; // Example implementation for drawing multiple entities
 };
 
-class OpenGLRenderer: public MossRenderer // Placeholder for future implementation
+class OpenGLRenderer: public MossRenderer
 {
-    
+public:
+    bool init(SDL_Window* window) override;
+    void drawEntity(Entity* entity) override;
+    bool drawFrame() override;
+    void cleanup() override;
+private:
+    class Pipeline
+    {
+    private:
+        GLuint shader_program;
+        std::unordered_map<GLchar, GLint> uniforms;
+    public:
+        ~Pipeline()
+        {
+            glDeleteProgram(shader_program);
+        }
+        bool create()
+        {
+            shader_program = glCreateProgram();
+            if (shader_program == 0)
+            {
+                std::cerr << "Failed to create OpenGL program" << std::endl;
+                return false;
+            }
+            return true;
+        }
+        void use()
+        {
+            static GLuint bound_program = -1;
+            if (shader_program != bound_program)
+            {
+                glUseProgram(shader_program);
+                bound_program = shader_program;
+            }
+        }
+        bool setShaders(const GLchar* vertex_shader_code, const GLchar* fragment_shader_code)
+        {
+            GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+            GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+
+            glShaderSource(vertex_shader, 1, &vertex_shader_code, nullptr);
+            glShaderSource(fragment_shader, 1, &fragment_shader_code, nullptr);
+
+            glCompileShader(vertex_shader);
+            glCompileShader(fragment_shader);
+
+            GLint success;
+            glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
+            if (!success)
+            {
+                char info_log[512];
+                glGetShaderInfoLog(vertex_shader, 512, nullptr, info_log);
+                std::cerr << "Failed to compile vertex shader: " << info_log << std::endl;
+                return false;
+            }
+
+            glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
+            if (!success)
+            {
+                char info_log[512];
+                glGetShaderInfoLog(fragment_shader, 512, nullptr, info_log);
+                std::cerr << "Failed to compile fragment shader: " << info_log << std::endl;
+                return false;
+            }
+
+            glAttachShader(shader_program, vertex_shader);
+            glAttachShader(shader_program, fragment_shader);
+
+            glLinkProgram(shader_program);
+
+            glGetProgramiv(shader_program, GL_LINK_STATUS, &success);
+            if (!success)
+            {
+                char info_log[512];
+                glGetProgramInfoLog(shader_program, 512, nullptr, info_log);
+                std::cerr << "Failed to link program: " << info_log << std::endl;
+                return false;
+            }
+
+            glDeleteShader(vertex_shader);
+            glDeleteShader(fragment_shader);
+
+            return true;
+        }
+        GLint getUniformLocation(const GLchar* name)
+        {
+            if (uniforms.find(*name) == uniforms.end())
+            {
+                uniforms[*name] = glGetUniformLocation(shader_program, name);
+            }
+            return uniforms[*name];
+        }
+    };
+
+    struct MeshObject
+    {
+        MeshObject(Mesh mesh)
+        {
+            index_count = mesh.indices.size();
+
+            glGenVertexArrays(1, &VAO);
+            glGenBuffers(1, &VBO);
+            glGenBuffers(1, &EBO);
+
+            glBindVertexArray(VAO);
+
+            glBindBuffer(GL_ARRAY_BUFFER, VBO);
+            glBufferData(GL_ARRAY_BUFFER, mesh.vertices.size() * sizeof(Vertex), &mesh.vertices[0], GL_STATIC_DRAW);
+
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.indices.size() * sizeof(Index), &mesh.indices[0], GL_STATIC_DRAW);
+
+            // Vertex positions
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+            glEnableVertexAttribArray(0);
+
+            // Vertex normals
+            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+            glEnableVertexAttribArray(1);
+
+            // Vertex texture coords
+            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tex_coord));
+            glEnableVertexAttribArray(2);
+
+            // Vertex colors
+            glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
+            glEnableVertexAttribArray(3);
+
+            // Don't unbind the VAO, we use only a single one for all entities
+            glBindVertexArray(0); 
+        }
+        GLuint VAO, VBO, EBO;
+        GLuint index_count;
+    };
+
+    bool init_context();
+    bool init_glew();
+    bool create_meshes();
+    bool create_pipelines();
+
+    void draw_geometry();
+
+    int width, height;
+    GLuint VAO, VBO, EBO;
+    Pipeline default_pipeline;
+    std::vector<MeshObject> meshes;
+    std::vector<Entity*> entities;
 };

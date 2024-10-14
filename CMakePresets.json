@@ -5,7 +5,7 @@
             "name": "release",
             "displayName": "GCC Release",
             "description": "Using compilers: C = gcc, CXX =g++",
-            "generator": "MinGW Makefiles",
+            "generator": "Unix Makefiles",
             "binaryDir": "${sourceDir}/out/build/${presetName}",
             "cacheVariables": {
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
@@ -18,7 +18,7 @@
             "name": "debug",
             "displayName": "GCC Debug",
             "description": "Using compilers: C = gcc, CXX = g++",
-            "generator": "MinGW Makefiles",
+            "generator": "Unix Makefiles",
             "binaryDir": "${sourceDir}/out/build/${presetName}",
             "cacheVariables": {
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",

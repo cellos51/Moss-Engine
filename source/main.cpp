@@ -7,10 +7,12 @@ int main(int argc, char* argv[])
 	if (!engine.init())
 	{
 		std::cerr << "Failed to initialize engine.\n";
+		engine.cleanup();
 		return 1;
 	}
 	
 	engine.run();
+
 	engine.cleanup();
 
     return 0;

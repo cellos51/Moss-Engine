@@ -8,7 +8,7 @@
 
 namespace util
 {
-    std::vector<char> readFile(std::filesystem::path path)
+    inline std::vector<char> readFile(std::filesystem::path path)
     {
         std::ifstream file(path, std::ios::ate | std::ios::binary);
 
