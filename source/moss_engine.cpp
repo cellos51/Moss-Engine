@@ -5,25 +5,46 @@
 #include "moss_entity.hpp"
 
 #include <iostream>
-#include <cassert>
 #include <chrono>
 #include <thread>
 
-MossEngine* loadedEngine = nullptr;
-
-MossEngine& MossEngine::Get() { return *loadedEngine; }
-bool MossEngine::init()
+bool MossEngine::init(int argc, char* argv[])
 {
-    assert(loadedEngine == nullptr);
-    loadedEngine = this;
+    // Check for command line arguments
+    bool force_vulkan = true; // Default to Vulkan
+    bool force_opengl = false;
 
+    for (int i = 0; i < argc; i++) 
+    {
+        if (strcmp(argv[i], "-vulkan") == 0) 
+        {
+            force_vulkan = true;
+            force_opengl = false;
+        } 
+        else if (strcmp(argv[i], "-opengl") == 0) 
+        {
+            force_opengl = true;
+            force_vulkan = false;
+        }
+    }
+
+    // Initialize
     if (SDL_Init(SDL_INIT_VIDEO) != 0) 
     {
         std::cerr << "Failed to initialize SDL: " << SDL_GetError() << std::endl;
         return false;
     }
 
-    SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+    SDL_WindowFlags window_flags = static_cast<SDL_WindowFlags>(SDL_WINDOW_RESIZABLE);
+
+    if (force_vulkan) 
+    {
+        window_flags = static_cast<SDL_WindowFlags>(window_flags | SDL_WINDOW_VULKAN);
+    }
+    else if (force_opengl) 
+    {
+        window_flags = static_cast<SDL_WindowFlags>(window_flags | SDL_WINDOW_OPENGL);
+    }
 
     window = SDL_CreateWindow
     (
@@ -38,7 +59,7 @@ bool MossEngine::init()
     if (window_flags & SDL_WINDOW_VULKAN) 
     {
         const char* title = SDL_GetWindowTitle(window);
-        std::string new_title = std::string(title) + " - Vulkan";
+        std::string new_title = std::string(title) + " (Vulkan)";
         SDL_SetWindowTitle(window, new_title.c_str());
 
         renderer = std::make_unique<VulkanRenderer>();
@@ -46,7 +67,7 @@ bool MossEngine::init()
     else if (window_flags & SDL_WINDOW_OPENGL)
     {
         const char* title = SDL_GetWindowTitle(window);
-        std::string new_title = std::string(title) + " - OpenGL";
+        std::string new_title = std::string(title) + " (OpenGL)";
         SDL_SetWindowTitle(window, new_title.c_str());   
 
         renderer = std::make_unique<OpenGLRenderer>();
@@ -69,6 +90,8 @@ bool MossEngine::init()
 
 void MossEngine::run()
 {
+    if (!isInitialized) { return; }
+
     while (!event::shouldQuit())
     {
         event::pollEvent();
@@ -106,7 +129,7 @@ void MossEngine::run()
         if (event::isKeyPressed(SDL_SCANCODE_SPACE))
         {
             std::cout << tick::deltaTime() * 1000.0f << " ms\n";
-            std::cout << 1.0f / tick::deltaTime() << " FPS\n";
+            std::cout << 1.0f / tick::deltaTime() << " fps\n";
         }
 
         renderer->drawEntity(&entity1);
@@ -123,6 +146,6 @@ void MossEngine::cleanup()
         SDL_DestroyWindow(window);
     }
 
+    renderer.reset();
     SDL_Quit();
-    loadedEngine = nullptr;
 }

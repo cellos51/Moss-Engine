@@ -6,7 +6,7 @@
 #include <vulkan/vulkan.h>
 #include <vk_mem_alloc.h>
 #include <VkBootstrap.h>
-#include <GL/glew.h>
+#include <glad/gl.h>
 #include <SDL.h>
 #include <glm/glm.hpp>
 
@@ -15,7 +15,7 @@
 #include <array>
 #include <iostream>
 
-class MossRenderer
+class Renderer
 {
 public:
     virtual bool init(SDL_Window* window) = 0;
@@ -26,7 +26,7 @@ protected:
     SDL_Window* window;
 };
 
-class VulkanRenderer: public MossRenderer
+class VulkanRenderer: public Renderer
 {
 public:
     bool init(SDL_Window* window) override;
@@ -129,7 +129,7 @@ private:
     std::vector<Entity*> entities; // Example implementation for drawing multiple entities
 };
 
-class OpenGLRenderer: public MossRenderer
+class OpenGLRenderer: public Renderer
 {
 public:
     bool init(SDL_Window* window) override;
@@ -267,7 +267,6 @@ private:
     };
 
     bool init_context();
-    bool init_glew();
     bool create_meshes();
     bool create_pipelines();
 

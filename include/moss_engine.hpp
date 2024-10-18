@@ -10,13 +10,12 @@
 class MossEngine
 {
 public:
-	static MossEngine& Get();
-	bool init();
+	bool init(int argc, char* argv[]);
 	void run();
 	void cleanup();
 private:
 	bool isInitialized = false;
 	bool stopRendering = false;
 	SDL_Window* window = nullptr;
-    std::unique_ptr<MossRenderer> renderer = nullptr;
+    std::unique_ptr<Renderer> renderer = nullptr;
 };

@@ -4,15 +4,8 @@ int main(int argc, char* argv[])
 {
     MossEngine engine;
 
-	if (!engine.init())
-	{
-		std::cerr << "Failed to initialize engine.\n";
-		engine.cleanup();
-		return 1;
-	}
-	
+	engine.init(argc, argv);
 	engine.run();
-
 	engine.cleanup();
 
     return 0;

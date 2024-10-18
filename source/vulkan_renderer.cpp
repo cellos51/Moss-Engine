@@ -354,10 +354,10 @@ bool VulkanRenderer::create_mesh_buffers()
     std::vector<Mesh> meshes;
 
     //meshes.push_back(mesh::createSquare());
-    //meshes.push_back(mesh::loadGltf("assets/models/test.glb"));
+    meshes.push_back(mesh::loadGltf("assets/models/test.glb"));
     //meshes.push_back(mesh::loadGltf("assets/models/torus.glb"));
     //meshes.push_back(mesh::loadGltf("assets/models/cube.glb"));
-    meshes.push_back(mesh::loadGltf("assets/models/icosphere.glb"));
+    //meshes.push_back(mesh::loadGltf("assets/models/icosphere.glb"));
     //meshes.push_back(mesh::loadGltf("assets/models/cylinder.glb"));
     //meshes.push_back(mesh::loadGltf("assets/models/cone.glb"));
     //meshes.push_back(mesh::loadGltf("assets/models/uvsphere.glb"));
@@ -870,7 +870,7 @@ void VulkanRenderer::draw_geometry(VkCommandBuffer command_buffer, VkImageView i
 // Helper functions
 void VulkanRenderer::updateUniformBuffer(UniformBufferObject &ubo)
 {
-    void* data;
+    void* data = nullptr;
     vmaMapMemory(allocator, uniform_buffers[current_frame].allocation, &data);
     memcpy(data, &ubo, sizeof(ubo));
     vmaUnmapMemory(allocator, uniform_buffers[current_frame].allocation);

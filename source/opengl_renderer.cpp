@@ -3,7 +3,6 @@
 #include <moss_util.hpp>
 #include <moss_mesh.hpp>
 
-#include <GL/glu.h>
 #include <SDL2/SDL_opengl.h>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -17,7 +16,6 @@ bool OpenGLRenderer::init(SDL_Window* window)
     this->window = window;
 
     if (!init_context()) { return false; }
-    if (!init_glew()) { return false; }
     if (!create_meshes()) { return false; }
     if (!create_pipelines()) { return false; }
 
@@ -72,8 +70,8 @@ bool OpenGLRenderer::init_context()
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,24);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
     if (!SDL_GL_CreateContext(window))
     {
@@ -81,22 +79,15 @@ bool OpenGLRenderer::init_context()
         return false;
     }
 
+    if (!gladLoadGL((GLADloadfunc)SDL_GL_GetProcAddress))
+    {
+        std::cerr << "Failed to initialize OpenGL context." << std::endl;
+        return false;
+    }
+
     SDL_GL_SetSwapInterval(0);
     
     glEnable(GL_DEPTH_TEST);
-
-    return true;
-}
-
-bool OpenGLRenderer::init_glew()
-{
-    glewExperimental = GL_TRUE;
-    GLenum err = glewInit();
-    if (err != GLEW_OK)
-    {
-        std::cerr << "Failed to initialize GLEW: " << glewGetErrorString(err) << std::endl;
-        return false;
-    }
 
     return true;
 }
