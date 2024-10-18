@@ -26,8 +26,12 @@ include_directories(${Vulkan_INCLUDE_DIRS})
 # OpenGL
 find_package(OpenGL REQUIRED)
 
-# GLEW
-find_package(GLEW REQUIRED)
+# SOL2
+find_package(sol2 REQUIRED)
+
+# GLAD
+add_library(glad STATIC thirdparty/glad/src/gl.c)
+target_include_directories(glad PUBLIC thirdparty/glad/include)
 
 # GLM
 add_subdirectory(thirdparty/glm)
@@ -60,6 +64,7 @@ target_sources(imgui PRIVATE
     thirdparty/imgui/imgui_widgets.cpp
     thirdparty/imgui/imgui_tables.cpp
     thirdparty/imgui/backends/imgui_impl_vulkan.cpp
+    thirdparty/imgui/backends/imgui_impl_opengl3.cpp
     thirdparty/imgui/backends/imgui_impl_sdl2.cpp
 )
 
@@ -68,10 +73,11 @@ file(GLOB_RECURSE SOURCES "source/*.cpp" "source/*.c")
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCES})
 
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE -static-libgcc -static-libstdc++)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE sol2)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE glm)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE imgui)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenGL::GL) 
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE GLEW::GLEW)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE glad)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${SDL2_LIBRARIES})
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${Vulkan_LIBRARIES})
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE GPUOpen::VulkanMemoryAllocator)
