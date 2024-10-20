@@ -1,7 +1,7 @@
 #include "moss_engine.hpp"
 
-#include "moss_event.hpp"
-#include "moss_tick.hpp"
+#include "event.hpp"
+#include "tick.hpp"
 #include "moss_entity.hpp"
 #include "moss_script.hpp"
 
@@ -118,7 +118,7 @@ void MossEngine::run()
 
         while (accumulator >= fixedDeltaTime)
         {
-            fixed_update(fixedDeltaTime);
+            fixed_update(static_cast<float>(fixedDeltaTime));
             accumulator -= fixedDeltaTime;
         }
         
@@ -159,12 +159,12 @@ void MossEngine::run()
 
 void MossEngine::update(float deltaTime) 
 {
-    script::processUpdate(tick::deltaTime());
+    script::processUpdate(deltaTime);
 }
 
 void MossEngine::fixed_update(float deltaTime)
 {
-    script::processFixedUpdate(tick::deltaTime());
+    script::processFixedUpdate(deltaTime);
 }
 
 void MossEngine::cleanup()

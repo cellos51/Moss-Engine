@@ -1,7 +1,7 @@
 #include "moss_renderer.hpp"
 
-#include <moss_util.hpp>
-#include <moss_mesh.hpp>
+#include "util.hpp"
+#include "mesh.hpp"
 
 #include <SDL2/SDL_opengl.h>
 #include <glm/gtc/matrix_transform.hpp>

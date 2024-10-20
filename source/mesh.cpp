@@ -1,4 +1,4 @@
-#include "moss_mesh.hpp"
+#include "mesh.hpp"
 
 #include <fastgltf/glm_element_traits.hpp>
 #include <fastgltf/core.hpp>

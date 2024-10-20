@@ -1,7 +1,7 @@
 #include "moss_renderer.hpp"
 
-#include "moss_util.hpp"
-#include "moss_mesh.hpp"
+#include "util.hpp"
+#include "mesh.hpp"
 
 #define VMA_IMPLEMENTATION
 #include <vk_mem_alloc.h>

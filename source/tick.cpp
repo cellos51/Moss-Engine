@@ -1,4 +1,4 @@
-#include "moss_tick.hpp"
+#include "tick.hpp"
 
 #include <SDL2/SDL_timer.h>
 

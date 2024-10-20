@@ -26,3 +26,4 @@ class Entity
 public:
     Transform transform;
 };
+

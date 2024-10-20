@@ -1,4 +1,4 @@
-#include "moss_event.hpp"
+#include "event.hpp"
 
 #include <SDL_events.h>
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <moss_entity.hpp>
-#include <moss_mesh.hpp>
+#include "moss_entity.hpp"
+#include "mesh.hpp"
 
 #include <vulkan/vulkan.h>
 #include <vk_mem_alloc.h>
