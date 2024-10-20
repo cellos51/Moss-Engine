@@ -29,6 +29,9 @@ find_package(OpenGL REQUIRED)
 # SOL2
 find_package(sol2 REQUIRED)
 
+# Lua
+find_package(Lua REQUIRED)
+
 # GLAD
 add_library(glad STATIC thirdparty/glad/src/gl.c)
 target_include_directories(glad PUBLIC thirdparty/glad/include)
@@ -73,6 +76,7 @@ file(GLOB_RECURSE SOURCES "source/*.cpp" "source/*.c")
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCES})
 
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE -static-libgcc -static-libstdc++)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE lua)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE sol2)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE glm)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE imgui)

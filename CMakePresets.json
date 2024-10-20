@@ -11,7 +11,9 @@
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
                 "CMAKE_C_COMPILER": "gcc",
                 "CMAKE_CXX_COMPILER": "g++",
-                "CMAKE_BUILD_TYPE": "Release"
+                "CMAKE_BUILD_TYPE": "Release",
+                "LUA_INCLUDE_DIR": "C:/msys64/ucrt64/include",
+                "LUA_LIBRARY": "C:/msys64/ucrt64/lib"
             }
         },
         {
@@ -24,7 +26,9 @@
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
                 "CMAKE_C_COMPILER": "gcc",
                 "CMAKE_CXX_COMPILER": "g++",
-                "CMAKE_BUILD_TYPE": "Debug"
+                "CMAKE_BUILD_TYPE": "Debug",
+                "LUA_INCLUDE_DIR": "C:/msys64/ucrt64/include",
+                "LUA_LIBRARY": "C:/msys64/ucrt64/lib"
             }
         }
     ]

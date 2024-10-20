@@ -3,6 +3,7 @@
 #include "moss_event.hpp"
 #include "moss_tick.hpp"
 #include "moss_entity.hpp"
+#include "moss_script.hpp"
 
 #include <iostream>
 #include <chrono>
@@ -84,6 +85,12 @@ bool MossEngine::init(int argc, char* argv[])
         return false;
     }
 
+    if (!script::init()) 
+    {
+        std::cerr << "Failed to initialize lua.\n";
+        return false;
+    }
+
     isInitialized = true;
     return true;
 }
@@ -103,6 +110,18 @@ void MossEngine::run()
             continue;
         }
 
+        update(tick::deltaTime());
+
+        double fixedDeltaTime = 1.0 / tickrate;
+        static double accumulator = 0.0;
+        accumulator += tick::deltaTime64();
+
+        while (accumulator >= fixedDeltaTime)
+        {
+            fixed_update(fixedDeltaTime);
+            accumulator -= fixedDeltaTime;
+        }
+        
         // move entity with arrow keys and tick::deltaTime()
         static Entity entity1;
 
@@ -138,10 +157,21 @@ void MossEngine::run()
     }
 }
 
+void MossEngine::update(float deltaTime) 
+{
+    script::processUpdate(tick::deltaTime());
+}
+
+void MossEngine::fixed_update(float deltaTime)
+{
+    script::processFixedUpdate(tick::deltaTime());
+}
+
 void MossEngine::cleanup()
 {
     if (isInitialized) 
     {
+        script::cleanup(); // Not super necessary, but good practice and if i ever add more cleanup code to script::cleanup() it will be useful
         renderer->cleanup();
         SDL_DestroyWindow(window);
     }
