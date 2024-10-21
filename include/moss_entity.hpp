@@ -27,3 +27,10 @@ public:
     Transform transform;
 };
 
+namespace entity
+{
+    Entity* createEntity();
+    void destroyEntity(Entity* entity);
+    std::vector<Entity*> getEntities();
+    void clearEntities();
+}

@@ -354,13 +354,8 @@ bool VulkanRenderer::create_mesh_buffers()
     std::vector<Mesh> meshes;
 
     //meshes.push_back(mesh::createSquare());
-    meshes.push_back(mesh::loadGltf("assets/models/test.glb"));
-    //meshes.push_back(mesh::loadGltf("assets/models/torus.glb"));
-    //meshes.push_back(mesh::loadGltf("assets/models/cube.glb"));
-    //meshes.push_back(mesh::loadGltf("assets/models/icosphere.glb"));
-    //meshes.push_back(mesh::loadGltf("assets/models/cylinder.glb"));
-    //meshes.push_back(mesh::loadGltf("assets/models/cone.glb"));
-    //meshes.push_back(mesh::loadGltf("assets/models/uvsphere.glb"));
+    //meshes.push_back(mesh::loadGltf("assets/models/monkey.glb"));
+    meshes.push_back(mesh::loadGltf("assets/models/icosphere.glb"));
     
     std::vector<Vertex> vertices;
     std::vector<Index> indices;
@@ -853,7 +848,7 @@ void VulkanRenderer::draw_geometry(VkCommandBuffer command_buffer, VkImageView i
         {
             UniformBufferObject ubo{};
             ubo.model = entities[i]->transform.getMatrix();
-            
+
             uint32_t dynamic_offset = i * dynamic_alignment;
             disp.cmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &descriptor_sets[current_frame], 1, &dynamic_offset);
 

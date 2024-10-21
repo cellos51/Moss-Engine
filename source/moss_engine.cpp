@@ -121,37 +121,11 @@ void MossEngine::run()
             fixed_update(static_cast<float>(fixedDeltaTime));
             accumulator -= fixedDeltaTime;
         }
-        
-        // move entity with arrow keys and tick::deltaTime()
-        static Entity entity1;
 
-        if (event::isKeyHeld(SDL_SCANCODE_UP)) 
+        for (auto* entity : entity::getEntities())
         {
-            entity1.transform.position.y += 1.0f * tick::deltaTime();
+            renderer->drawEntity(entity);
         }
-
-        if (event::isKeyHeld(SDL_SCANCODE_DOWN)) 
-        {
-            entity1.transform.position.y -= 1.0f * tick::deltaTime();
-        }
-
-        if (event::isKeyHeld(SDL_SCANCODE_LEFT)) 
-        {
-            entity1.transform.position.x -= 1.0f * tick::deltaTime();
-        }
-
-        if (event::isKeyHeld(SDL_SCANCODE_RIGHT)) 
-        {
-            entity1.transform.position.x += 1.0f * tick::deltaTime();
-        }
-
-        if (event::isKeyPressed(SDL_SCANCODE_SPACE))
-        {
-            std::cout << tick::deltaTime() * 1000.0f << " ms\n";
-            std::cout << 1.0f / tick::deltaTime() << " fps\n";
-        }
-
-        renderer->drawEntity(&entity1);
 
         if(!renderer->drawFrame()) {return;}
     }
@@ -176,6 +150,7 @@ void MossEngine::cleanup()
         SDL_DestroyWindow(window);
     }
 
+    entity::clearEntities();
     renderer.reset();
     SDL_Quit();
 }

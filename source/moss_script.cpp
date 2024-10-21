@@ -1,6 +1,7 @@
 #include "moss_script.hpp"
 
 #include "event.hpp"
+#include "moss_entity.hpp"
 
 #define SOL_ALL_SAFETIES_ON 1
 #include <sol/sol.hpp>
@@ -14,6 +15,51 @@ sol::function fixedUpdate;
 bool script::init()
 {
     lua.open_libraries(sol::lib::base, sol::lib::package, sol::lib::math, sol::lib::string, sol::lib::table);
+
+    lua.new_usertype<Entity>("Entity",
+        "Transform", &Entity::transform
+    );
+
+    lua.new_usertype<Transform>("Transform",
+        "Position", &Transform::position,
+        "Rotation", &Transform::rotation,
+        "Scale", &Transform::scale
+    );
+
+    lua.new_usertype<glm::vec3>("Vector3",
+        "new", sol::factories([](float x, float y, float z) { return glm::vec3(x, y, z); }),
+
+        "zero", sol::factories([]() { return glm::vec3(0.0f); }),
+        "one", sol::factories([]() { return glm::vec3(1.0f); }),
+        "xAxis", sol::factories([]() { return glm::vec3(1.0f, 0.0f, 0.0f); }),
+        "yAxis", sol::factories([]() { return glm::vec3(0.0f, 1.0f, 0.0f); }),
+        "zAxis", sol::factories([]() { return glm::vec3(0.0f, 0.0f, 1.0f); }),
+        "X", &glm::vec3::x,
+        "Y", &glm::vec3::y,
+        "Z", &glm::vec3::z,
+        "Magnitude", &glm::vec3::length,
+        "Unit", sol::property([](const glm::vec3& vec) { return glm::normalize(vec); }),
+
+        sol::meta_function::addition, sol::resolve<glm::vec3(const glm::vec3&, const glm::vec3&)>(glm::operator+),
+        sol::meta_function::subtraction, sol::resolve<glm::vec3(const glm::vec3&, const glm::vec3&)>(glm::operator-),
+        sol::meta_function::multiplication, sol::resolve<glm::vec3(const glm::vec3&, const glm::vec3&)>(glm::operator*),
+        sol::meta_function::multiplication, sol::resolve<glm::vec3(const glm::vec3&, float)>(glm::operator*),
+        sol::meta_function::division, sol::resolve<glm::vec3(const glm::vec3&, const glm::vec3&)>(glm::operator/),
+        sol::meta_function::division, sol::resolve<glm::vec3(const glm::vec3&, float)>(glm::operator/)
+    );
+
+    lua.new_usertype<glm::quat>("Quaternion",
+        "new", sol::factories([](float x, float y, float z, float w) { return glm::quat(w, x, y, z); }),
+        
+        "X", &glm::quat::x,
+        "Y", &glm::quat::y,
+        "Z", &glm::quat::z,
+        "W", &glm::quat::w
+    );
+
+    sol::table entity = lua.create_named_table("Entity");
+    entity.set_function("Create", entity::createEntity);
+    entity.set_function("Destroy", entity::destroyEntity);
 
     sol::table input = lua.create_named_table("Input");
     input.set_function("IsKeyPressed", event::isKeyPressed);
