@@ -1,28 +1,20 @@
-print("I'm a lua jit! I'm running in the same process as the C++ code!")
+local update
+local fixedUpdate
 
-local player = Entity.Create()
+local count = 0
+local maxCount = 1000
 
-player.Transform.Position.Z = -6.0
-player.Transform.Position.X = -2.0
+update = Callback.Update(function(deltaTime)
+    local entity = Entity.new()
+    entity.Transform.Position = Vector3.new(math.random(-1000, 1000) / 150, math.random(-1000, 1000) / 300, -7)
+    entity.Transform.Scale = Vector3.one() * math.random(1, 5) / 100
 
-player.Transform.Scale = Vector3.new(0.5, 0.5, 0.5)
-
-local velocity = Vector3.new(0.0, 0.0, 0.0)
-local gravity = Vector3.new(0.0, -9.8, 0.0)
-
-function Update(deltaTime)
-    if Input.IsKeyPressed(ScanCode.Space) then
-        velocity.Y = 5.0
+    count = count + 1
+    if count >= maxCount then
+        update:Disconnect()
     end
+end)
 
-    velocity = velocity + gravity * deltaTime
-    player.Transform.Position = player.Transform.Position + velocity * deltaTime
-
-    -- clamp positions to be within the bounds of the screen
-    player.Transform.Position.Y = math.min(math.max(player.Transform.Position.Y, -3.0), 3.0)
-    player.Transform.Position.X = math.min(math.max(player.Transform.Position.X, -8.0), 8.0)
-end
-
-function FixedUpdate(deltaTime)
-
-end
+fixedUpdate = Callback.FixedUpdate(function(fixedDeltaTime)
+    
+end)
