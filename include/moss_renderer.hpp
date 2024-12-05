@@ -7,7 +7,7 @@
 #include <vk_mem_alloc.h>
 #include <VkBootstrap.h>
 #include <glad/gl.h>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <glm/glm.hpp>
 
 #include <unordered_map>

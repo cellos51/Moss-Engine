@@ -3,12 +3,12 @@
 #include "util.hpp"
 #include "mesh.hpp"
 
-#include <SDL2/SDL_opengl.h>
+#include <SDL3/SDL_opengl.h>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <iostream>
 
-const bool debugMode = true;
+static const bool debugMode = true;
 
 // Base class functions
 bool OpenGLRenderer::init(SDL_Window* window)
@@ -30,7 +30,7 @@ void OpenGLRenderer::drawEntity(Entity* entity)
 bool OpenGLRenderer::drawFrame()
 {
     static int oldWidth, oldHeight;
-    SDL_GL_GetDrawableSize(window, &width, &height);
+    SDL_GetWindowSizeInPixels(window, &width, &height);
 
     if (width != oldWidth || height != oldHeight)
     {
@@ -59,7 +59,7 @@ void OpenGLRenderer::cleanup()
         return;
     }
 
-    SDL_GL_DeleteContext(context);
+    SDL_GL_DestroyContext(context);
 }
 
 // Initialization functions

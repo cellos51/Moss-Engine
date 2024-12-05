@@ -16,8 +16,13 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-mwindows -O3 -DNDEBUG")
 
 # SDL2
-find_package(SDL2 REQUIRED)
-include_directories(${SDL2_INCLUDE_DIRS})
+# find_package(SDL2 REQUIRED)
+# include_directories(${SDL2_INCLUDE_DIRS})
+
+# SDL3
+set(SDL3_DIR "C:/VulkanSDK/1.3.296.0/Lib/cmake/SDL3")
+find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3)
+include_directories(${SDL3_INCLUDE_DIRS})
 
 # Vulkan
 find_package(Vulkan REQUIRED)
@@ -68,7 +73,7 @@ target_sources(imgui PRIVATE
     thirdparty/imgui/imgui_tables.cpp
     thirdparty/imgui/backends/imgui_impl_vulkan.cpp
     thirdparty/imgui/backends/imgui_impl_opengl3.cpp
-    thirdparty/imgui/backends/imgui_impl_sdl2.cpp
+    thirdparty/imgui/backends/imgui_impl_sdl3.cpp
 )
 
 include_directories(include)
@@ -82,7 +87,8 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE glm)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE imgui)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenGL::GL) 
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE glad)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${SDL2_LIBRARIES})
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE SDL3::SDL3)
+# target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${SDL2_LIBRARIES})
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${Vulkan_LIBRARIES})
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE GPUOpen::VulkanMemoryAllocator)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE vk-bootstrap::vk-bootstrap)

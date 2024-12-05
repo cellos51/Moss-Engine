@@ -6,7 +6,7 @@
 #define VMA_IMPLEMENTATION
 #include <vk_mem_alloc.h>
 #include <VkBootstrap.h>
-#include <SDL_vulkan.h>
+#include <SDL3/SDL_vulkan.h>
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -16,13 +16,13 @@
 #include <iostream>
 
 #ifdef NDEBUG
-const bool enableValidationLayers = false;
+static const bool enableValidationLayers = false;
 #else
-const bool enableValidationLayers = true;
+static const bool enableValidationLayers = true;
 #endif
 
-const int MAX_FRAMES_IN_FLIGHT = 3;
-const int MAX_INSTANCES = 1000;
+static const int MAX_FRAMES_IN_FLIGHT = 3;
+static const int MAX_INSTANCES = 4096; // zomg zo many!!!111 :3 :3 :3 XDDDD :P can i haz cheezburger?
 
 // Public functions
 bool VulkanRenderer::init(SDL_Window* window)
@@ -205,7 +205,7 @@ bool VulkanRenderer::init_device()
 
 	inst_disp = instance.make_table();
 
-    if (SDL_Vulkan_CreateSurface(window, instance, &surface) != SDL_TRUE) 
+    if (!SDL_Vulkan_CreateSurface(window, instance, NULL, &surface))
 	{
         std::cerr << "Failed to create Vulkan surface.\n";
         return false;

@@ -30,7 +30,7 @@ bool MossEngine::init(int argc, char* argv[])
     }
 
     // Initialize
-    if (SDL_Init(SDL_INIT_VIDEO) != 0) 
+    if (!SDL_Init(SDL_INIT_VIDEO)) 
     {
         std::cerr << "Failed to initialize SDL: " << SDL_GetError() << std::endl;
         return false;
@@ -50,8 +50,6 @@ bool MossEngine::init(int argc, char* argv[])
     window = SDL_CreateWindow
     (
         "Moss Engine",
-        SDL_WINDOWPOS_UNDEFINED,
-        SDL_WINDOWPOS_UNDEFINED,
         1280,
         720,
         window_flags
@@ -100,16 +98,12 @@ void MossEngine::run()
     if (!isInitialized) { return; }
 
     while (!event::shouldQuit())
-    {
+    {   
+        // Polling
         event::pollEvent();
         tick::tick();
 
-        if (event::isWindowMinimized()) 
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            continue;
-        }
-
+        // Loops
         update(tick::deltaTime());
 
         double fixedDeltaTime = 1.0 / tickrate;
@@ -120,6 +114,13 @@ void MossEngine::run()
         {
             fixed_update(static_cast<float>(fixedDeltaTime));
             accumulator -= fixedDeltaTime;
+        }
+
+        // Rendering
+        if (event::isWindowMinimized()) // Don't render if the window is minimized
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            continue;
         }
 
         for (auto* entity : entity::getEntities())

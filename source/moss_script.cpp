@@ -5,26 +5,51 @@
 
 #define SOL_ALL_SAFETIES_ON 1
 #include <sol/sol.hpp>
+#include <SDL3/SDL_keyboard.h>
+
 #include <filesystem>
 #include <vector>
 
-sol::state lua;
+static sol::state lua;
 
-std::vector<sol::function> update_callbacks;
-std::vector<sol::function> fixed_update_callbacks;
+static std::vector<sol::function> update_callbacks;
+static std::vector<sol::function> fixed_update_callbacks;
 
-class Callback // TODO: make this less stupid 🥺
+class CallbackConnection
 {
     public:
-        Callback(sol::function callback, std::vector<sol::function>* callbackList) : callback(callback), callbackList(callbackList) {}
+        CallbackConnection(sol::function callback, std::vector<sol::function>* callbackList) : callback(callback), callbackList(callbackList) 
+        {
+            callbackList->push_back(callback);
+        }
         void Disconnect() 
         {
             callbackList->erase(std::remove(callbackList->begin(), callbackList->end(), callback), callbackList->end());
         }
+        bool IsConnected() { return connected; }
     private:
         sol::function callback;
         std::vector<sol::function>* callbackList;
+        bool connected = true;
 };
+
+class CallbackSignal
+{
+    public:
+        CallbackSignal(std::vector<sol::function>* callbackList) : callbackList(callbackList) {}
+        CallbackConnection Connect(sol::function callback) { return CallbackConnection(callback, callbackList); }
+    private:
+        std::vector<sol::function>* callbackList;
+};
+
+// class CursorProperties
+// {
+//     public:
+//         bool GetLocked() const { return SDL_GetRelativeMouseMode() == SDL_TRUE; }
+//         void SetLocked(bool value) { SDL_SetRelativeMouseMode(value ? SDL_TRUE : SDL_FALSE); }
+//         bool GetVisible() const { return SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE; }
+//         void SetVisible(bool value) { SDL_ShowCursor(value ? SDL_ENABLE : SDL_DISABLE); }
+// };
 
 bool script::init()
 {
@@ -47,30 +72,34 @@ bool script::init()
         "Scale", &Transform::scale
     );
 
-    lua.new_usertype<Callback>("Callback",
-        "Disconnect", &Callback::Disconnect
+    lua.new_usertype<CallbackConnection>("CallbackConnection",
+        "Connected", sol::property(&CallbackConnection::IsConnected),
+        "Disconnect", &CallbackConnection::Disconnect
+    );
+
+    lua.new_usertype<CallbackSignal>("CallbackSignal",
+        "Connect", &CallbackSignal::Connect
     );
 
     sol::table callback = lua.create_named_table("Callback");
-    callback["Update"].set_function([](sol::function callback) 
-    { 
-        update_callbacks.push_back(callback); 
-        return Callback(callback, &update_callbacks);
-    });
-    callback["FixedUpdate"].set_function([](sol::function callback) 
-    { 
-        fixed_update_callbacks.push_back(callback); 
-        return Callback(callback, &fixed_update_callbacks);
-    });
+    callback.set("Update", CallbackSignal(&update_callbacks));
+    callback.set("FixedUpdate", CallbackSignal(&fixed_update_callbacks));
+    
+    // lua.new_usertype<CursorProperties>("CursorProperties",
+    //     "Locked", sol::property(&CursorProperties::GetLocked, &CursorProperties::SetLocked),
+    //     "Visible", sol::property(&CursorProperties::GetVisible, &CursorProperties::SetVisible)
+    // );
+    // lua.set("Cursor", CursorProperties());
 
     sol::table input = lua.create_named_table("Input");
     input.set_function("IsKeyPressed", event::isKeyPressed);
     input.set_function("IsKeyHeld", event::isKeyHeld);
+    input.set_function("IsKeyReleased", event::isKeyReleased);
 
     sol::table scan_code_table = lua.create_named_table("ScanCode");
     sol::table scan_code_metatable = lua.create_table_with();
 
-    for (int i = 0; i < SDL_NUM_SCANCODES; i++)
+    for (int i = 0; i < SDL_SCANCODE_COUNT; i++)
     {
         const char* name = SDL_GetScancodeName(static_cast<SDL_Scancode>(i));
         if (name) 

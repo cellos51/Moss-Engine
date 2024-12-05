@@ -3,7 +3,7 @@
 #include <vector>
 #include <memory>
 
-std::vector<std::unique_ptr<Entity>> entities;
+static std::vector<std::unique_ptr<Entity>> entities;
 
 Entity* entity::createEntity()
 {

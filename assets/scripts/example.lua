@@ -1,20 +1,14 @@
-local update
-local fixedUpdate
+print("Hello from Lua!")
 
-local count = 0
-local maxCount = 1000
-
-update = Callback.Update(function(deltaTime)
-    local entity = Entity.new()
-    entity.Transform.Position = Vector3.new(math.random(-1000, 1000) / 150, math.random(-1000, 1000) / 300, -7)
-    entity.Transform.Scale = Vector3.one() * math.random(1, 5) / 100
-
-    count = count + 1
-    if count >= maxCount then
-        update:Disconnect()
+Callback.Update:Connect(function(deltaTime)
+    if Input.IsKeyPressed(ScanCode.Space) then
+        print("Space key is pressed!")
+    end
+    if Input.IsKeyReleased(ScanCode.Space) then
+        print("Space key is released!")
     end
 end)
 
-fixedUpdate = Callback.FixedUpdate(function(fixedDeltaTime)
+Callback.FixedUpdate:Connect(function(deltaTime)
     
 end)
