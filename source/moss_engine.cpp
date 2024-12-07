@@ -77,13 +77,13 @@ bool MossEngine::init(int argc, char* argv[])
         return false;
     }
 
-    if(!renderer->init(window))
+    if (!renderer->init(window))
     {
         std::cerr << "Failed to initialize renderer.\n";
         return false;
     }
 
-    if (!script::init()) 
+    if (!script::init(window)) 
     {
         std::cerr << "Failed to initialize lua.\n";
         return false;
@@ -128,7 +128,7 @@ void MossEngine::run()
             renderer->drawEntity(entity);
         }
 
-        if(!renderer->drawFrame()) {return;}
+        if (!renderer->drawFrame()) {return;}
     }
 }
 

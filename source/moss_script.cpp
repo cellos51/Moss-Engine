@@ -6,6 +6,7 @@
 #define SOL_ALL_SAFETIES_ON 1
 #include <sol/sol.hpp>
 #include <SDL3/SDL_keyboard.h>
+#include <SDL3/SDL_mouse.h>
 
 #include <filesystem>
 #include <vector>
@@ -42,16 +43,19 @@ class CallbackSignal
         std::vector<sol::function>* callbackList;
 };
 
-// class CursorProperties
-// {
-//     public:
-//         bool GetLocked() const { return SDL_GetRelativeMouseMode() == SDL_TRUE; }
-//         void SetLocked(bool value) { SDL_SetRelativeMouseMode(value ? SDL_TRUE : SDL_FALSE); }
-//         bool GetVisible() const { return SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE; }
-//         void SetVisible(bool value) { SDL_ShowCursor(value ? SDL_ENABLE : SDL_DISABLE); }
-// };
+class CursorProperties // This needs to be a class for some reason. SOL doesn't work if we bind the functions directly to lua.
+{
+    public:
+        CursorProperties(SDL_Window* window) : window(window) {}
+        bool GetLocked() const { return SDL_GetWindowRelativeMouseMode(window); }
+        void SetLocked(bool value) { SDL_SetWindowRelativeMouseMode(window, value); }
+        bool GetVisible() const { return SDL_CursorVisible(); }
+        void SetVisible(bool value) { value ? SDL_ShowCursor() : SDL_HideCursor(); }
+    private:
+        SDL_Window* window = nullptr;
+};
 
-bool script::init()
+bool script::init(SDL_Window* window)
 {
     lua.open_libraries(sol::lib::base, sol::lib::package, sol::lib::math, sol::lib::string, sol::lib::table);
 
@@ -85,16 +89,21 @@ bool script::init()
     callback.set("Update", CallbackSignal(&update_callbacks));
     callback.set("FixedUpdate", CallbackSignal(&fixed_update_callbacks));
     
-    // lua.new_usertype<CursorProperties>("CursorProperties",
-    //     "Locked", sol::property(&CursorProperties::GetLocked, &CursorProperties::SetLocked),
-    //     "Visible", sol::property(&CursorProperties::GetVisible, &CursorProperties::SetVisible)
-    // );
-    // lua.set("Cursor", CursorProperties());
+    lua.set("Cursor", CursorProperties(window));
+    lua.new_usertype<CursorProperties>("CursorProperties",
+        "Locked", sol::property(&CursorProperties::GetLocked, &CursorProperties::SetLocked),
+        "Visible", sol::property(&CursorProperties::GetVisible, &CursorProperties::SetVisible)
+    );
 
     sol::table input = lua.create_named_table("Input");
     input.set_function("IsKeyPressed", event::isKeyPressed);
     input.set_function("IsKeyHeld", event::isKeyHeld);
     input.set_function("IsKeyReleased", event::isKeyReleased);
+    input.set_function("IsMouseButtonPressed", event::isMouseButtonPressed);
+    input.set_function("IsMouseButtonHeld", event::isMouseButtonHeld);
+    input.set_function("IsMouseButtonReleased", event::isMouseButtonReleased);
+    input.set_function("GetMousePosition", event::getMousePosition);
+    input.set_function("GetMouseDelta", event::getMouseDelta);
 
     sol::table scan_code_table = lua.create_named_table("ScanCode");
     sol::table scan_code_metatable = lua.create_table_with();
@@ -114,6 +123,26 @@ bool script::init()
     scan_code_table[sol::metatable_key] = scan_code_metatable;
     
     // GLM bindings
+    lua.new_usertype<glm::vec2>("Vector2",
+        "new", sol::factories([](float x, float y) { return glm::vec2(x, y); }),
+
+        "zero", sol::factories([]() { return glm::vec2(0.0f, 0.0f); }),
+        "one", sol::factories([]() { return glm::vec2(1.0f, 1.0f); }),
+        "xAxis", sol::factories([]() { return glm::vec2(1.0f, 0.0f); }),
+        "yAxis", sol::factories([]() { return glm::vec2(0.0f, 1.0f); }),
+        "X", &glm::vec2::x,
+        "Y", &glm::vec2::y,
+        "Magnitude", &glm::vec2::length,
+        "Unit", sol::property([](const glm::vec2& vec) { return glm::normalize(vec); }),
+
+        sol::meta_function::addition, sol::resolve<glm::vec2(const glm::vec2&, const glm::vec2&)>(glm::operator+),
+        sol::meta_function::subtraction, sol::resolve<glm::vec2(const glm::vec2&, const glm::vec2&)>(glm::operator-),
+        sol::meta_function::multiplication, sol::resolve<glm::vec2(const glm::vec2&, const glm::vec2&)>(glm::operator*),
+        sol::meta_function::multiplication, sol::resolve<glm::vec2(const glm::vec2&, float)>(glm::operator*),
+        sol::meta_function::division, sol::resolve<glm::vec2(const glm::vec2&, const glm::vec2&)>(glm::operator/),
+        sol::meta_function::division, sol::resolve<glm::vec2(const glm::vec2&, float)>(glm::operator/)
+    );
+
     lua.new_usertype<glm::vec3>("Vector3",
         "new", sol::factories([](float x, float y, float z) { return glm::vec3(x, y, z); }),
 
