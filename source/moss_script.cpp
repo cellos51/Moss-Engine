@@ -2,6 +2,7 @@
 
 #include "event.hpp"
 #include "moss_entity.hpp"
+#include "moss_camera.hpp"
 
 #define SOL_ALL_SAFETIES_ON 1
 #include <sol/sol.hpp>
@@ -55,25 +56,28 @@ class CursorProperties // This needs to be a class for some reason. SOL doesn't 
         SDL_Window* window = nullptr;
 };
 
-bool script::init(SDL_Window* window)
+bool script::init(SDL_Window* window, Renderer* renderer)
 {
     lua.open_libraries(sol::lib::base, sol::lib::package, sol::lib::math, sol::lib::string, sol::lib::table);
 
     // Moss Engine bindings
     lua.new_usertype<Entity>("Entity",
-        "new", sol::factories([]() { return entity::createEntity();}),
+        "new", sol::factories([]() { return entity::createEntity(); }),
         "Destroy", &entity::destroyEntity,
         "Transform", &Entity::transform
     );
 
     lua.new_usertype<Transform>("Transform",
-        "EulerAngles", sol::property(
-        [](const Transform& transform) { return glm::eulerAngles(transform.rotation); },
-        [](Transform& transform, const glm::vec3& eulerAngles) { transform.rotation = glm::quat(eulerAngles); }
-        ),
-        "Position", &Transform::position,
-        "Rotation", &Transform::rotation,
-        "Scale", &Transform::scale
+        "LocalEulerAngles", sol::property(&Transform::getLocalEulerAngles, &Transform::setLocalEulerAngles),
+        "LocalPosition", sol::property(&Transform::getLocalPosition, &Transform::setLocalPosition),
+        "LocalRotation", sol::property(&Transform::getLocalRotation, &Transform::setLocalRotation),
+        "LocalScale", sol::property(&Transform::getLocalScale, &Transform::setLocalScale),
+
+        "EulerAngles", sol::property(&Transform::getEulerAngles, &Transform::setEulerAngles),
+        "Position", sol::property(&Transform::getPosition, &Transform::setPosition),
+        "Rotation", sol::property(&Transform::getRotation, &Transform::setRotation),
+        
+        "Parent", sol::property(&Transform::getParent, &Transform::setParent)
     );
 
     lua.new_usertype<CallbackConnection>("CallbackConnection",

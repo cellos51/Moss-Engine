@@ -1,10 +1,12 @@
 #include "moss_entity.hpp"
+#include "moss_camera.hpp" // this is a bandaid solution but it works for now
 
 #include <vector>
 #include <memory>
 
 static std::vector<std::unique_ptr<Entity>> entities;
 
+// Entity functions
 Entity* entity::createEntity()
 {
     entities.push_back(std::make_unique<Entity>());

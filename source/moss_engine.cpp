@@ -3,6 +3,7 @@
 #include "event.hpp"
 #include "tick.hpp"
 #include "moss_entity.hpp"
+#include "moss_camera.hpp"
 #include "moss_script.hpp"
 
 #include <iostream>
@@ -83,7 +84,7 @@ bool MossEngine::init(int argc, char* argv[])
         return false;
     }
 
-    if (!script::init(window)) 
+    if (!script::init(window, renderer.get())) 
     {
         std::cerr << "Failed to initialize lua.\n";
         return false;
@@ -104,8 +105,6 @@ void MossEngine::run()
         tick::tick();
 
         // Loops
-        update(tick::deltaTime());
-
         double fixedDeltaTime = 1.0 / tickrate;
         static double accumulator = 0.0;
         accumulator += tick::deltaTime64();
@@ -116,20 +115,18 @@ void MossEngine::run()
             accumulator -= fixedDeltaTime;
         }
 
-        // Rendering
-        if (event::isWindowMinimized()) // Don't render if the window is minimized
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            continue;
-        }
+        update(tick::deltaTime());
 
-        for (auto* entity : entity::getEntities())
-        {
-            renderer->drawEntity(entity);
-        }
+        static Camera* camera = renderer->getCamera();
+        camera->transform.setRotation(camera->transform.getRotation() * glm::quat(glm::vec3(0.0f, glm::radians(0.1f), 0.0f)));
 
-        if (!renderer->drawFrame()) {return;}
+        render();
     }
+}
+
+void MossEngine::fixed_update(float deltaTime)
+{
+    script::processFixedUpdate(deltaTime);
 }
 
 void MossEngine::update(float deltaTime) 
@@ -137,9 +134,20 @@ void MossEngine::update(float deltaTime)
     script::processUpdate(deltaTime);
 }
 
-void MossEngine::fixed_update(float deltaTime)
+void MossEngine::render()
 {
-    script::processFixedUpdate(deltaTime);
+    if (event::isWindowMinimized()) // Don't render if the window is minimized
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        return;
+    }
+
+    for (auto* entity : entity::getEntities())
+    {
+        renderer->drawEntity(entity);
+    }
+
+    if (!renderer->drawFrame()) {event::quit();}
 }
 
 void MossEngine::cleanup()

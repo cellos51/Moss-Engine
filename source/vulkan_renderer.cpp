@@ -774,6 +774,8 @@ bool VulkanRenderer::create_graphics_pipeline()
 // Drawing functions
 void VulkanRenderer::draw_geometry(VkCommandBuffer command_buffer, VkImageView image_view)
 {
+    if (camera == nullptr) { return; }
+
     VkClearValue clear_value = {{ 0.0f, 0.0f, 0.0f, 1.0f }};
 
     VkRenderingAttachmentInfo color_attachment_info{};
@@ -823,9 +825,10 @@ void VulkanRenderer::draw_geometry(VkCommandBuffer command_buffer, VkImageView i
 
     disp.cmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline);
 
-    glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f), swapchain.extent.width / (float)swapchain.extent.height, 0.1f, 10.0f);
-    projection[1][1] *= -1; // Flip the y-axis
+    glm::mat4 view = camera->getViewMatrix();
+    glm::mat4 projection = glm::perspective(glm::radians(camera->fov), swapchain.extent.width / (float)swapchain.extent.height, camera->near_clip, camera->far_clip);
+
+    projection[1][1] *= -1; // Flip the y-axis 
 
     disp.cmdPushConstants(command_buffer, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4), &view);
     disp.cmdPushConstants(command_buffer, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, sizeof(glm::mat4), sizeof(glm::mat4), &projection);

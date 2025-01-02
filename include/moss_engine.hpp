@@ -14,8 +14,9 @@ public:
 	void run();
 	void cleanup();
 private:
-	void update(float deltaTime);
 	void fixed_update(float deltaTime);
+	void update(float deltaTime);
+	void render();
 
 	bool isInitialized = false;
 	bool stopRendering = false;

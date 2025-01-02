@@ -1,6 +1,7 @@
 #pragma once
 
 #include "moss_entity.hpp"
+#include "moss_camera.hpp"
 #include "mesh.hpp"
 
 #include <vulkan/vulkan.h>
@@ -14,6 +15,7 @@
 #include <vector>
 #include <array>
 #include <iostream>
+#include <memory>
 
 class Renderer
 {
@@ -22,8 +24,11 @@ public:
     virtual void drawEntity(Entity* entity) = 0;
     virtual bool drawFrame() = 0;
     virtual void cleanup() = 0;
+    virtual void setCamera(Camera* camera) { this->camera.reset(camera); }
+    virtual Camera* getCamera() { return camera.get(); }
 protected:
-    SDL_Window* window;
+    std::unique_ptr<Camera> camera = std::make_unique<Camera>();
+    SDL_Window* window = nullptr;
 };
 
 class VulkanRenderer: public Renderer

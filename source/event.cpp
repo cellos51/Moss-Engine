@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <iostream>
 
-static bool quit = false;
+static bool isQuitting = false;
 static bool minimized = false;
 
 static bool keyPressedStates[SDL_SCANCODE_COUNT] = {0};
@@ -62,15 +62,20 @@ void event::pollEvent()
                 minimized = false;
                 break;
             case SDL_EVENT_QUIT:
-                quit = true;
+                isQuitting = true;
                 break;
         }
     }
 }
 
+void event::quit()
+{
+    isQuitting = true;
+}
+
 bool event::shouldQuit()
 {
-    return quit;
+    return isQuitting;
 }
 
 bool event::isWindowMinimized()

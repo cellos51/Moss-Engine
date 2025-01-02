@@ -6,6 +6,7 @@
 namespace event
 {
     void pollEvent();
+    void quit();
     bool shouldQuit();
     bool isWindowMinimized();
     bool isKeyPressed(SDL_Scancode key); // Returns true for the first frame the key is pressed
