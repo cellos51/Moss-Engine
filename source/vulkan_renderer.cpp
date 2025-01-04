@@ -28,6 +28,7 @@ static const int MAX_INSTANCES = 4096; // zomg zo many!!!111 :3 :3 :3 XDDDD :P c
 bool VulkanRenderer::init(SDL_Window* window)
 {
 	this->window = window;
+    this->camera = new Camera();
 
 	if (!init_device()) { return false; }
     if (!get_queues()) { return false; }

@@ -117,9 +117,6 @@ void MossEngine::run()
 
         update(tick::deltaTime());
 
-        static Camera* camera = renderer->getCamera();
-        camera->transform.setRotation(camera->transform.getRotation() * glm::quat(glm::vec3(0.0f, glm::radians(0.1f), 0.0f)));
-
         render();
     }
 }

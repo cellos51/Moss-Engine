@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+#include <memory>
+
 class Transform
 {
 public:
@@ -23,6 +25,10 @@ public:
     void setPosition(const glm::vec3& value) { position = value; }
     glm::quat getRotation() const { if (parent) { return rotation * parent->getRotation(); } else { return rotation; } }
     void setRotation(const glm::quat& value) { rotation = value; }
+
+    glm::vec3 getForward() const { return rotation * glm::vec3(0.0f, 0.0f, -1.0f); }
+    glm::vec3 getRight() const { return rotation * glm::vec3(1.0f, 0.0f, 0.0f); }
+    glm::vec3 getUp() const { return rotation * glm::vec3(0.0f, 1.0f, 0.0f); }
 
     Transform* getParent() const { return parent; }
     void setParent(Transform* value) { parent = value; }
@@ -53,14 +59,15 @@ private:
 class Entity
 {
 public:
-    Transform transform;
+    Entity();
+    void destroy();
     virtual const char* getClass() const { return "Entity"; }
+
+    Transform transform;
 };
 
 namespace entity
 {
-    Entity* createEntity();
-    void destroyEntity(Entity* entity);
     std::vector<Entity*> getEntities();
     void clearEntities();
 }

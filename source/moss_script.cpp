@@ -62,8 +62,8 @@ bool script::init(SDL_Window* window, Renderer* renderer)
 
     // Moss Engine bindings
     lua.new_usertype<Entity>("Entity",
-        "new", sol::factories([]() { return entity::createEntity(); }),
-        "Destroy", &entity::destroyEntity,
+        "new", sol::factories([]() { return new Entity(); }),
+        "Destroy", &Entity::destroy,
         "Transform", &Entity::transform
     );
 
@@ -76,8 +76,22 @@ bool script::init(SDL_Window* window, Renderer* renderer)
         "EulerAngles", sol::property(&Transform::getEulerAngles, &Transform::setEulerAngles),
         "Position", sol::property(&Transform::getPosition, &Transform::setPosition),
         "Rotation", sol::property(&Transform::getRotation, &Transform::setRotation),
+
+        "Forward", sol::property(&Transform::getForward),
+        "Right", sol::property(&Transform::getRight),
+        "Up", sol::property(&Transform::getUp),
         
         "Parent", sol::property(&Transform::getParent, &Transform::setParent)
+    );
+
+    lua.new_usertype<Camera>("Camera",
+        "new", sol::factories([]() { return new Camera(); }),
+        "Destroy", &Camera::destroy,
+        "ViewMatrix", &Camera::getViewMatrix,
+        "Transform", &Camera::transform,
+        "FieldOfView", &Camera::fov,
+        "NearClipPlane", &Camera::near_clip,
+        "FarClipPlane", &Camera::far_clip
     );
 
     lua.new_usertype<CallbackConnection>("CallbackConnection",
@@ -89,25 +103,28 @@ bool script::init(SDL_Window* window, Renderer* renderer)
         "Connect", &CallbackSignal::Connect
     );
 
-    sol::table callback = lua.create_named_table("Callback");
-    callback.set("Update", CallbackSignal(&update_callbacks));
-    callback.set("FixedUpdate", CallbackSignal(&fixed_update_callbacks));
-    
+    sol::table callback_table = lua.create_named_table("Callback");
+    callback_table.set("Update", CallbackSignal(&update_callbacks));
+    callback_table.set("FixedUpdate", CallbackSignal(&fixed_update_callbacks));
+
+    sol::table renderer_table = lua.create_named_table("Renderer");
+    renderer_table.set("Camera", renderer->camera);
+
     lua.set("Cursor", CursorProperties(window));
     lua.new_usertype<CursorProperties>("CursorProperties",
         "Locked", sol::property(&CursorProperties::GetLocked, &CursorProperties::SetLocked),
         "Visible", sol::property(&CursorProperties::GetVisible, &CursorProperties::SetVisible)
     );
 
-    sol::table input = lua.create_named_table("Input");
-    input.set_function("IsKeyPressed", event::isKeyPressed);
-    input.set_function("IsKeyHeld", event::isKeyHeld);
-    input.set_function("IsKeyReleased", event::isKeyReleased);
-    input.set_function("IsMouseButtonPressed", event::isMouseButtonPressed);
-    input.set_function("IsMouseButtonHeld", event::isMouseButtonHeld);
-    input.set_function("IsMouseButtonReleased", event::isMouseButtonReleased);
-    input.set_function("GetMousePosition", event::getMousePosition);
-    input.set_function("GetMouseDelta", event::getMouseDelta);
+    sol::table input_table = lua.create_named_table("Input");
+    input_table.set_function("IsKeyPressed", event::isKeyPressed);
+    input_table.set_function("IsKeyHeld", event::isKeyHeld);
+    input_table.set_function("IsKeyReleased", event::isKeyReleased);
+    input_table.set_function("IsMouseButtonPressed", event::isMouseButtonPressed);
+    input_table.set_function("IsMouseButtonHeld", event::isMouseButtonHeld);
+    input_table.set_function("IsMouseButtonReleased", event::isMouseButtonReleased);
+    input_table.set_function("GetMousePosition", event::getMousePosition);
+    input_table.set_function("GetMouseDelta", event::getMouseDelta);
 
     sol::table scan_code_table = lua.create_named_table("ScanCode");
     sol::table scan_code_metatable = lua.create_table_with();

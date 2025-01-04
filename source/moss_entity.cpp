@@ -7,17 +7,16 @@
 static std::vector<std::unique_ptr<Entity>> entities;
 
 // Entity functions
-Entity* entity::createEntity()
+Entity::Entity() : transform()
 {
-    entities.push_back(std::make_unique<Entity>());
-    return entities.back().get();
+    entities.push_back(std::unique_ptr<Entity>(this));
 }
 
-void entity::destroyEntity(Entity* entity)
+void Entity::destroy() // This doesn't work
 {
     for (auto it = entities.begin(); it != entities.end(); it++)
     {
-        if (it->get() == entity)
+        if (it->get() == this)
         {
             entities.erase(it);
             return;

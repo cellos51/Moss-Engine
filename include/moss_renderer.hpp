@@ -24,10 +24,9 @@ public:
     virtual void drawEntity(Entity* entity) = 0;
     virtual bool drawFrame() = 0;
     virtual void cleanup() = 0;
-    virtual void setCamera(Camera* camera) { this->camera.reset(camera); }
-    virtual Camera* getCamera() { return camera.get(); }
+
+    Camera* camera = nullptr;
 protected:
-    std::unique_ptr<Camera> camera = std::make_unique<Camera>();
     SDL_Window* window = nullptr;
 };
 
