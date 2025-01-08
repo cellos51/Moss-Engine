@@ -1,6 +1,6 @@
 #pragma once
 
-#include "moss_entity.hpp"
+#include "moss_mesh_instance.hpp"
 #include "moss_camera.hpp"
 #include "mesh.hpp"
 
@@ -21,7 +21,7 @@ class Renderer
 {
 public:
     virtual bool init(SDL_Window* window) = 0;
-    virtual void drawEntity(Entity* entity) = 0;
+    virtual void drawEntity(MeshInstance* entity) = 0;
     virtual bool drawFrame() = 0;
     virtual void cleanup() = 0;
 
@@ -34,7 +34,7 @@ class VulkanRenderer: public Renderer
 {
 public:
     bool init(SDL_Window* window) override;
-    void drawEntity(Entity* entity) override;
+    void drawEntity(MeshInstance* entity) override;
     bool drawFrame() override;
     void cleanup() override;
 private:
@@ -129,15 +129,15 @@ private:
     AllocatedBuffer index_buffer;
     VkDeviceSize dynamic_alignment;
     std::vector<AllocatedBuffer> uniform_buffers;
-    std::unordered_map<size_t, MeshRegion> mesh_regions; // Example implementation for multiple meshes
-    std::vector<Entity*> entities; // Example implementation for drawing multiple entities
+    std::unordered_map<std::string, MeshRegion> mesh_regions; // Example implementation for multiple meshes
+    std::vector<MeshInstance*> entities; // Example implementation for drawing multiple entities
 };
 
 class OpenGLRenderer: public Renderer
 {
 public:
     bool init(SDL_Window* window) override;
-    void drawEntity(Entity* entity) override;
+    void drawEntity(MeshInstance* entity) override;
     bool drawFrame() override;
     void cleanup() override;
 private:
@@ -280,5 +280,5 @@ private:
     GLuint VAO, VBO, EBO;
     Pipeline default_pipeline;
     std::vector<MeshObject> meshes;
-    std::vector<Entity*> entities;
+    std::vector<MeshInstance*> entities;
 };

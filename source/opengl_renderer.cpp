@@ -22,7 +22,7 @@ bool OpenGLRenderer::init(SDL_Window* window)
     return true;
 }
 
-void OpenGLRenderer::drawEntity(Entity* entity)
+void OpenGLRenderer::drawEntity(MeshInstance* entity)
 {
     entities.push_back(entity);
 }

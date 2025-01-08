@@ -70,7 +70,7 @@ bool MossEngine::init(int argc, char* argv[])
         std::string new_title = std::string(title) + " (OpenGL)";
         SDL_SetWindowTitle(window, new_title.c_str());   
 
-        renderer = std::make_unique<OpenGLRenderer>();
+        renderer = std::make_unique<OpenGLRenderer>(); // This is currently SUPER work in progress and far behind Vulkan but is planned to have full feature parity
     }
     else 
     {
@@ -141,7 +141,10 @@ void MossEngine::render()
 
     for (auto* entity : entity::getEntities())
     {
-        renderer->drawEntity(entity);
+        if (strcmp(entity->getClass(), "MeshInstance") == 0)
+        {
+            renderer->drawEntity(static_cast<MeshInstance*>(entity));
+        }
     }
 
     if (!renderer->drawFrame()) {event::quit();}

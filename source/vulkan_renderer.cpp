@@ -1,5 +1,6 @@
 #include "moss_renderer.hpp"
 
+#include "globals.hpp"
 #include "util.hpp"
 #include "mesh.hpp"
 
@@ -45,7 +46,7 @@ bool VulkanRenderer::init(SDL_Window* window)
 	return true;
 }
 
-void VulkanRenderer::drawEntity(Entity* entity)
+void VulkanRenderer::drawEntity(MeshInstance* entity)
 {
     entities.push_back(entity);
 }
@@ -353,10 +354,16 @@ bool VulkanRenderer::prepare_images()
 bool VulkanRenderer::create_mesh_buffers() 
 {
     std::vector<Mesh> meshes;
+    std::vector<std::string> mesh_dirs;
 
-    //meshes.push_back(mesh::createSquare());
-    //meshes.push_back(mesh::loadGltf("assets/models/monkey.glb"));
-    meshes.push_back(mesh::loadGltf("assets/models/icosphere.glb"));
+    for (const auto& entry : std::filesystem::recursive_directory_iterator(MODELS_DIR))
+    {
+        if (entry.is_regular_file() && entry.path().extension() == ".glb")
+        {
+            meshes.push_back(mesh::loadGltf(entry.path()));
+            mesh_dirs.push_back(std::filesystem::relative(entry.path(), MODELS_DIR).generic_string()); // TODO: Change this to be a component of the Mesh class (Mesh::path)
+        }
+    }
     
     std::vector<Vertex> vertices;
     std::vector<Index> indices;
@@ -379,7 +386,7 @@ bool VulkanRenderer::create_mesh_buffers()
         region.index_offset = current_index_offset * sizeof(Index);
         region.index_count = meshes[i].indices.size();
 
-        mesh_regions.insert({ i, region });
+        mesh_regions.insert({ mesh_dirs[i], region });
 
         vertex_offset += meshes[i].vertices.size();
     }
@@ -837,8 +844,6 @@ void VulkanRenderer::draw_geometry(VkCommandBuffer command_buffer, VkImageView i
     VkDeviceSize buffer_offset = 0;
     disp.cmdBindVertexBuffers(command_buffer, 0, 1, &vertex_buffer.buffer, &buffer_offset);
 
-    size_t mesh_index = 0;
-
     std::vector<UniformBufferObject> ubos;
     for (size_t i = 0; i < entities.size(); i++)
     {
@@ -848,7 +853,7 @@ void VulkanRenderer::draw_geometry(VkCommandBuffer command_buffer, VkImageView i
         ubo.model = entities[i]->transform.getMatrix();
         ubos.push_back(ubo);
 
-        if (mesh_regions.find(mesh_index) != mesh_regions.end())
+        if (mesh_regions.find(entities[i]->mesh) != mesh_regions.end())
         {
             UniformBufferObject ubo{};
             ubo.model = entities[i]->transform.getMatrix();
@@ -856,8 +861,8 @@ void VulkanRenderer::draw_geometry(VkCommandBuffer command_buffer, VkImageView i
             uint32_t dynamic_offset = i * dynamic_alignment;
             disp.cmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &descriptor_sets[current_frame], 1, &dynamic_offset);
 
-            disp.cmdBindIndexBuffer(command_buffer, index_buffer.buffer, mesh_regions[mesh_index].index_offset, VK_INDEX_TYPE_UINT32);
-            disp.cmdDrawIndexed(command_buffer, mesh_regions[mesh_index].index_count, 1, 0, 0, 0);
+            disp.cmdBindIndexBuffer(command_buffer, index_buffer.buffer, mesh_regions[entities[i]->mesh].index_offset, VK_INDEX_TYPE_UINT32);
+            disp.cmdDrawIndexed(command_buffer, mesh_regions[entities[i]->mesh].index_count, 1, 0, 0, 0);
         }
     }
 

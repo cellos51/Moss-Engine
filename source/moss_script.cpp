@@ -3,6 +3,7 @@
 #include "event.hpp"
 #include "moss_entity.hpp"
 #include "moss_camera.hpp"
+#include "moss_mesh_instance.hpp"
 
 #define SOL_ALL_SAFETIES_ON 1
 #include <sol/sol.hpp>
@@ -87,11 +88,18 @@ bool script::init(SDL_Window* window, Renderer* renderer)
     lua.new_usertype<Camera>("Camera",
         "new", sol::factories([]() { return new Camera(); }),
         "Destroy", &Camera::destroy,
-        "ViewMatrix", &Camera::getViewMatrix,
         "Transform", &Camera::transform,
+        "ViewMatrix", &Camera::getViewMatrix,
         "FieldOfView", &Camera::fov,
         "NearClipPlane", &Camera::near_clip,
         "FarClipPlane", &Camera::far_clip
+    );
+
+    lua.new_usertype<MeshInstance>("MeshInstance",
+        "new", sol::factories([]() { return new MeshInstance(); }),
+        "Destroy", &MeshInstance::destroy,
+        "Transform", &MeshInstance::transform,
+        "Mesh", &MeshInstance::mesh
     );
 
     lua.new_usertype<CallbackConnection>("CallbackConnection",
@@ -153,8 +161,8 @@ bool script::init(SDL_Window* window, Renderer* renderer)
         "yAxis", sol::factories([]() { return glm::vec2(0.0f, 1.0f); }),
         "X", &glm::vec2::x,
         "Y", &glm::vec2::y,
-        "Magnitude", &glm::vec2::length,
-        "Unit", sol::property([](const glm::vec2& vec) { return glm::normalize(vec); }),
+        "Magnitude", sol::property([](const glm::vec2& vec) { return glm::length(vec); }),
+        "Unit", sol::property([](const glm::vec2& vec) { return glm::length(vec) > 0.0f ? glm::normalize(vec) : glm::vec2(0.0f); }),
 
         sol::meta_function::addition, sol::resolve<glm::vec2(const glm::vec2&, const glm::vec2&)>(glm::operator+),
         sol::meta_function::subtraction, sol::resolve<glm::vec2(const glm::vec2&, const glm::vec2&)>(glm::operator-),
@@ -175,8 +183,8 @@ bool script::init(SDL_Window* window, Renderer* renderer)
         "X", &glm::vec3::x,
         "Y", &glm::vec3::y,
         "Z", &glm::vec3::z,
-        "Magnitude", &glm::vec3::length,
-        "Unit", sol::property([](const glm::vec3& vec) { return glm::normalize(vec); }),
+        "Magnitude", sol::property([](const glm::vec3& vec) { return glm::length(vec); }),
+        "Unit", sol::property([](const glm::vec3& vec) { return glm::length(vec) > 0.0f ? glm::normalize(vec) : glm::vec3(0.0f); }),
 
         sol::meta_function::addition, sol::resolve<glm::vec3(const glm::vec3&, const glm::vec3&)>(glm::operator+),
         sol::meta_function::subtraction, sol::resolve<glm::vec3(const glm::vec3&, const glm::vec3&)>(glm::operator-),

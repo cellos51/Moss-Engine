@@ -21,8 +21,8 @@ struct Mesh
     std::vector<Index> indices;
 };
 
-namespace mesh
+namespace mesh 
 {
-    Mesh loadGltf(std::filesystem::path path);
+    Mesh loadGltf(std::filesystem::path path); // TODO: Make this a class method
     Mesh createSquare();
 }
