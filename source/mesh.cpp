@@ -115,20 +115,3 @@ Mesh mesh::loadGltf(std::filesystem::path path)
 
     return gltfMesh;
 }
-
-Mesh mesh::createSquare()
-{
-    Mesh mesh;
-
-    mesh.vertices = 
-    {
-        { { -0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-        { { 0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-        { { 0.5f, 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } },
-        { { -0.5f, 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } }
-    };
-
-    mesh.indices = { 0, 1, 2, 2, 3, 0 };
-
-    return mesh;
-}

@@ -1,5 +1,6 @@
 #include "moss_script.hpp"
 
+#include "globals.hpp"
 #include "event.hpp"
 #include "moss_entity.hpp"
 #include "moss_camera.hpp"
@@ -204,7 +205,7 @@ bool script::init(SDL_Window* window, Renderer* renderer)
     );
 
     // Load Lua scripts
-    for (const auto& entry : std::filesystem::recursive_directory_iterator("assets/scripts"))
+    for (const auto& entry : std::filesystem::recursive_directory_iterator(SCRIPTS_DIR))
     {
         if (entry.is_regular_file() && entry.path().extension() == ".lua")
         {

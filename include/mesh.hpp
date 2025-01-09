@@ -23,6 +23,5 @@ struct Mesh
 
 namespace mesh 
 {
-    Mesh loadGltf(std::filesystem::path path); // TODO: Make this a class method
-    Mesh createSquare();
+    Mesh loadGltf(std::filesystem::path path);
 }
