@@ -112,7 +112,7 @@ bool script::init(SDL_Window* window, Renderer* renderer)
         "Connect", &CallbackSignal::Connect
     );
 
-    sol::table callback_table = lua.create_named_table("Callback");
+    sol::table callback_table = lua.create_named_table("Callbacks");
     callback_table.set("Update", CallbackSignal(&update_callbacks));
     callback_table.set("FixedUpdate", CallbackSignal(&fixed_update_callbacks));
 
@@ -141,10 +141,7 @@ bool script::init(SDL_Window* window, Renderer* renderer)
     for (int i = 0; i < SDL_SCANCODE_COUNT; i++)
     {
         const char* name = SDL_GetScancodeName(static_cast<SDL_Scancode>(i));
-        if (name) 
-        {
-            scan_code_metatable[name] = static_cast<SDL_Scancode>(i);
-        }
+        scan_code_metatable[name] = static_cast<SDL_Scancode>(i);
     }
 
     scan_code_metatable[sol::meta_function::new_index] = NULL;

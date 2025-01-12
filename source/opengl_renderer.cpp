@@ -108,8 +108,7 @@ bool OpenGLRenderer::create_pipelines()
 
 bool OpenGLRenderer::create_meshes()
 {
-    //meshes.push_back(MeshObject(mesh::loadGltf("assets/models/monkey.glb")));
-    meshes.push_back(MeshObject(mesh::loadGltf("assets/models/icosphere.glb")));
+    meshes.push_back(MeshObject(loadGltf("assets/models/icosphere.glb")));
 
     return true;
 }

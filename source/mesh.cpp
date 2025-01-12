@@ -10,7 +10,7 @@
 
 static fastgltf::Parser parser;
 
-Mesh mesh::loadGltf(std::filesystem::path path)
+Mesh loadGltf(std::filesystem::path path)
 {
     Mesh gltfMesh;
 

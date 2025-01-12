@@ -360,7 +360,7 @@ bool VulkanRenderer::create_mesh_buffers()
     {
         if (entry.is_regular_file() && entry.path().extension() == ".glb")
         {
-            meshes.push_back(mesh::loadGltf(entry.path()));
+            meshes.push_back(loadGltf(entry.path()));
             mesh_dirs.push_back(std::filesystem::relative(entry.path(), MODELS_DIR).generic_string()); // TODO: Change this to be a component of the Mesh class (Mesh::path)
         }
     }

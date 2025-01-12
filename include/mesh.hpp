@@ -21,7 +21,4 @@ struct Mesh
     std::vector<Index> indices;
 };
 
-namespace mesh 
-{
-    Mesh loadGltf(std::filesystem::path path);
-}
+Mesh loadGltf(std::filesystem::path path);
