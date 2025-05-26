@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.30.0)
 project(moss-engine VERSION 0.1.0 LANGUAGES C CXX)
 
+set(CMAKE_GENERATOR_PLATFORM "x64")
+
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -31,15 +33,15 @@ include_directories(${Vulkan_INCLUDE_DIRS})
 # OpenGL
 find_package(OpenGL REQUIRED)
 
-# SOL2
-find_package(sol2 REQUIRED)
-
 # Lua
 find_package(Lua REQUIRED)
 
 # GLAD
 add_library(glad STATIC thirdparty/glad/src/gl.c)
 target_include_directories(glad PUBLIC thirdparty/glad/include)
+
+# SOL2
+add_subdirectory(thirdparty/sol2)
 
 # GLM
 add_subdirectory(thirdparty/glm)

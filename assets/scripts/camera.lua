@@ -1,4 +1,4 @@
-local sensitivity = 0.004
+local sensitivity = 0.002
 local speed = 10.0
 
 local camera = Renderer.Camera

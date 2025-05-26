@@ -1,4 +1,4 @@
-for i = 1, 1000 do
+for i = 1, 100 do
     local mesh = MeshInstance.new()
     mesh.Transform.Position = Vector3.new(math.random(-100, 100), math.random(-100, 100), math.random(-100, 100))
     

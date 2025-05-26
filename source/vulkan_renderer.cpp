@@ -855,9 +855,6 @@ void VulkanRenderer::draw_geometry(VkCommandBuffer command_buffer, VkImageView i
 
         if (mesh_regions.find(entities[i]->mesh) != mesh_regions.end())
         {
-            UniformBufferObject ubo{};
-            ubo.model = entities[i]->transform.getMatrix();
-
             uint32_t dynamic_offset = i * dynamic_alignment;
             disp.cmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &descriptor_sets[current_frame], 1, &dynamic_offset);
 
