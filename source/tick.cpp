@@ -1,6 +1,6 @@
 #include "tick.hpp"
 
-#include <SDL2/SDL_timer.h>
+#include <SDL3/SDL_timer.h>
 
 static double deltaTimeValue = 0.0;
 static double elapsedTime = 0.0;
