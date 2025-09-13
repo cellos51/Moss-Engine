@@ -12,6 +12,7 @@ Callbacks.Update:Connect(function(deltaTime)
         Cursor.Locked = true
 
         rotation = rotation + Vector3.new(-Input.GetMouseDelta().Y, -Input.GetMouseDelta().X, 0) * sensitivity
+        print(rotation)
         camera.Transform.EulerAngles = rotation
     else
         Cursor.Locked = false

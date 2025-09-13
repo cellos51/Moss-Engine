@@ -196,7 +196,7 @@ bool VulkanRenderer::init_device()
 						.set_engine_name("Moss Engine")
                         .request_validation_layers(enableValidationLayers)
                         .use_default_debug_messenger()
-						.require_api_version(1, 3, 0)
+						.require_api_version(1, 4, 0)
                         .build();
     if (!instance_ret) 
 	{

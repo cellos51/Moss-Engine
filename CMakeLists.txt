@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.30.0)
 project(moss-engine VERSION 0.1.0 LANGUAGES C CXX)
 
-set(CMAKE_GENERATOR_PLATFORM "x64")
+#set(CMAKE_GENERATOR_PLATFORM "X64")
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -17,18 +17,16 @@ set(CMAKE_CXX_FLAGS "-Wall")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-mwindows -O3 -DNDEBUG")
 
-# SDL2
-# find_package(SDL2 REQUIRED)
-# include_directories(${SDL2_INCLUDE_DIRS})
-
-# SDL3
-set(SDL3_DIR "C:/VulkanSDK/1.3.296.0/Lib/cmake/SDL3")
-find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3)
-include_directories(${SDL3_INCLUDE_DIRS})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
 
 # Vulkan
 find_package(Vulkan REQUIRED)
 include_directories(${Vulkan_INCLUDE_DIRS})
+
+# SDL3
+add_subdirectory(thirdparty/SDL)
+include_directories(thirdparty/SDL/include)
 
 # OpenGL
 find_package(OpenGL REQUIRED)
@@ -86,11 +84,10 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE -static-libgcc -static-libst
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE lua)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE sol2)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE glm)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE SDL3::SDL3)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE imgui)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenGL::GL) 
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE glad)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE SDL3::SDL3)
-# target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${SDL2_LIBRARIES})
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${Vulkan_LIBRARIES})
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE GPUOpen::VulkanMemoryAllocator)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE vk-bootstrap::vk-bootstrap)
@@ -101,7 +98,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE stb)
 function(compile_shader input_file output_file shader_stage)
     add_custom_command(
         OUTPUT ${output_file}
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/assets/shaders"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/shaders"
         COMMAND ${CMAKE_COMMAND} -E echo "Compiling shader: ${input_file}"
         COMMAND glslc -fshader-stage=${shader_stage} ${input_file} -o ${output_file}
         DEPENDS ${input_file}
@@ -127,7 +124,7 @@ foreach(SHADER ${SHADER_SOURCES})
         message(FATAL_ERROR "Unknown shader stage for shader: ${SHADER}")
     endif()
 
-    set(COMPILED_SHADER "${CMAKE_BINARY_DIR}/assets/shaders/${SHADER_NAME}.spv")
+    set(COMPILED_SHADER "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/shaders/${SHADER_NAME}.spv")
     compile_shader(${SHADER} ${COMPILED_SHADER} ${SHADER_STAGE})
     list(APPEND COMPILED_SHADERS ${COMPILED_SHADER})
 endforeach()
@@ -143,6 +140,6 @@ add_custom_command(
     TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_SOURCE_DIR}/assets
-        ${CMAKE_BINARY_DIR}/assets
+        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets
     COMMENT "Copying assets folder to build directory"
 )
