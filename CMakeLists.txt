@@ -32,7 +32,9 @@ include_directories(thirdparty/SDL/include)
 find_package(OpenGL REQUIRED)
 
 # Lua
-include_directories(thirdparty/lua)
+file(GLOB LUA_SOURCES CONFIGURE_DEPENDS thirdparty/lua/*.c)
+add_library(lua STATIC ${LUA_SOURCES})
+target_include_directories(lua PUBLIC thirdparty/lua)
 
 # GLAD
 add_library(glad STATIC thirdparty/glad/src/gl.c)
