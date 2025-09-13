@@ -24,4 +24,5 @@
 	url = https://github.com/libsdl-org/SDL
 [submodule "thirdparty/lua"]
 	path = thirdparty/lua
-	url = https://github.com/lua/lua/tree/v5.4
+	url = https://github.com/lua/lua.git
+	branch = v5.4
