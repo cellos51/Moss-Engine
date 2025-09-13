@@ -32,7 +32,7 @@ include_directories(thirdparty/SDL/include)
 find_package(OpenGL REQUIRED)
 
 # Lua
-find_package(Lua REQUIRED)
+include_directories(thirdparty/lua)
 
 # GLAD
 add_library(glad STATIC thirdparty/glad/src/gl.c)
