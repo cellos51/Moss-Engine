@@ -65,14 +65,12 @@ add_library(imgui STATIC)
 target_include_directories(imgui PUBLIC thirdparty/imgui)
 target_include_directories(imgui PUBLIC thirdparty/imgui/backends)
 
-target_sources(imgui PRIVATE 
-    thirdparty/imgui/imgui.h
-    thirdparty/imgui/imgui.cpp
+file(GLOB IMGUI_SOURCES CONFIGURE_DEPENDS 
+    thirdparty/imgui/*.cpp
+)
 
-    thirdparty/imgui/imgui_demo.cpp
-    thirdparty/imgui/imgui_draw.cpp
-    thirdparty/imgui/imgui_widgets.cpp
-    thirdparty/imgui/imgui_tables.cpp
+target_sources(imgui PRIVATE 
+    ${IMGUI_SOURCES}
     thirdparty/imgui/backends/imgui_impl_vulkan.cpp
     thirdparty/imgui/backends/imgui_impl_opengl3.cpp
     thirdparty/imgui/backends/imgui_impl_sdl3.cpp
