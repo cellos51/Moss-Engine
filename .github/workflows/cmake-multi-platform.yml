@@ -54,6 +54,12 @@ jobs:
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
+    - name: Install Linux dependencies
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libx11-dev libxext-dev libxrandr-dev libxss-dev libxcursor-dev libxinerama-dev libxi-dev libwayland-dev libdrm-dev libgbm-dev libgl1-mesa-dev libdbus-1-dev ibus-1.0-dev liburing-dev libunwind-dev
+
     - name: Install Vulkan SDK
       uses: humbletim/install-vulkan-sdk@v1.2
       with:
