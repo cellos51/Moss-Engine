@@ -25,14 +25,21 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
         build_type: [Release]
+        c_compiler: [gcc, cl]
         include:
           - os: windows-latest
-            c_compiler: "C:/msys64/mingw64/bin/gcc.exe"
-            cpp_compiler: "C:/msys64/mingw64/bin/g++.exe"
+            c_compiler: cl
+            cpp_compiler: cl
           - os: ubuntu-latest
             c_compiler: gcc
             cpp_compiler: g++
-        exclude: []
+        exclude:
+          - os: windows-latest
+            c_compiler: gcc
+          - os: windows-latest
+            c_compiler: clang
+          - os: ubuntu-latest
+            c_compiler: cl
 
     steps:
     - uses: actions/checkout@v4
@@ -50,14 +57,6 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y libx11-dev libxext-dev libxrandr-dev libxss-dev libxcursor-dev libxinerama-dev libxi-dev libwayland-dev libdrm-dev libgbm-dev libgl1-mesa-dev libdbus-1-dev ibus-1.0-dev liburing-dev libunwind-dev
 
-    - name: Install MinGW-w64 (Windows)
-      if: runner.os == 'Windows'
-      run: |
-        choco install -y msys2
-        C:\msys64\usr\bin\bash -lc "pacman -Sy --noconfirm"
-        C:\msys64\usr\bin\bash -lc "pacman -S --noconfirm mingw-w64-x86_64-gcc"
-        echo "C:\msys64\mingw64\bin" >> $GITHUB_PATH
-
     - name: Install Vulkan SDK
       uses: humbletim/install-vulkan-sdk@v1.2
       with:
@@ -70,22 +69,14 @@ jobs:
         git submodule update --init --recursive
 
     - name: Configure CMake
-      run: |
-        if [ "$RUNNER_OS" = "Windows" ]; then
-          cmake -B ${{ steps.strings.outputs.build-output-dir }} ^
-            -G "MinGW Makefiles" ^
-            -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} ^
-            -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} ^
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ^
-            -S ${{ github.workspace }}
-        else
-          cmake -B ${{ steps.strings.outputs.build-output-dir }} \
-            -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
-            -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -S ${{ github.workspace }}
-        fi
-      shell: bash
+      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -S ${{ github.workspace }}
 
     - name: Build
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
