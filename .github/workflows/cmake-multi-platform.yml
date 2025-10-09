@@ -34,6 +34,7 @@ jobs:
           - os: ubuntu-latest
             c_compiler: gcc
             cpp_compiler: g++
+            generator_name: "Unix Makefiles"
 
     steps:
     - uses: actions/checkout@v4
